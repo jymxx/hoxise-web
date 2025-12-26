@@ -7,3 +7,9 @@ export function getAISummary(catalogId) {
   const eventSourceUrl = window.baseUrl+"/movie/ai/aiSummary?catalogid="+catalogId+"&token="+getToken();
   return new EventSource(eventSourceUrl);
 }
+
+// AI推荐
+export function aiRecommend(userText,chatId,mode = "chat") {
+  const eventSourceUrl = window.baseUrl+"/movie/ai/aiRecommend?userText="+userText+"&chatId="+chatId+"&mode="+mode+"&token="+getToken();
+  return new EventSource(eventSourceUrl);
+}

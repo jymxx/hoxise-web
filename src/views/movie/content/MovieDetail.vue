@@ -113,9 +113,6 @@
               <i class="el-icon-loading"></i> 
             </div>
           </div>
-          <!-- <el-button size="small" @click="stopAIGeneration" v-if="isAIGenerating" class="stop-button">
-            停止生成
-          </el-button> -->
         </div>
         
         <!-- 角色展示区域 -->
@@ -399,14 +396,6 @@ export default {
       
       this.aiEventSource.onmessage = (event) => {
         const data = event.data;
-        
-        // 检查是否是结束标记
-        if (data === '[DONE]') {
-          this.isAIGenerating = false;
-          this.aiEventSource.close();
-          return;
-        }
-        
         // 将接收到的数据追加到摘要文本中
         this.aiSummaryText += data;
       };
@@ -417,13 +406,6 @@ export default {
       };
     },
     
-    // 停止AI生成
-    stopAIGeneration() {
-      if (this.aiEventSource) {
-        this.aiEventSource.close();
-        this.isAIGenerating = false;
-      }
-    },
     //检查登录状态
     async checkLogin(){
       //先在本地查验
@@ -646,7 +628,7 @@ export default {
     .ai-summary-content {
         margin-bottom: 15px;
         position: relative;
-        background: linear-gradient(45deg, #6cb3ff, #8a2be2, #1abc9c, #ff6b6b, #6cb3ff);
+        background: linear-gradient(45deg, #6cb3ff, #8a2be2, #1abc9c, #ff6b6b, #ffa500, #e8469c, #00ff7f, #9370db, #6cb3ff);
         background-size: 400% 400%;
         animation: gradientShift 8s ease infinite;
         border-radius: 8px;

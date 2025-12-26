@@ -16,6 +16,7 @@
   "dependencies": {
     "animate.css": "^4.1.1",
     "axios": "^0.21.1",
+    "canvas-confetti": "^1.9.4",
     "core-js": "3.39.0",
     "element-ui": "^2.15.5",
     "highlight": "^0.2.4",
@@ -47,7 +48,7 @@
     "babel-eslint": "^10.1.0",
     "cross-env": "^7.0.3",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2", 
+    "eslint-plugin-vue": "^6.2.2",
     "postcss": "^7.0.39",
     "sass-loader": "7.3.1",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",

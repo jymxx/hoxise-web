@@ -4,7 +4,7 @@ import axios from 'axios';
 // 创建axios实例
 const service = axios.create({
     baseURL: window.baseUrl, // api的base_url
-    timeout: 20000 // 请求超时时间
+    timeout: 180000 // 请求超时时间
 });
 
 // request拦截器

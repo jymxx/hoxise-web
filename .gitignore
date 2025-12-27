@@ -43,3 +43,5 @@ package-lock.json
 .svn
 vue.config.js
 .prettierrc.json
+
+/hoxise-web/

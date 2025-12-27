@@ -4,6 +4,7 @@
 
       <!-- AI回复区域 -->
       <div class="ai-response-section">
+
         <div class="ai-response-box">
           <div class="ai-response-header">
             <img src="@/assets/images/icon/deepseek_log.png" class="ai-icon" />
@@ -15,8 +16,8 @@
                 effect="dark" 
                 placement="bottom">
                 <div slot="content">
-                  RAG模式: 检索增强生成，向大模型提供知识库作为参考 (本应用预先使用向量数据库过滤,文本向量模型: 通义千问-text-embedding-v4)<br>
-                  深度思考: 由大模型根据其本地知识库分析推荐
+                  RAG模式: 检索增强生成，向大模型提供本地知识库作为数据集 (本应用预先使用向量数据库过滤,文本向量模型: 通义千问-text-embedding-v4)<br>
+                  深度思考: 由大模型自行根据输入文本分析推荐
                 </div>
                 <i class="el-icon-question mode-info-icon"></i>
               </el-tooltip>
@@ -46,7 +47,7 @@
             </div>
           </div>
           
-          <!-- 搜索框放在回复区域内部 -->
+          <!-- 搜索框 -->
           <div class="ai-search-box">
             <el-input
               placeholder="开始对话..."
@@ -61,7 +62,7 @@
             </el-input>
           </div>
           
-          <div class="ai-response-content" :class="{ 'animated-gradient': aiResponseContent }">
+            <div class="ai-response-content" :class="{ 'animated-gradient': aiResponseContent }">
             <div v-if="isAIGenerating && !aiResponseContent" class="loading-placeholder">
               <div class="loading-spinner">
                 <div class="spinner"></div>
@@ -86,11 +87,44 @@
             </div>
             
             <div v-else v-html="aiResponseContent"></div>
+            
+            <!-- 当AI正在生成且已有内容时显示加载图标 -->
+            <div v-if="isAIGenerating && aiResponseContent" class="ai-generating-overlay">
+              <div class="generating-indicator">
+                <i class="el-icon-loading spinner-icon"></i>
+                <span>AI生成中...</span>
+              </div>
+            </div>
           </div>
+
+
+          <!-- AI推荐电影展示区域 -->
+            <div class="ai-movies-section" v-if="aiRecommendedMovies.length > 0">
+              <div class="ai-movie-grid">
+                <div 
+                  class="ai-movie-card" 
+                  v-for="movie in aiRecommendedMovies" 
+                  :key="movie.id"
+                  @click="viewMovieDetail(movie.catalogid)"
+                >
+                  <div class="movie-poster">
+                    <img :src="movie.posterUrl" :alt="movie.name" />
+                    <div class="movie-overlay">
+                      <div class="movie-info">
+                        <!-- <h4>{{ movie.name }}</h4>
+                        <p class="movie-rating">{{ movie.rating }}</p> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
         </div>
       </div>
       
+
+
       <!-- 影视展示区域 -->
       <div class="movie-showcase">
         <div class="featured-movies">
@@ -210,8 +244,10 @@ export default {
       isAIGenerating: false,
       suggestions: aiSuggestions,
       chatId: '', // 添加chatId变量
-      chatMode: 'chat',//chat 聊天模式 reasoner 分析模式
+      chatMode: 'reasoner',//chat 聊天模式 reasoner 分析模式
       randomSuggestions: [], // 添加随机建议数组
+      currentLoadAIResponse: '',//当前响应内容
+      aiRecommendedMovies: [], // AI推荐的电影列表
     }
   },
   mounted() {
@@ -272,13 +308,21 @@ export default {
         this.$emit('show-login');
         return;
       }
+
+      this.currentLoadAIResponse = '';//重置
       this.searchKeyword='';
+
       // 在新对话前添加分隔线和用户输入内容（HTML格式）
       if (this.aiResponseContent) {
         this.aiResponseContent += '<hr style="border: 0; border-top: 1px solid rgba(26, 188, 156, 0.3); margin: 15px 0;">';
       }
       this.aiResponseContent += `<strong style="color: #64b5f6;">用户:</strong> ${this.escapeHtml(userText)}<br><br><strong style="color: #81c784;">DeepSeek助手:</strong> `;
-      
+      //滚轮到底部
+      const contentDiv = this.$el.querySelector('.ai-response-content');
+      if (contentDiv) {
+        contentDiv.scrollTop = contentDiv.scrollHeight;
+      }
+
       this.showAIResponse = true;
       this.isAIGenerating = true;
       
@@ -295,12 +339,14 @@ export default {
             this.aiEventSource.close();
             this.aiEventSource = null;
           }
+          this.extractAndLoadMovies();
           return;
         }
         
         // 将接收到的数据追加到摘要文本中
         this.aiResponseContent += data;
-        
+        this.currentLoadAIResponse += data;
+
         // 确保内容区域滚动到底部
         this.$nextTick(() => {
           const contentDiv = this.$el.querySelector('.ai-response-content');
@@ -322,9 +368,43 @@ export default {
           this.isAIGenerating = false;
           this.aiEventSource = null;
         }
-          this.$message.error('AI服务异常');
+        this.$message.error('AI服务异常');
         
       };
+    },
+
+    // 提取并加载catalog信息
+    async extractAndLoadMovies() {
+        // 移除末尾的【...】格式（匹配任何以[开始以]结尾的内容）
+        if (this.aiResponseContent) {
+          // 使用正则表达式字面量，g 表示全局匹配
+          this.aiResponseContent = this.aiResponseContent.replace(/\[.*?\]/g, '');
+        }
+
+        // 从currentLoadAIResponse中提取ID数组，格式如[622,597,109]
+        // 匹配以[开始、以]结尾的字符串，中间包含数字和逗号
+        let idMatch = this.currentLoadAIResponse?.match(/\[.*?\]/);
+
+        if (idMatch) {
+          // 提取并解析ID数组
+          const idString = idMatch[0];
+          const movieIds = idString.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+          console.log(movieIds);
+          if (movieIds.length > 0) {
+            // 获取每个电影的详细信息
+            const moviePromises = movieIds.map(id => getMovieDetail(id));
+            const movieResponses = await Promise.all(moviePromises);
+            
+            // 过滤成功响应并提取电影数据
+            const movies = movieResponses
+              .filter(response => response.code === 200)
+              .map(response => response.data)
+              .filter(movie => movie); // 过滤掉可能的空值
+            
+            // 更新AI推荐的电影列表
+            this.aiRecommendedMovies = movies;
+        }
+      }
     },
 
      //开始新对话
@@ -344,6 +424,8 @@ export default {
       this.generateRandomChatId();
       //更新建议词
       this.updateRandomSuggestions();
+      //移除推荐
+      this.aiRecommendedMovies = [];
     },
     // 更新随机建议
     updateRandomSuggestions() {
@@ -412,6 +494,114 @@ export default {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     
+  //ai推荐
+  .ai-movies-section {
+      margin-bottom: 20px;
+      background-color: rgba(40, 40, 40, 0.7);
+      // border-radius: 8px;
+      padding: 15px;
+      // border: 1px solid rgba(26, 188, 156, 0.2);
+
+      .recommended-title {
+        color: #1abc9c;
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .ai-movie-grid {
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        padding: 5px 0;
+        white-space: nowrap;
+
+        &::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(26, 188, 156, 0.5);
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+          background: rgba(26, 188, 156, 0.8);
+        }
+      }
+
+      .ai-movie-card {
+        display: inline-block;
+        width: 80px;
+        height: 120px;
+        border-radius: 6px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        flex: 0 0 auto;
+
+        &:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+
+          .movie-overlay {
+            opacity: 1;
+          }
+        }
+
+        .movie-poster {
+          width: 100%;
+          height: 100%;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+        }
+
+        .movie-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+          opacity: 0.2;
+          transition: opacity 0.3s ease;
+          display: flex;
+          align-items: flex-end;
+          padding: 5px;
+
+          .movie-info {
+            width: 100%;
+            h4 {
+              font-size: 12px;
+              color: white;
+              margin: 0;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+
+            .movie-rating {
+              color: #ff9e02;
+              font-weight: bold;
+              font-size: 12px;
+              margin: 2px 0 0 0;
+            }
+          }
+        }
+      }
+    }
+
     .ai-response-header {
       display: flex;
       align-items: center;
@@ -730,9 +920,43 @@ export default {
       }
     }
 
+    .ai-generating-overlay {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 12px;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    .generating-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #1abc9c;
+      font-size: 14px;
+    }
+
+    .spinner-icon {
+      font-size: 16px;
+      animation: rotation 1s linear infinite;
+    }
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
   }
 
-  
+
+
   // 影片展示区域样式
   .movie-showcase {
     margin-top: 20px;

@@ -187,6 +187,7 @@
     
     <!-- 简单视频播放器弹窗 -->
     <SimpleVideoPlayer
+      v-if="showVideoPlayer"
       :visible="showVideoPlayer"
       :video-url="currentVideoUrl"
       :video-title="movieDetail ? movieDetail.nameCn : ''"
@@ -361,17 +362,14 @@ export default {
     
     // 视频播放回调
     onVideoPlay() {
-      console.log('视频开始播放');
     },
     
     // 视频暂停回调
     onVideoPause() {
-      console.log('视频暂停');
     },
     
     // 视频结束回调
     onVideoEnded() {
-      console.log('视频播放结束');
       // 可以在这里实现自动播放下一集等功能
     },
     

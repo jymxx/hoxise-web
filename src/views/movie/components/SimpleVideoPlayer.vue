@@ -98,7 +98,7 @@ export default {
         // 设置语言
         language: 'zh-CN',
         // 设置皮肤
-        notSupportedMessage: '此视频暂无法播放，请稍后再试',
+        notSupportedMessage: '此视频暂无法播放',
       }
     }
   },

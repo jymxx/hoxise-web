@@ -123,8 +123,6 @@
         </div>
       </div>
       
-
-
       <!-- 影视展示区域 -->
       <div class="movie-showcase">
         <div class="featured-movies">
@@ -197,6 +195,7 @@
         </div>
       </div>
       
+      <!-- 最近添加 -->
       <div class="remaining-content">
         <div class="remaining-label" @click="handleClickLastUpdate">最近添加 ></div>
         <div class="horizontal-scroll-container">
@@ -229,6 +228,8 @@ import { isLogin } from '@/api/auth';
 import { getToken } from '@/utils/auth';
 import aiSuggestions from '@/utils/constants/suggestions';
 
+import '@/assets/css/responsive-moviehome.css';
+
 export default {
   name: 'MovieHome',
   components: {
@@ -248,6 +249,7 @@ export default {
       randomSuggestions: [], // 添加随机建议数组
       currentLoadAIResponse: '',//当前响应内容
       aiRecommendedMovies: [], // AI推荐的电影列表
+      stopAddShow: false,//停止追加内容
     }
   },
   mounted() {
@@ -300,6 +302,7 @@ export default {
 
     // 获取AI推荐
     async getAIRecommendation(userText) {
+      this.stopAddShow = false;
       if (this.isAIGenerating) {
         return;
       }
@@ -342,9 +345,15 @@ export default {
           this.extractAndLoadMovies();
           return;
         }
-        
-        // 将接收到的数据追加到摘要文本中
-        this.aiResponseContent += data;
+
+        //不需要向用户显示末尾的字符
+        if(data === '['){
+            this.stopAddShow = true;
+        }
+        if (!this.stopAddShow){ 
+          // 将接收到的数据追加到摘要文本中
+          this.aiResponseContent += this.filterStr(data);
+        }
         this.currentLoadAIResponse += data;
 
         // 确保内容区域滚动到底部
@@ -368,11 +377,18 @@ export default {
           this.isAIGenerating = false;
           this.aiEventSource = null;
         }
+        
         this.$message.error('AI服务异常');
         
       };
     },
-
+    //过滤显示字符串
+    filterStr(str) { 
+      if(str == null){
+        return null
+      }
+      return str.replace(/\*/g, '').replace(/---/g, '').replace(/\#/g, '');
+    },
     // 提取并加载catalog信息
     async extractAndLoadMovies() {
         // 移除末尾的【...】格式（匹配任何以[开始以]结尾的内容）
@@ -388,8 +404,10 @@ export default {
         if (idMatch) {
           // 提取并解析ID数组
           const idString = idMatch[0];
-          const movieIds = idString.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
-          console.log(movieIds);
+          // 移除方括号后再处理
+          const cleanIdString = idString.replace(/^\[|\]$/g, '');
+          const movieIds = cleanIdString.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+
           if (movieIds.length > 0) {
             // 获取每个电影的详细信息
             const moviePromises = movieIds.map(id => getMovieDetail(id));
@@ -480,7 +498,7 @@ export default {
   
   .container {
     max-width: 2200px;
-    margin: 0 auto;
+    // margin: 0 auto;
   }
   
 // AI回复区域样式
@@ -994,6 +1012,7 @@ export default {
         gap: 20px;
         
         .movie-row {
+          height: 220px;
           display: flex;
           gap: 15px;
           flex: 1;
@@ -1233,54 +1252,5 @@ export default {
     }
   }
 }
-@media (max-width: 992px) {
-  .movie-home {
-    .movie-showcase .featured-movies {
-      flex-direction: column;
-      height: auto;
-      
-      .main-feature .featured-card {
-        height: 400px;
-      }
-      
-      .secondary-features .movie-row {
-        flex-wrap: wrap;
-        
-        .secondary-card {
-          flex: 0 0 calc(50% - 10px);
-          height: 200px;
-        }
-      }
-    }
-    
-    .remaining-content {
-      height: 30vh;
-    }
-  }
-}
 
-@media (max-width: 768px) {
-  .movie-home {
-    padding: 10px;
-    
-    .search-section .search-box {
-      max-width: 100%;
-    }
-    
-    .movie-showcase .featured-movies {
-      .main-feature .featured-card {
-        height: 300px;
-      }
-      
-      .secondary-features .movie-row .secondary-card {
-        flex: 0 0 100%;
-        height: 150px;
-      }
-    }
-    
-    .remaining-content p {
-      font-size: 18px;
-    }
-  }
-}
 </style>

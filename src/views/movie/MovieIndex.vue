@@ -16,28 +16,28 @@
           @go-allMovie="selectMenu"
           @go-detail="openDetail"
           ref="movieHomeRef"/>
-
-         <MovieLibrary
+        <!-- 影视库 -->
+        <MovieLibrary
            v-show="activeMenu=='library'"
            @go-detail="openDetail"
            :directory="searchDirectory"
          />
       </div>
+
       <!-- 详情 -->
-      <!-- 详情页面覆盖层 -->
-        <div 
-          v-if="showDetail" 
-          class="detail-overlay"
-          @click="detailGoBack()"
-        >
-          <div class="detail-content" @click.stop>
-            <MovieDetail 
-              :movie-id="movieId"
-              @show-login="showLoginDialog"
-              @go-back="detailGoBack()"
-            />
-          </div>
+      <div 
+        v-if="showDetail" 
+        class="detail-overlay"
+        @click="detailGoBack()"
+      >
+        <div class="detail-content" @click.stop>
+          <MovieDetail 
+            :movie-id="movieId"
+            @show-login="showLoginDialog"
+            @go-back="detailGoBack()"
+          />
         </div>
+      </div>
     </div>
 
     <!-- 短信登录弹窗 -->
@@ -80,17 +80,14 @@ export default {
           this.$refs.movieHomeRef.getRandomMovies();
           this.searchDirectory = '';
           break;
-        case 'anime':
-          this.searchDirectory = '动漫';
+        case 'library':
+          this.searchDirectory = '';
           break;
-        case 'animeMovie':
-          this.searchDirectory = '动漫电影';
-          break;
-        case 'tv':
-          this.searchDirectory = '日剧';
+        case 'history':
+          this.searchDirectory = '';
           break;
         default:
-          this.searchDirectory = '';
+          this.searchDirectory = key;
           break;
       }
       //处理key

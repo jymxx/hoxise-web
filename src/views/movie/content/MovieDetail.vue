@@ -394,6 +394,16 @@ export default {
       
       this.aiEventSource.onmessage = (event) => {
         const data = event.data;
+        // 检查是否是结束标记
+        if (data === '[DONE]') {
+          // 正常结束，关闭连接并重置状态
+          this.isAIGenerating = false;
+          if (this.aiEventSource) {
+            this.aiEventSource.close();
+            this.aiEventSource = null;
+          }
+          return;
+        }
         // 将接收到的数据追加到摘要文本中
         this.aiSummaryText += data;
       };
@@ -401,6 +411,7 @@ export default {
       this.aiEventSource.onerror = (error) => {
         this.isAIGenerating = false;
         this.aiEventSource.close();
+        this.$message.error('AI服务异常');
       };
     },
     
@@ -917,46 +928,4 @@ export default {
   }
 }
 
-@media (max-width: 1024px) {
-  .movie-detail {
-    .detail-content {
-      flex-direction: column;
-      
-      .main-content {
-        .character-section {
-          margin-top: 30px;
-        }
-      }
-      
-      .sidebar {
-        flex: none;
-        width: 100%;
-        margin-top: 20px;
-      }
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .movie-detail {
-    padding: 10px;
-    
-    .content-header {
-      flex-direction: column;
-      
-      .poster-section {
-        flex: 0 0 auto;
-        margin-bottom: 20px;
-      }
-    }
-    
-    .action-buttons {
-      flex-direction: column;
-      
-      .el-button {
-        width: 100%;
-      }
-    }
-  }
-}
 </style>

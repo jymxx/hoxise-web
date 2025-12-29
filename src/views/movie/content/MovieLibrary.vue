@@ -35,6 +35,7 @@
 <script>
 import { getLibrary } from '@/api/movie';
 
+import '@/assets/css/responsive-movielibrary.css';
 export default {
   name: 'MovieLibrary',
   props: {
@@ -96,7 +97,6 @@ export default {
   color: white;
   
   .container {
-    max-width: 2200px;
     margin: 0 auto;
   }
   
@@ -214,49 +214,4 @@ export default {
   }
 }
 
-@media (max-width: 992px) {
-  .movie-library {
-    .all-movies-grid {
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 15px;
-    }
-    
-    .movie-card .movie-poster {
-      height: 225px;
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .movie-library {
-    padding: 10px;
-    
-    .all-movies-grid {
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 10px;
-    }
-    
-    .movie-card .movie-poster {
-      height: 180px;
-    }
-    
-    .section-header h2 {
-      font-size: 20px;
-    }
-    
-    .movie-card .movie-info {
-      padding: 10px;
-    }
-    
-    .movie-card .movie-info h3 {
-      font-size: 14px;
-    }
-    
-    .movie-card .movie-poster .movie-details .movie-rating,
-    .movie-card .movie-poster .movie-details .movie-year {
-      font-size: 14px;
-      padding: 3px 8px;
-    }
-  }
-}
 </style>

@@ -1,4 +1,3 @@
-
 import Vue from 'vue'
 import App from './App.vue'
 import store from './store/index'
@@ -10,47 +9,42 @@ import 'video.js/dist/video-js.css'//视频播放器
 
 Vue.use(ElementUI)
 //配置请求的根路径
-axios.defaults.baseURL = window.rootpath
+axios.defaults.baseURL = window.baseUrl
 Vue.prototype.$axios = axios
 Vue.prototype.$store = store
 Vue.config.productionTip = false
 
-
-// 屏幕适配缩放函数
-function setScreenScale() {
-  // 基于设计稿的基准分辨率 (2160p = 2160x3840)
-  const designWidth = 3840;
-  const designHeight = 2160;
+// 设置根字体大小以适配不同分辨率
+// function setRootFontSize() {
+//   const screenWidth = window.screen.width;
   
-  // 获取当前屏幕分辨率
-  const screenWidth = window.screen.width;
-  const screenHeight = window.screen.height;
+//   // 设计稿宽度假设为3840px (4K)
+//   const designWidth = 3840;
+//   // 基准字体大小
+//   const baseFontSize = 16;
   
-  // 计算缩放比例（取宽度或高度中较小的比例）
-  const scaleX = screenWidth / designWidth;
-  const scaleY = screenHeight / designHeight;
-  const scale = Math.min(scaleX, scaleY);
+//   // 计算缩放比例
+//   const scale = screenWidth / designWidth;
   
-  // 应用缩放
-  const appElement = document.getElementById('app');
-  if (appElement) {
-    appElement.style.transform = `scale(${scale})`;
-    appElement.style.transformOrigin = 'top left';
-    appElement.style.width = `${designWidth}px`;
-    appElement.style.height = `${designHeight}px`;
-  }
+//   // 设置根字体大小
+//   const rootFontSize = baseFontSize * scale * 100; // 转换为百分比，更准确的缩放
   
-  // 设置body高度以适应缩放
-  document.body.style.height = `${designHeight * scale}px`;
-  document.body.style.overflow = 'scroll';
-}
+//   // 特定分辨率的优化
+//   if (screenWidth === 1920 && window.screen.height === 1080) {
+//     // 1080p屏幕下使用75%缩放效果
+//     document.documentElement.style.fontSize = '12px'; // 16 * 0.75
+//   } else if (screenWidth === 2560 && window.screen.height === 1440) {
+//     // 2K屏幕下使用85%缩放效果
+//     document.documentElement.style.fontSize = '13.6px'; // 16 * 0.85
+//   } else {
+//     // 其他分辨率使用计算值
+//     document.documentElement.style.fontSize = (baseFontSize * scale) + 'px';
+//   }
+// }
 
-// 初始化缩放
-setScreenScale();
-
-// 监听窗口大小变化
-// window.addEventListener('resize', setScreenScale);
-
+// // 页面加载和窗口大小改变时设置根字体大小
+// window.addEventListener('load', setRootFontSize);
+// window.addEventListener('resize', setRootFontSize);
 
 new Vue({
   el: '#app',

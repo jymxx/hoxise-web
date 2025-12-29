@@ -69,11 +69,10 @@ export default {
           icon: 'el-icon-video-play',
           count: '',
           children: [
-            { key: 'all', name: '全部', icon: 'el-icon-s-grid', count: '' },
+            { key: 'library', name: '全部', icon: 'el-icon-s-grid', count: '' },
             { key: 'anime', name: '动漫', icon: 'el-icon-star-off', count: '' },
             { key: 'animeMovie', name: '动漫电影', icon: 'el-icon-video-camera', count: '' },
-            { key: 'tv', name: '电视剧', icon: 'el-icon-monitor', count: '' },
-            // { key: 'film', name: '电影', icon: 'el-icon-film', count: '' }
+            { key: 'jpTV', name: '日剧', icon: 'el-icon-monitor', count: '' },
           ] 
         }
       ]
@@ -104,11 +103,10 @@ export default {
                 case 'animeMovie':
                   child.count = data.totalAnimeMovie || '';
                   break;
-                case 'tv':
-                  child.count = data.totalTV || '';
+                case 'jpTV':
+                  child.count = data.totalJpTV || '';
                   break;
-                case 'all':
-                  // 全部类别可以设为总数量或其他逻辑
+                case 'library':
                   child.count = data.totalCount || '';
                   break;
                 default:

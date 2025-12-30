@@ -15,7 +15,7 @@ const constantRoutes = [
  * */
 const createRouter = () =>
   new Router({
-    mode: 'hash',
+    mode: 'history',
     scrollBehavior: () => ({
       y: 0,
     }),

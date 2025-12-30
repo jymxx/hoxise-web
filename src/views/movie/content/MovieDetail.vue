@@ -15,7 +15,7 @@
           </div>
           
           <div class="info-section">
-            <h1 class="movie-title">{{ movieDetail.nameCn }}</h1>
+            <h1 class="movie-title">{{ movieDetail.nameCn || movieDetail.originalName }}</h1>
             <p class="original-title">{{ movieDetail.originalName }}</p>
             
             

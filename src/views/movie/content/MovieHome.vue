@@ -222,9 +222,9 @@
 </template>
 
 <script>
-import { randomQuery,lastUpdate,getMovieDetail } from '@/api/movie';
-import { aiRecommend } from '@/api/ai';
-import { isLogin } from '@/api/auth';
+import { randomQuery,lastUpdate,getMovieDetail } from '@/api/movie/movie';
+import { aiRecommend } from '@/api/movie/ai';
+import { isLogin } from '@/api/system/auth';
 import { getToken } from '@/utils/auth';
 import aiSuggestions from '@/utils/constants/suggestions';
 

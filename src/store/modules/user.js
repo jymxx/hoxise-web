@@ -3,7 +3,8 @@ const user = {
   state: {
     id: '', 
     name: '',
-    token:''
+    token:'',
+    roles:[]
 
   },
 
@@ -13,6 +14,9 @@ const user = {
     },
     SET_NAME: (state, name) => {
       state.name = name
+    },
+    SET_ROLES: (state, roles) => {
+      state.roles = roles
     }
   },
 }

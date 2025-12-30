@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div class="sidebar-header">
-      <h2 class="logo-text">风间</h2>
+      <h2 class="logo-text" @click="clickLogo">风间</h2>
     </div>
     
     <div class="movie-tabs">
@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { movieStat } from '@/api/movie'
+import { movieStat } from '@/api/movie/movie'
 export default {
   name: 'MovieTabs',
   data() {
@@ -60,7 +60,7 @@ export default {
       defaultActive: 'home',
       simpleMenuItems: [
         { key: 'home', name: '首页', icon: 'el-icon-menu' },
-        { key: 'history', name: '播放记录', icon: 'el-icon-film' }
+        { key: 'history', name: '收藏记录', icon: 'el-icon-film' }
       ],
       subMenuItems: [
         { 
@@ -120,7 +120,10 @@ export default {
     handleSelect(index){
         this.$emit('menu-selected', index);
     },
-    
+    // 点击logo
+    clickLogo(){
+        this.$emit('show-login');
+    }
   }
 }
 </script>

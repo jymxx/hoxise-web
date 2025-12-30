@@ -64,10 +64,9 @@
 </template>
 
 <script>
-import { loginBySms } from '@/api/auth'
-import { sendVerifyCode } from '@/api/sms'
-import { setToken } from '@/utils/auth'
-import store from '@/store/index'
+import { loginBySms } from '@/api/system/auth'
+import { sendVerifyCode } from '@/api/system/sms'
+import { setToken,setUserInfo } from '@/utils/auth'
 
 export default {
   name: 'SmsLoginDialog',
@@ -196,18 +195,14 @@ export default {
         if (response.code === 200) {
           // 登录成功，保存token
           setToken(response.data.token)
-          
-          // 更新用户信息到store
-          store.commit('SET_ID', response.data.userInfo.userId);
-          store.commit('SET_NAME', response.data.userInfo.userName);
+          //保存用户信息
+          setUserInfo(response.data.userInfo)
           
           this.$message.success('登录成功')
           this.hide()
           
-          // 触发登录成功事件
-          this.$emit('login', response.data)
         } else {
-          this.$message.error(response.message || '登录失败,请稍后重试')
+          this.$message.error(response.msg || '登录失败,请稍后重试')
         }
       } catch (error) {
         console.error('登录失败:', error)

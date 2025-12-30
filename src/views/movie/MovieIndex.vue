@@ -4,7 +4,8 @@
       <!-- 侧边栏 -->
       <div class="sidebar-wrapper">
         <MovieTabs
-        @menu-selected="selectMenu" 
+          @menu-selected="selectMenu" 
+          @show-login="showLoginDialog"
         />         
       </div>
       
@@ -21,6 +22,8 @@
            v-show="activeMenu=='library'"
            @go-detail="openDetail"
            :directory="searchDirectory"
+            @show-matching="showMatchingDialog"
+            ref="movieLibraryRef"
          />
       </div>
 
@@ -28,13 +31,14 @@
       <div 
         v-if="showDetail" 
         class="detail-overlay"
-        @click="detailGoBack()"
       >
         <div class="detail-content" @click.stop>
           <MovieDetail 
-            :movie-id="movieId"
+            :catalogid="detailCatalogid"
             @show-login="showLoginDialog"
+            @show-matching="showMatchingDialog"
             @go-back="detailGoBack()"
+            ref="movieDetailRef"
           />
         </div>
       </div>
@@ -43,17 +47,28 @@
     <!-- 短信登录弹窗 -->
     <SmsLoginDialog
       ref="smsLoginDialog"
-      @login="onLoginSuccess"
     />
+
+    <!-- 匹配组件 -->
+    <MovieMatchingDialog
+      v-if="showMatching"
+      :movieInfo="matchingMovie"
+      @close="showMatching = false"
+      @submitSuccess="matchingSuccess"
+    />
+
   </div>
 </template>
 
 <script>
+import { getUserInfo } from '@/api/system/user';
+import { getToken,setUserInfo } from '@/utils/auth'
 import MovieTabs from '@/views/movie/sidebar/MovieTabs.vue'
 import MovieHome from './content/MovieHome.vue';
 import MovieLibrary from './content/MovieLibrary.vue';
 import MovieDetail from './content/MovieDetail.vue';
 import SmsLoginDialog from '@/views/system/components/SmsLoginDialog.vue';
+import MovieMatchingDialog from '@/views/movie/components/MovieMatchingDialog.vue';
 export default {
   name: 'MovieIndex',
   components: {
@@ -61,19 +76,38 @@ export default {
     MovieHome,
     MovieLibrary,
     MovieDetail,
-    SmsLoginDialog
+    SmsLoginDialog,
+    MovieMatchingDialog,
+
   },
 
   data() {
     return {
       activeMenu: 'home',
       searchDirectory: '',//查询目录 动漫、动漫电影、日剧
-      movieId: '',//影视id,
-      showDetail: false
+      detailCatalogid: '',//详情影视id,
+      showDetail: false,///详情页显示
+      showMatching: false, //匹配组件显示
+      matchingMovie: {id:'',name:''},//需要匹配的数据
     }
   },
-
+  mounted() {
+    this.loginInit();
+  },
   methods: {
+    //初始化登录信息
+    loginInit(){
+      if (!getToken()) {
+        return;
+      }
+      getUserInfo().then(res => {
+        if (res.code == 200) {
+          let data = res.data;
+          setUserInfo(data);
+        }
+      })
+    },
+    //sidebar菜单点击事件
     selectMenu(key) {
       switch (key) {
         case 'home':
@@ -102,21 +136,38 @@ export default {
       if (id == null) {
         return
       }
-      this.movieId=id;
+      this.detailCatalogid=id;
       this.showDetail = true;
     },
     //关闭详情页面
     detailGoBack(){
-      this.movieId = '';
+      this.detailCatalogid = '';
       this.showDetail = false;
     },
     //显示登录弹窗组件
     showLoginDialog() {
       this.$refs.smsLoginDialog.show();
     },
-     // 处理登录成功事件
-    onLoginSuccess() {
-    }
+    //展示匹配组件
+    showMatchingDialog(movie) {
+      this.matchingMovie = movie;
+      this.showMatching= true;
+    },
+    //手动匹配完成
+    matchingSuccess() {
+      this.showMatching = false;
+      //在详情页面
+      if (this.showDetail) {
+        this.$refs.movieDetailRef.init();
+        return;
+      }else if (this.activeMenu == 'library') {
+        //因为有缓存 所以重新加载没用 
+        //考虑是否清理缓存？
+        // this.$refs.movieLibraryRef.loadMovies();
+      }
+
+    },
+
   }
 }
 </script>

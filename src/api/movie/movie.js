@@ -19,7 +19,7 @@ export function lastUpdate() {
 }
 
 //分页查询
-export function query(params) {
+export function pageSimple(params) {
   let url = '/movie/catalog/pageSimple'
   return api.get(url,{
     params

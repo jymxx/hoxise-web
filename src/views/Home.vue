@@ -2,7 +2,7 @@
   <div class="movie-manager">
     <MovieHome/>
     <div class="icp-info">
-      <!-- <p>备案号：京ICP备 xxxxxxxx 号</p> -->
+      <p>ICP备案/许可证号：蜀ICP备2025179642号</p>
     </div>
 
     <Hanabi class="firework" />

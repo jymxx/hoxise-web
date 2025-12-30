@@ -6,7 +6,7 @@
       </div>
     </div>
     
-      <div class="detail-content" v-if="movieDetail">
+    <div class="detail-content" v-if="movieDetail">
         <div class="main-content">
         <!-- 图片与基本信息区域 -->
         <div class="content-header">
@@ -15,21 +15,14 @@
           </div>
           
           <div class="info-section">
-            <h1 class="movie-title">{{ movieDetail.nameCn || movieDetail.matchingName }}</h1>
-            <p class="original-title" v-if="movieDetail.originalName !== movieDetail.nameCn">{{ movieDetail.originalName }}</p>
+            <h1 class="movie-title">{{ movieDetail.nameCn }}</h1>
+            <p class="original-title">{{ movieDetail.originalName }}</p>
             
-            <!-- 别名显示 -->
-            <div class="alias-section" v-if="getAliasString()">
-              <div class="meta-item">
-                <span class="meta-label">别名:</span>
-                <span class="meta-value">{{ getAliasString() }}</span>
-              </div>
-            </div>
             
             <div class="movie-meta">
               <div class="meta-item">
                 <span class="meta-label">类型:</span>
-                <span class="meta-value">{{ movieDetail.subjectType === 'ANIME' ? '动漫' : '影视' }}</span>
+                <span class="meta-value">{{ movieDetail.subjectType === 'ANIME' ? '动漫' : 'q其它' }}</span>
               </div>
               <div class="meta-item">
                 <span class="meta-label">平台:</span>
@@ -91,9 +84,9 @@
             <i class="el-icon-upload"></i> Nas云存储库
           </el-button>
           <el-button size="large" class="collect-button"  @click="handleButtonClick('collect')">
-            <i class="el-icon-star-off"></i> 收藏
+            <i class="el-icon-star-off"></i> 收藏 
           </el-button>
-          <el-button size="large" class="match-button"  @click="handleButtonClick('match')">
+          <el-button v-if="this.roles && this.roles.includes('manager')" type="primary" size="large" class="play-button"  @click="handleButtonClick('match')">
             <i class="el-icon-search"></i> 手动匹配信息
           </el-button>
           <el-button type="primary" size="large" class="play-button" 
@@ -198,29 +191,32 @@
       @pause="onVideoPause"
       @ended="onVideoEnded"
     />
+
+
   </div>
   
 </template>
 
 <script>
-import { getMovieDetail,getMovieCharacter,getMovieEpisode,getPlayerUrl } from '@/api/movie';
-import { getSimpleConfig } from '@/api/system';
-import { getAISummary } from '@/api/ai';
-import { isLogin } from '@/api/auth';
+import { getMovieDetail,getMovieCharacter,getMovieEpisode,getPlayerUrl } from '@/api/movie/movie';
+import { getSimpleConfig } from '@/api/system/system';
+import { getAISummary } from '@/api/movie/ai';
+import { isLogin } from '@/api/system/auth';
 import { getToken } from '@/utils/auth';
+import { mapState } from 'vuex'
 import SimpleVideoPlayer from '@/views/movie/components/SimpleVideoPlayer.vue';
 
 export default {
   name: 'MovieDetail',
   components: {
-    SimpleVideoPlayer,
+    SimpleVideoPlayer
   },
   props: {
-    movieId: [String, Number]  // 接受字符串或数字类型
+    catalogid: [String, Number]  // 接受字符串或数字类型
   },
   data() {
     return {
-      defaultImage: require('@/assets/images/default-poster.png'),
+      defaultImage: require('@/assets/images/default-avatar.png'),
       movieDetail: null,
       characters: [],
       episodes: [],
@@ -233,17 +229,28 @@ export default {
       aiEventSource: null,
     }
   },
-  
+  computed: {
+    ...mapState({
+      userId: state => state.user.userId,
+      name: state => state.user.name,
+      roles: state => state.user.roles,
+    }),
+  },
   mounted() {
-    this.loadMovieDetail();
-    this.loadCharacters();
-    this.loadEpisodes();
+    this.init();
   },
   
   methods: {
+    //初始化
+    init(){
+      this.loadMovieDetail();
+      this.loadCharacters();
+      this.loadEpisodes();
+    },
+    //加载DB数据
     async loadMovieDetail() {
       try {
-        const response = await getMovieDetail(this.movieId);
+        const response = await getMovieDetail(this.catalogid);
         if (response.code === 200) {
           this.movieDetail = response.data;
         } else {
@@ -256,7 +263,7 @@ export default {
     },
     // 加载角色数据
     loadCharacters(){
-      getMovieCharacter(this.movieId).then(res=>{ 
+      getMovieCharacter(this.catalogid).then(res=>{ 
         if(res.code==200){ 
           this.characters = res.data;  // 存储角色数据
         }
@@ -264,42 +271,13 @@ export default {
     },
     //加载章节信息
     loadEpisodes(){
-      getMovieEpisode(this.movieId).then(res=>{ 
+      getMovieEpisode(this.catalogid).then(res=>{ 
         if(res.code==200){ 
           this.episodes = res.data;  // 存储角色数据
         }
       })
     },
   
-    // 获取别名字符串
-    getAliasString() {
-      if (!this.movieDetail || !this.movieDetail.infobox) return '';
-      
-      // 查找别名信息
-      const aliasInfo = this.movieDetail.infobox.find(item => 
-        item.infoboxKey === '别名' || item.infoboxKey === '别称' || item.infoboxKey === 'alias'
-      );
-      
-      if (aliasInfo) {
-        try {
-          // 尝试解析JSON格式的别名数据
-          const parsedValue = JSON.parse(aliasInfo.infoboxValue);
-          if (Array.isArray(parsedValue)) {
-            // 如果是数组，提取每个对象的v属性并连接成字符串
-            return parsedValue.map(item => item.v).join(', ');
-          } else {
-            // 如果不是数组，直接返回原始值
-            return aliasInfo.infoboxValue;
-          }
-        } catch (e) {
-          // 如果不是JSON格式，直接返回原始值
-          return aliasInfo.infoboxValue;
-        }
-      }
-      
-      return '';
-    },
-    
     // 格式化信息框值，特别处理别名字段
     formatInfoValue(key, value) {
       if (key === '别名' || key === '别称' || key === 'alias') {
@@ -309,7 +287,6 @@ export default {
             return parsedValue.map(item => item.v).join(', ');
           }
         } catch (e) {
-          // 如果不是JSON格式，返回原始值
         }
       }
       return value;
@@ -317,11 +294,14 @@ export default {
     //点击操作按钮
     handleButtonClick(key){
       switch (key) {
-        case 'play':
+        case 'play': //播放
           this.openVideoPlayer();
           break;
-        case 'nasCloud': 
+        case 'nasCloud': //nas云
           this.openNasCloud();
+          break;
+        case 'match': //匹配
+          this.openMatchingDialog();
           break;
         default:
           this.$message.info('没有操作权限')
@@ -329,29 +309,6 @@ export default {
       }
     },
 
-    //打开nas云存储地址
-    openNasCloud(){
-        getSimpleConfig('nas_share').then(res=>{
-          if(res.code==200){ 
-            window.open(res.data.dictValue);
-          }else{
-            this.$message.error(res.message || '获取nas云存储地址失败');
-          }
-        })
-    },
-    
-    // 打开视频播放器
-    openVideoPlayer() {
-      getPlayerUrl().then(res=>{ 
-        if(res.code==200){ 
-          this.showVideoPlayer = true;
-          this.currentVideoUrl = res.data;
-        }else{
-          this.$message.error(res.message || '获取播放地址失败');
-        }
-      })
-
-    },
     
     // 关闭视频播放器
     closeVideoPlayer() {
@@ -361,21 +318,11 @@ export default {
     },
     
     // 视频播放回调
-    onVideoPlay() {
-    },
-    
+    onVideoPlay() {},
     // 视频暂停回调
-    onVideoPause() {
-    },
-    
+    onVideoPause() {},
     // 视频结束回调
-    onVideoEnded() {
-      // 可以在这里实现自动播放下一集等功能
-    },
-    
-    goBack() {
-      this.$emit('go-back');  // 使用$emit触发go-back事件
-    },
+    onVideoEnded() {},
     
     // 生成AI简介
     async generateAISummary() {
@@ -390,7 +337,7 @@ export default {
       this.isAIGenerating = true;
       
       // 使用API函数连接到后端的流式API
-      this.aiEventSource = getAISummary(this.movieId);
+      this.aiEventSource = getAISummary(this.catalogid);
       
       this.aiEventSource.onmessage = (event) => {
         const data = event.data;
@@ -433,6 +380,35 @@ export default {
       return true;
     },
 
+    //返回
+    goBack() {
+      this.$emit('go-back');  // 使用$emit触发go-back事件
+    },
+    // 打开视频播放器
+    openVideoPlayer() {
+      getPlayerUrl().then(res=>{ 
+        if(res.code==200){ 
+          this.currentVideoUrl = res.data;
+          this.showVideoPlayer = true;
+        }else{
+          this.$message.error(res.message || '获取播放地址失败');
+        }
+      })
+    },
+    //打开nas云存储地址
+    openNasCloud(){
+        getSimpleConfig('nas_share').then(res=>{
+          if(res.code==200){ 
+            window.open(res.data.dictValue);
+          }else{
+            this.$message.error(res.message || '获取nas云存储地址失败');
+          }
+        })
+    },
+    //打开匹配组件
+    openMatchingDialog(){
+      this.$emit('show-matching',{id:this.catalogid, name:this.movieDetail.matchingName});
+    }
   }
 }
 </script>
@@ -446,6 +422,7 @@ export default {
   display: flex;
   flex-direction: column;
   position: relative; /* 添加相对定位 */
+  overflow:scroll;
   
   .detail-header {
     display: flex;
@@ -507,30 +484,11 @@ export default {
             font-style: italic;
           }
           
-          .alias-section {
-            margin-bottom: 15px;
-            
-            .meta-item {
-              display: flex;
-              flex-direction: column;
-              
-              .meta-label {
-                font-size: 14px;
-                color: #aaa;
-                margin-bottom: 5px;
-              }
-              
-              .meta-value {
-                font-size: 16px;
-                font-weight: bold;
-              }
-            }
-          }
-          
           .movie-meta {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
+            margin-top: 20px;
             margin-bottom: 20px;
             
             .meta-item {

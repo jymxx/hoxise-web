@@ -30,7 +30,18 @@
             :key="index"
             @click="selectMovie(item)">
             <div class="result-poster">
-              <img :src="item.image || defaultImage">
+              <el-image 
+                :src="item.image || defaultImage"
+                fit="cover"
+                class="image-slot"
+              >
+                <div slot="placeholder" class="image-slot">
+                  <i class="el-icon-loading"></i>
+                </div>
+                <div slot="error" class="image-slot">
+                  <i class="el-icon-picture-outline"></i>
+                </div>
+              </el-image>
             </div>
             <div class="result-info">
               <h3 class="result-title">{{ item.name_cn || item.name }}</h3>
@@ -243,11 +254,11 @@ export default {
       .result-poster {
         flex: 0 0 80px;
         
-        img {
+        .el-image {
           width: 160px;
           height: 220px;
-          object-fit: cover;
           border-radius: 4px;
+
         }
       }
       

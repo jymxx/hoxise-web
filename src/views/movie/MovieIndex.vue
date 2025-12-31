@@ -12,14 +12,14 @@
       <!-- 主内容区 -->
       <div class="main-content">
         <MovieHome
-          v-show="activeMenu=='home'"
+          v-if="activeMenu=='home'"
           @show-login="showLoginDialog"
           @go-allMovie="selectMenu"
           @go-detail="openDetail"
           ref="movieHomeRef"/>
         <!-- 影视库 -->
         <MovieLibrary
-           v-show="activeMenu=='library'"
+           v-if="activeMenu=='library'"
            @go-detail="openDetail"
            :directory="searchDirectory"
             @show-matching="showMatchingDialog"
@@ -111,7 +111,9 @@ export default {
     selectMenu(key) {
       switch (key) {
         case 'home':
-          this.$refs.movieHomeRef.getRandomMovies();
+          if (this.$refs.movieHomeRef) {
+            this.$refs.movieHomeRef.getRandomMovies();
+          }
           this.searchDirectory = '';
           break;
         case 'library':

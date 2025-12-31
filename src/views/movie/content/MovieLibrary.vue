@@ -29,17 +29,41 @@
           @click="viewMovieDetail(movie.id)"
         >
           <div class="movie-poster">
-            <img :src="movie.posterUrl" :alt="movie.name">
-            <div class="movie-overlay" v-if="roles && roles.includes('manager')">
-              <el-dropdown trigger="click" @command="(command) => handleDropdownCommand(command, movie)">
-                <button class="detail-button" @click.stop>
-                  <i class="el-icon-more"></i>
-                </button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="re-match">重新匹配</el-dropdown-item>
-                  <el-dropdown-item command="remove">删除</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+            <div class="movie-poster">
+              <el-image 
+                :src="movie.posterUrl" 
+                :alt="movie.name"
+                fit="cover"
+                lazy
+                class="image-slot"
+              >
+                <div slot="placeholder" class="image-slot">
+                  <i class="el-icon-loading"></i> 加载中...
+                </div>
+                <div slot="error" class="image-slot">
+                  <i class="el-icon-picture-outline"></i> 图片加载失败
+                </div>
+              </el-image>
+              <div 
+                class="movie-overlay" 
+                @mouseenter="currentHoveredMovie = movie.id" 
+                @mouseleave="currentHoveredMovie = null" 
+                v-if="roles && roles.includes('manager')"
+              >
+                <el-dropdown trigger="click" @command="(command) => handleDropdownCommand(command, movie)">
+                  <button 
+                    class="detail-button" 
+                    @click.stop
+                    :style="{ opacity: currentHoveredMovie === movie.id ? 1 : 0 }"
+                  >
+                    <i class="el-icon-more"></i>
+                  </button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="re-match">重新匹配</el-dropdown-item>
+                    <el-dropdown-item command="remove">删除</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </div>
             </div>
             <div class="movie-details">
               <span class="movie-rating">{{ movie.rating }}</span>
@@ -54,6 +78,14 @@
       </div>
     
     </div>
+
+    <!-- 加载更多提示 -->
+    <!-- <div v-if="!searchKeyword && hasMore && !loadingMore && movies.length > 0" class="load-more-tips">
+      <p>滚动加载更多...</p>
+    </div>
+    <div v-if="hasMore && !searchKeyword" class="no-more-tips">
+      <p>没有更多数据了</p>
+    </div> -->
   </div>
 </template>
 
@@ -62,7 +94,6 @@ import { getLibrary,pageSimple } from '@/api/movie/movie';
 import { deleteCatalog } from '@/api/movie/movieManage';
 import { mapState } from 'vuex'
 import '@/assets/css/responsive-movielibrary.css';
-import { del } from 'vue';
 export default {
   name: 'MovieLibrary',
   props: {
@@ -79,6 +110,9 @@ export default {
       totalCount: 0,
       searchKeyword: '', // 搜索关键词
       isSearching: false, // 是否正在搜索
+      currentHoveredMovie: null, // 跟踪当前悬停的电影
+      loadingMore: false, // 是否正在加载更多
+      hasMore: true // 没有更多数据了
     }
   },
   computed: {
@@ -90,21 +124,21 @@ export default {
   },
   watch: {
     directory: function(newVal, oldVal) {
-      this.pageParams={
-        pageNum:1,
-        pageSize:50,
-        directory:this.directory
-      },
-      this.movies=[];
-      this.loadMovies();
+      this.initSearch();
     }
   },
   mounted() {
     this.loadMovies();
+    // 添加滚动监听事件
+    window.addEventListener('scroll', this.handleScroll);
+  },
+    beforeDestroy() {
+    // 移除滚动监听事件
+    window.removeEventListener('scroll', this.handleScroll);
   },
   methods: {
-    //循环加载数据
-    loadMovies() {
+    // 分页加载数据
+    loadMovies(isLoadMore = false) {
       getLibrary(this.pageParams).then(res => { 
         if(res.code==200) { 
           let data = res.data.list;
@@ -112,26 +146,41 @@ export default {
           data.forEach(movie => {
           movie.posterUrl = movie.posterUrl || "",
           movie.rating = movie.rating?movie.rating.toFixed(1):0;
+          movie.imageLoadError = false; // 添加图片加载状态
           });
-          this.movies = this.movies.concat(data);
-          //循环加载
-          if(this.totalCount >= this.pageParams.pageNum * this.pageParams.pageSize && data.length >= this.pageParams.pageSize) {
-              this.pageParams.pageNum++;
-              this.loadMovies();
+          
+          if (isLoadMore) {
+            // 分页加载时追加数据
+            this.movies = this.movies.concat(data);
+          } else {
+            // 首次加载或搜索时替换数据
+            this.movies = data;
+          }
+          
+          // 检查是否还有更多数据
+          if (data.length < this.pageParams.pageSize || this.movies.length >= this.totalCount) {
+            this.hasMore = false;
           }
         }
+      }).finally(() => {
+        this.loadingMore = false;
       });
     },
+    // 滑轮时加载更多电影
+    loadMoreMovies() {
+      if (this.searchKeyword) {
+        // 如果是搜索状态，不进行滚动加载
+        return;
+      }
+      this.pageParams.pageNum++;
+      this.loadingMore = true;
+      this.loadMovies(true);
+    },
+    
     // 搜索电影
     async searchMovies() {
       if (!this.searchKeyword.trim()) {
-        this.pageParams={
-          pageNum:1,
-          pageSize:50,
-          directory:this.directory
-        }
-        this.movies = [];
-        this.loadMovies();
+        this.initSearch();
         return;
       }
 
@@ -150,6 +199,7 @@ export default {
           data.forEach(movie => {
             movie.posterUrl = movie.posterUrl || "";
             movie.rating = movie.rating ? movie.rating.toFixed(1) : 0;
+            movie.imageLoadError = false; // 添加图片加载状态
           });
           this.movies = data;
         }
@@ -157,6 +207,23 @@ export default {
       }finally { 
         this.isSearching = false;
       }
+    },
+    //初始化查询
+    initSearch(){
+        this.pageParams={
+          pageNum:1,
+          pageSize:50,
+          directory:this.directory
+        }
+        this.searchKeyword = '';
+        this.movies = [];
+        this.hasMore = true;
+        // 滚动到页面顶部
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+        this.loadMovies();
     },
     // 详情页面
     viewMovieDetail(id) {
@@ -193,6 +260,31 @@ export default {
         // 用户取消删除 
       })
     },
+
+    // 添加滚动处理方法
+    handleScroll() {
+      // 判断是否滚动到底部
+      if (this.isScrollBottom() && !this.loadingMore && this.hasMore) {
+        this.loadMoreMovies();
+      }
+    },
+    
+    // 判断是否滚动到底部
+    isScrollBottom() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = Math.max(
+        document.body.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.clientHeight,
+        document.documentElement.scrollHeight,
+        document.documentElement.offsetHeight
+      );
+      
+      // 当距离底部小于300px时触发加载
+      return scrollTop + windowHeight >= documentHeight - 100;
+    },
+
   }
 }
 </script>
@@ -288,11 +380,16 @@ export default {
         height: 300px;
         position: relative;
         
-        img {
+        .el-image {
           width: 100%;
           height: 100%;
-          object-fit: cover;
           display: block;
+          
+          .el-image__inner {
+            cursor: pointer;
+          }
+          
+
         }
         
         .movie-overlay {
@@ -380,5 +477,22 @@ export default {
     }
   }
   
+  .image-slot {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #909399;
+    font-size: 14px;
+  }
+  
+  .load-more-tips,
+  .no-more-tips {
+    text-align: center;
+    padding: 20px;
+    color: #aaa;
+    font-size: 14px;
+  }
 }
 </style>

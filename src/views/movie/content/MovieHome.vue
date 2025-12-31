@@ -108,7 +108,19 @@
                   @click="viewMovieDetail(movie.catalogid)"
                 >
                   <div class="movie-poster">
-                    <img :src="movie.posterUrl" :alt="movie.name" />
+                    <el-image 
+                      :src="movie.posterUrl" 
+                      :alt="movie.name"
+                      fit="cover"
+                      class="image-slot"
+                    >
+                      <div slot="placeholder" class="image-slot">
+                        <i class="el-icon-loading"></i>
+                      </div>
+                      <div slot="error" class="image-slot">
+                        <i class="el-icon-picture-outline"></i>
+                      </div>
+                    </el-image>
                     <div class="movie-overlay">
                       <div class="movie-info">
                         <!-- <h4>{{ movie.name }}</h4>
@@ -133,7 +145,18 @@
               @click="viewMovieDetail(movies[0].id)"
             >
               <div class="movie-poster">
-                <img :src="movies[0]?.posterUrl">
+                <el-image 
+                  :src="movies[0]?.posterUrl"
+                  fit="cover"
+                  class="image-slot"
+                >
+                  <div slot="placeholder" class="image-slot">
+                    <i class="el-icon-loading"></i>
+                  </div>
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
                 <div class="movie-overlay-main">
                   <div class="movie-info">
                     <h3>{{ movies[0]?.name }}</h3>
@@ -161,7 +184,18 @@
                 @click="viewMovieDetail(movie.id)"
               >
                 <div class="movie-poster">
-                  <img :src="movie.posterUrl">
+                  <el-image 
+                    :src="movie.posterUrl"
+                    fit="cover"
+                    class="image-slot"
+                  >
+                    <div slot="placeholder" class="image-slot">
+                      <i class="el-icon-loading"></i>
+                    </div>
+                    <div slot="error" class="image-slot">
+                      <i class="el-icon-picture-outline"></i>
+                    </div>
+                  </el-image>
                   <div class="movie-overlay">
                     <div class="movie-info">
                       <h3>{{ movie.name }}</h3>
@@ -181,7 +215,18 @@
                 @click="viewMovieDetail(movie.id)"
               >
                 <div class="movie-poster">
-                  <img :src="movie.posterUrl">
+                  <el-image 
+                    :src="movie.posterUrl"
+                    fit="cover"
+                    class="image-slot"
+                  >
+                    <div slot="placeholder" class="image-slot">
+                      <i class="el-icon-loading"></i>
+                    </div>
+                    <div slot="error" class="image-slot">
+                      <i class="el-icon-picture-outline"></i>
+                    </div>
+                  </el-image>
                   <div class="movie-overlay">
                     <div class="movie-info">
                       <h3>{{ movie.name }}</h3>
@@ -206,7 +251,19 @@
             @click="viewMovieDetail(movie.id)"
           >
             <div class="movie-poster-small">
-              <img :src="movie.posterUrl" :alt="movie.name">
+              <el-image 
+                :src="movie.posterUrl" 
+                :alt="movie.name"
+                fit="cover"
+                class="image-slot"
+              >
+                <div slot="placeholder" class="image-slot">
+                  <i class="el-icon-loading"></i>
+                </div>
+                <div slot="error" class="image-slot">
+                  <i class="el-icon-picture-outline"></i>
+                </div>
+              </el-image>
             </div>
             <div class="movie-info-small">
               <h3>{{ movie.name }}</h3>
@@ -320,11 +377,13 @@ export default {
         this.aiResponseContent += '<hr style="border: 0; border-top: 1px solid rgba(26, 188, 156, 0.3); margin: 15px 0;">';
       }
       this.aiResponseContent += `<strong style="color: #64b5f6;">用户:</strong> ${this.escapeHtml(userText)}<br><br><strong style="color: #81c784;">DeepSeek助手:</strong> `;
-      //滚轮到底部
-      const contentDiv = this.$el.querySelector('.ai-response-content');
-      if (contentDiv) {
-        contentDiv.scrollTop = contentDiv.scrollHeight;
-      }
+      // 确保内容区域滚动到底部
+      this.$nextTick(() => {
+        const contentDiv = this.$el.querySelector('.ai-response-content');
+        if (contentDiv) {
+          contentDiv.scrollTop = contentDiv.scrollHeight;
+        }
+      });
 
       this.showAIResponse = true;
       this.isAIGenerating = true;
@@ -347,7 +406,7 @@ export default {
         }
 
         //不需要向用户显示末尾的字符
-        if(data === '['){
+        if(data === '【'){
             this.stopAddShow = true;
         }
         if (!this.stopAddShow){ 
@@ -394,18 +453,18 @@ export default {
         // 移除末尾的【...】格式（匹配任何以[开始以]结尾的内容）
         if (this.aiResponseContent) {
           // 使用正则表达式字面量，g 表示全局匹配
-          this.aiResponseContent = this.aiResponseContent.replace(/\[.*?\]/g, '');
+          this.aiResponseContent = this.aiResponseContent.replace(/\【.*?\】/g, '');
         }
 
-        // 从currentLoadAIResponse中提取ID数组，格式如[622,597,109]
+        // 从currentLoadAIResponse中提取ID数组，格式如【622,597,109】
         // 匹配以[开始、以]结尾的字符串，中间包含数字和逗号
-        let idMatch = this.currentLoadAIResponse?.match(/\[.*?\]/);
+        let idMatch = this.currentLoadAIResponse?.match(/\【.*?\】/);
 
         if (idMatch) {
           // 提取并解析ID数组
           const idString = idMatch[0];
           // 移除方括号后再处理
-          const cleanIdString = idString.replace(/^\[|\]$/g, '');
+          const cleanIdString = idString.replace(/^\【|\】$/g, '');
           const movieIds = cleanIdString.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
 
           if (movieIds.length > 0) {
@@ -577,11 +636,11 @@ export default {
           width: 100%;
           height: 100%;
 
-          img {
+          .el-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
             display: block;
+
           }
         }
 
@@ -995,11 +1054,11 @@ export default {
             width: 100%;
             height: 100%;
             
-            img {
+            .el-image {
               width: 100%;
               height: 100%;
-              object-fit: cover;
               display: block;
+              
             }
           }
         }
@@ -1024,11 +1083,11 @@ export default {
               width: 100%;
               height: 100%;
               
-              img {
+              .el-image {
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
                 display: block;
+
               }
             }
           }
@@ -1226,10 +1285,12 @@ export default {
       border-radius: 8px;
       overflow: hidden;
       
-      img {
+      .el-image {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        display: block;
+        
+
       }
     }
     
@@ -1251,6 +1312,16 @@ export default {
       }
     }
   }
+}
+
+.image-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #909399;
+  font-size: 14px;
 }
 
 </style>

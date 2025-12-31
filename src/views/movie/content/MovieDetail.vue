@@ -11,7 +11,19 @@
         <!-- 图片与基本信息区域 -->
         <div class="content-header">
           <div class="poster-section">
-            <img :src="movieDetail.posterUrl" :alt="movieDetail.nameCn" class="movie-poster">
+            <el-image 
+              :src="movieDetail.posterUrl" 
+              :alt="movieDetail.nameCn" 
+              fit="cover"
+              class="movie-poster image-slot"
+            >
+              <div slot="placeholder" class="image-slot">
+                <i class="el-icon-loading"></i>
+              </div>
+              <div slot="error" class="image-slot">
+                <i class="el-icon-picture-outline"></i>
+              </div>
+            </el-image>
           </div>
           
           <div class="info-section">
@@ -118,7 +130,19 @@
               :key="character.id"
             >
               <div class="character-poster-small">
-                <img :src="character.imgUrl || defaultImage" :alt="character.name">
+                <el-image 
+                  :src="character.imgUrl || defaultImage" 
+                  :alt="character.name"
+                  fit="cover"
+                  class="image-slot"
+                >
+                  <div slot="placeholder" class="image-slot">
+                    <i class="el-icon-loading"></i>
+                  </div>
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
               </div>
               <div class="character-info-small">
                 <h3 class="character-name">{{ character.name }}</h3>
@@ -139,7 +163,19 @@
               :key="episode.id"
             >
               <div class="episode-cover">
-                <img :src="movieDetail.posterUrl" :alt="episode.nameCn || episode.name" class="episode-cover-image">
+                <el-image 
+                  :src="movieDetail.posterUrl" 
+                  :alt="episode.nameCn || episode.name"
+                  fit="cover"
+                  class="episode-cover-image image-slot"
+                >
+                  <div slot="placeholder" class="image-slot">
+                    <i class="el-icon-loading"></i>
+                  </div>
+                  <div slot="error" class="image-slot">
+                    <i class="el-icon-picture-outline"></i>
+                  </div>
+                </el-image>
                 <span class="episode-number">{{ episode.ep || index + 1 }}</span>
               </div>
               <div class="episode-info">
@@ -465,6 +501,8 @@ export default {
             width: 100%;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: block;
+            
           }
         }
         
@@ -710,13 +748,12 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            
-            img {
+            ::v-deep .el-image__inner {
+              object-position: top;  // 添加这行，使图片顶部对齐
               width: 100%;
               height: 100%;
-              object-fit: cover;
-              object-position: center top;
             }
+
           }
           
           .character-info-small {
@@ -821,27 +858,7 @@ export default {
       .episode-cover-image {
         width: 100%;
         height: 100%;
-        object-fit: cover;
-        object-position: top;
-      }
-      
-      img.episode-cover-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: top;
-      }
-      
-      .episode-number {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background-color: rgba(0, 0, 0, 0.7);
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 14px;
-        z-index: 2;
-        color: white;
+        display: block;
       }
     }
     
@@ -884,6 +901,16 @@ export default {
     max-width: 1200px;
     margin: 0 auto;
   }
+}
+
+.image-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #909399;
+  font-size: 14px;
 }
 
 </style>

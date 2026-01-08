@@ -50,7 +50,7 @@
               :loading="loading" 
               class="login-btn"
               :disabled="!validForm">
-              登录
+              登录/注册
             </el-button>
           </el-form-item>
         </el-form>

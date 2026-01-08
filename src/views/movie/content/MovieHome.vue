@@ -280,7 +280,7 @@
 
 <script>
 import { randomQuery,lastUpdate,getMovieDetail } from '@/api/movie/movie';
-import { aiRecommend } from '@/api/movie/ai';
+import { aiRecommend } from '@/api/ai/movie';
 import { isLogin } from '@/api/system/auth';
 import { getToken } from '@/utils/auth';
 import aiSuggestions from '@/utils/constants/suggestions';

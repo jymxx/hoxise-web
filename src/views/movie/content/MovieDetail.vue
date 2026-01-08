@@ -236,7 +236,7 @@
 <script>
 import { getMovieDetail,getMovieCharacter,getMovieEpisode,getPlayerUrl } from '@/api/movie/movie';
 import { getSimpleConfig } from '@/api/system/system';
-import { getAISummary } from '@/api/movie/ai';
+import { getAISummary } from '@/api/ai/movie';
 import { isLogin } from '@/api/system/auth';
 import { getToken } from '@/utils/auth';
 import { mapState } from 'vuex'

@@ -16,13 +16,13 @@
                 effect="dark" 
                 placement="bottom">
                 <div slot="content">
-                  RAG模式: 检索增强生成，向大模型提供本地知识库作为数据集 (本应用预先使用向量数据库过滤,文本向量模型: 通义千问-text-embedding-v4)<br>
-                  深度思考: 由大模型自行根据输入文本分析推荐
+                  RAG模式(模型deepseek-reasoner): 检索增强生成，向大模型提供本地知识库作为数据集 (本应用预先使用向量数据库过滤,文本向量模型: 通义千问-text-embedding-v4)<br>
+                  深度思考(模型deepseek-reasoner): 由大模型自行根据输入文本分析推荐
                 </div>
                 <i class="el-icon-question mode-info-icon"></i>
               </el-tooltip>
               <div class="switch-with-labels">
-                <span :class="{'active-label': chatMode === 'chat'}">RAG模式(模型deepseek-chat)</span>
+                <span :class="{'active-label': chatMode === 'chat'}">RAG模式</span>
                 <el-switch
                   v-model="chatMode"
                   class="mode-toggle-switch"
@@ -31,7 +31,7 @@
                   active-color="#1abc9c"
                   inactive-color="#909399">
                 </el-switch>
-                <span :class="{'active-label': chatMode === 'reasoner'}">深度思考(模型deepseek-reasoner)</span>
+                <span :class="{'active-label': chatMode === 'reasoner'}">深度思考</span>
               </div>
             </div>
             <div class="header-actions">
@@ -415,6 +415,11 @@ export default {
         }
         this.currentLoadAIResponse += data;
 
+        //因为思维链中也有这个字符 所以思维链结束后需要开放
+        if(data === '】'){
+            this.stopAddShow = false;
+        }
+
         // 确保内容区域滚动到底部
         this.$nextTick(() => {
           const contentDiv = this.$el.querySelector('.ai-response-content');
@@ -446,7 +451,15 @@ export default {
       if(str == null){
         return null
       }
-      return str.replace(/\*/g, '').replace(/---/g, '').replace(/\#/g, '');
+      // 处理思维链标签，将其转换为带样式的HTML
+      let processedStr = str;
+      processedStr = processedStr.replace(/\[REASONING_START\]/g, '<span class="reasoning-chain">');
+      processedStr = processedStr.replace(/\[REASONING_END\]/g, '</span></br></br>');
+      
+      // 继续处理其他特殊字符
+      processedStr = processedStr.replace(/\*/g, '').replace(/---/g, '').replace(/\#/g, '');
+      
+      return processedStr;
     },
     // 提取并加载catalog信息
     async extractAndLoadMovies() {
@@ -920,6 +933,15 @@ export default {
           text-shadow: 0 0 1px currentColor;
         }
       }
+    }
+
+    ::v-deep .reasoning-chain {
+      color: #f8e1f8; 
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-style: italic;
+      margin: 0 2px;
+      font-size: 0.9em;
     }
 
   @keyframes gradientShift {

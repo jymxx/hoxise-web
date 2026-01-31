@@ -234,8 +234,8 @@
 </template>
 
 <script>
-import { getMovieDetail,getMovieCharacter,getMovieEpisode,getPlayerUrl } from '@/api/movie/movie';
-import { getSimpleConfig } from '@/api/system/system';
+import { getMovieDetail,getMovieCharacter,getMovieEpisode,getPlayerUrl } from '@/api/movie/movieDb';
+import { getSimpleConfig } from '@/api/system/dict';
 import { getAISummary } from '@/api/ai/movie';
 import { isLogin } from '@/api/system/auth';
 import { getToken } from '@/utils/auth';

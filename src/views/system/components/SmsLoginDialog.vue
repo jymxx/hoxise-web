@@ -152,7 +152,7 @@ export default {
         const response = await sendVerifyCode(this.loginForm.phone)
         
         if (response.code === 200) {
-          this.$message.success('验证码发送成功')
+          this.$message.success('验证码已发送，可能有延迟，请注意接收')
           this.startCountdown() // 开始倒计时
         } else {
           this.$message.error(response.msg || '验证码发送失败')

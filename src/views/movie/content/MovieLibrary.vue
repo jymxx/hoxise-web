@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import { getLibrary,pageSimple } from '@/api/movie/movie';
+import { getLibrary,pageSimple } from '@/api/movie/movieCatalog';
 import { deleteCatalog } from '@/api/movie/movieManage';
 import { mapState } from 'vuex'
 import '@/assets/css/responsive-movielibrary.css';

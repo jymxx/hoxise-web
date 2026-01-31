@@ -164,7 +164,7 @@
                       <span class="movie-country">类型: {{ movies[0]?.platform }} | {{ movies[0]?.releaseYear }}</span>
                     </p>
                     <p class="movie-meta">
-                      <span class="movie-genre">标签: {{  movies[0]?.metaTags.join(', ') }}</span>
+                      <span class="movie-genre">标签: {{  movies[0]?.metaTags?.join(', ') }}</span>
                     </p>
                     <p class="movie-rating">{{ movies[0]?.rating }}</p>
                   </div>
@@ -279,7 +279,8 @@
 </template>
 
 <script>
-import { randomQuery,lastUpdate,getMovieDetail } from '@/api/movie/movie';
+import { randomQuery,lastUpdate } from '@/api/movie/movieCatalog';
+import { getMovieDetail } from '@/api/movie/movieDb';
 import { aiRecommend } from '@/api/ai/movie';
 import { isLogin } from '@/api/system/auth';
 import { getToken } from '@/utils/auth';
@@ -318,7 +319,7 @@ export default {
 
   methods: {
     //随机影视
-    getRandomMovies() {
+    async getRandomMovies() {
       randomQuery(20).then(res => {
         if(res.code ==200){
           this.movies = res.data;
@@ -463,22 +464,22 @@ export default {
     },
     // 提取并加载catalog信息
     async extractAndLoadMovies() {
-        // 移除末尾的【...】格式（匹配任何以[开始以]结尾的内容）
+        // 移除末尾的【...】格式
         if (this.aiResponseContent) {
           // 使用正则表达式字面量，g 表示全局匹配
           this.aiResponseContent = this.aiResponseContent.replace(/\【.*?\】/g, '');
         }
 
         // 从currentLoadAIResponse中提取ID数组，格式如【622,597,109】
-        // 匹配以[开始、以]结尾的字符串，中间包含数字和逗号
-        let idMatch = this.currentLoadAIResponse?.match(/\【.*?\】/);
-
+        let matches = this.currentLoadAIResponse?.match(/【.*?】/g);
+        let idMatch = matches ? [matches[matches.length - 1]] : null;
+        console.log(idMatch);
         if (idMatch) {
           // 提取并解析ID数组
           const idString = idMatch[0];
           // 移除方括号后再处理
           const cleanIdString = idString.replace(/^\【|\】$/g, '');
-          const movieIds = cleanIdString.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+          const movieIds = cleanIdString.split(/[,\，]/).map(id => parseInt(id.trim())).filter(id => !isNaN(id));
 
           if (movieIds.length > 0) {
             // 获取每个电影的详细信息

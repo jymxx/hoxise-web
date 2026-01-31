@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { movieStat } from '@/api/movie/movie'
+import { movieStat } from '@/api/movie/movieCatalog'
 export default {
   name: 'MovieTabs',
   data() {
@@ -90,7 +90,7 @@ export default {
         this.subMenuItems.forEach(menu => {
           // 更新一级菜单"影视库"的总计数
           if (menu.key === 'movies') {
-            menu.count = data.totalCount || 0;
+            menu.count = data?.totalCount || 0;
           }
           
           // 更新子菜单的计数
@@ -98,16 +98,16 @@ export default {
             menu.children.forEach(child => {
               switch (child.key) {
                 case 'anime':
-                  child.count = data.totalAnime || '';
+                  child.count = data?.totalAnime || '';
                   break;
                 case 'animeMovie':
-                  child.count = data.totalAnimeMovie || '';
+                  child.count = data?.totalAnimeMovie || '';
                   break;
                 case 'jpTV':
-                  child.count = data.totalJpTV || '';
+                  child.count = data?.totalJpTv || '';
                   break;
                 case 'library':
-                  child.count = data.totalCount || '';
+                  child.count = data?.totalCount || '';
                   break;
                 default:
                   child.count = 0;

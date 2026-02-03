@@ -10,6 +10,7 @@
     :close-on-press-escape="false"
   >
     <div class="search-container">
+      <!-- 搜索框 -->
       <div class="search-box">
         <el-input
           v-model="searchKeyword"
@@ -47,10 +48,10 @@
               <h3 class="result-title">{{ item.name_cn || item.name }}</h3>
               <p class="result-original-name" > {{ item.name }} </p>
               <div class="result-meta">
-                <span class="result-type" v-if="item.type">{{ getTypeText(item.type) }}</span>
-                <span class="result-platform" v-if="item.platform">{{ item.platform }}</span>
-                <span class="result-episodes" v-if="item.eps"> {{ item.eps || item.total_episodes || '未知' }} 话</span>
-                <span class="result-date" v-if="item.date">时间: {{ item.date || '未知' }}</span>
+                <span v-if="item.type">{{ getTypeText(item.type) }}</span>
+                <span v-if="item.platform">{{ item.platform }}</span>
+                <span v-if="item.eps"> {{ item.eps || item.total_episodes }} 话</span>
+                <span v-if="item.date">时间: {{ item.date }}</span>
               </div>
               <p class="result-summary" v-if="item.summary" :title="item.summary">{{ item.summary.substring(0, 150) }} {{ item.summary.length >150?'...':'' }}</p>
             </div>
@@ -91,13 +92,7 @@ export default {
       updateLoading: false,//更新中
     }
   },
-  watch: {
-    dialogVisible(val) {
-      if (!val) {
-        this.$emit('close');
-      }
-    }
-  },
+
   methods: {
     //匹配查询
     async handleSearch() {
@@ -114,14 +109,13 @@ export default {
           if (res.data.length === 0) {
             this.$message.warning('未找到匹配项');
           }
-          this.searchResults = res.data; // 根据实际响应格式调整
+          this.searchResults = res.data;
         } else {
           this.$message.error(res.msg || '搜索失败');
           this.searchResults = [];
         }
 
       } catch (error) {
-        console.error('搜索失败:', error);
         this.$message.error('搜索失败，请稍后重试');
         this.searchResults = [];
       } finally {
@@ -131,6 +125,7 @@ export default {
     //关闭
     handleClose() {
       this.dialogVisible = false;
+      this.$emit('close');
     },
     
     //选择匹配项
@@ -147,10 +142,6 @@ export default {
         6: '三次元'
       };
       return typeMap[type] || '影视';
-    },
-    // 显示确认弹窗
-    showConfirmDialog() {
-      
     },
     //提交保存
     async handleSubmit() { 
@@ -202,7 +193,7 @@ export default {
   
 
 }
-
+// 匹配框
 .search-container {
 
   .search-box {
@@ -226,7 +217,7 @@ export default {
       }
     }
   }
-  
+  // 查询结果
   .search-results {
     min-height: 20vh;
     max-height: 50vh;

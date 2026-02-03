@@ -34,69 +34,37 @@ export default {
       if (hasClickHandler) {
         return;
       }
-      
-      // 检查元素是否具有 data-no-fireworks 属性
-      if (target.hasAttribute('data-no-fireworks')) {
-        return;
-      }
-      
-      // 检查父元素是否有 no-fireworks 类或 data-no-fireworks 属性
-      let parent = target.parentElement;
-      while (parent) {
-        if (parent.classList.contains('no-fireworks') || parent.hasAttribute('data-no-fireworks')) {
-          return;
-        }
-        parent = parent.parentElement;
-      }
-      
-      // 触发小烟花效果
+    
+      // 触发烟花效果
       this.createSubtleFireworks(event.clientX, event.clientY);
     },
     
     handleOverlayClick(event) {
       // 这个方法实际上不会被调用，因为pointer-events: none
-      // 但保留以防万一
     },
     
+    //特效
     createSubtleFireworks(x, y) {
       const normalizedX = x / window.innerWidth;
       const normalizedY = y / window.innerHeight;
       
-      // 创建一个小而微妙的烟花效果
+      // 创建粒子效果
       confetti({
-        particleCount: 8, // 减少粒子数量
-        angle: 90,
-        spread: 45, // 增加扩散角度使更柔和
-        startVelocity: 10, // 降低速度
-        decay: 0.9,
-        gravity: 1,
-        drift: -0.5,
-        ticks: 100, // 减少持续时间
+        particleCount: 20, // 粒子数量
+        angle: 90, //弹射角度
+        spread: 45, // 扩散角度
+        startVelocity: 8, // 初始速度
+        decay: 0.9, // 粒子衰减
+        gravity: 1, // 重力
+        drift: 0, // 飘落水平偏移
+        ticks: 100, // 持续时间
         origin: { x: normalizedX, y: normalizedY },
-        colors: ['#a8a8a8', '#cccccc', '#ffffff'], // 使用更柔和的颜色
+        colors: ['#a8a8a8', '#cccccc', '#ffffff'], 
         shapes: ['circle'],
-        scalar: 0.4, // 减小粒子大小
+        scalar: 0.4, // 粒子大小
         zIndex: 9999
       });
-      
-      // 添加一个非常小的额外效果
-      setTimeout(() => {
-        confetti({
-          particleCount: 4, 
-          angle: 90,
-          spread: 60,
-          startVelocity: 6,
-          decay: 0.85,
-          gravity: 1.2,
-          drift: 0.5,
-          ticks: 60,
-          origin: { x: normalizedX, y: normalizedY },
-          colors: ['#a8a8a8', '#cccccc', '#ffffff'],
-          shapes: ['circle'],
-          scalar: 0.3,
-          zIndex: 9999
-        });
-      }, 100);
+  
     }
   },
   beforeDestroy() {

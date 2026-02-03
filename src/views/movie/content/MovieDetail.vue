@@ -5,15 +5,14 @@
         <i class="el-icon-arrow-left"></i> 返回
       </div>
     </div>
-    
+    <!-- 主要区域 -->
     <div class="detail-content" v-if="movieDetail">
         <div class="main-content">
-        <!-- 图片与基本信息区域 -->
+        <!-- 图片区域 -->
         <div class="content-header">
           <div class="poster-section">
             <el-image 
               :src="movieDetail.posterUrl" 
-              :alt="movieDetail.nameCn" 
               fit="cover"
               class="movie-poster image-slot"
             >
@@ -25,16 +24,15 @@
               </div>
             </el-image>
           </div>
-          
+          <!-- 图片右侧区域 -->
           <div class="info-section">
             <h1 class="movie-title">{{ movieDetail.nameCn || movieDetail.originalName }}</h1>
             <p class="original-title">{{ movieDetail.originalName }}</p>
-            
-            
+            <!-- 基本信息 -->
             <div class="movie-meta">
               <div class="meta-item">
                 <span class="meta-label">类型:</span>
-                <span class="meta-value">{{ movieDetail.subjectType === 'ANIME' ? '动漫' : 'q其它' }}</span>
+                <span class="meta-value">{{ movieDetail.subjectType === 'ANIME' ? '动漫' : '其它' }}</span>
               </div>
               <div class="meta-item">
                 <span class="meta-label">平台:</span>
@@ -53,7 +51,7 @@
                 <span class="meta-value">{{ movieDetail.releaseDate || '' }}</span>
               </div>
             </div>
-            
+            <!-- 标签 -->
             <div class="tags-section">
               <el-tag 
                 v-for="(tag, index) in movieDetail.metaTags" 
@@ -64,7 +62,7 @@
                 {{ tag }}
               </el-tag>
             </div>
-            
+            <!-- 简介 -->
             <div class="movie-description">
               <h3>简介</h3>
               <p>{{ movieDetail.summary || '暂无简介' }}</p>
@@ -74,7 +72,6 @@
 
         <!-- 标签区域 -->
         <div class="tags-section-full" v-if="movieDetail.tags && movieDetail.tags.length > 0">
-          <!-- <h2 class="section-title">标签</h2> -->
           <div class="tags-list">
             <el-tag 
               v-for="(tag, index) in movieDetail.tags" 
@@ -114,9 +111,6 @@
           <!-- <h3 class="section-title">AI总结</h3> -->
           <div class="ai-summary-content">
             <div class="summary-text">{{ aiSummaryText }}</div>
-            <div class="loading-indicator" v-if="isAIGenerating">
-              <i class="el-icon-loading"></i> 
-            </div>
           </div>
         </div>
         
@@ -165,7 +159,6 @@
               <div class="episode-cover">
                 <el-image 
                   :src="movieDetail.posterUrl" 
-                  :alt="episode.nameCn || episode.name"
                   fit="cover"
                   class="episode-cover-image image-slot"
                 >
@@ -176,14 +169,14 @@
                     <i class="el-icon-picture-outline"></i>
                   </div>
                 </el-image>
-                <span class="episode-number">{{ episode.ep || index + 1 }}</span>
               </div>
+              <!-- 章节信息 -->
               <div class="episode-info">
                 <h3 class="episode-title">{{ episode.ep }}. {{ episode.nameCn || episode.name }}</h3>
-                <!-- <p class="episode-subtitle">{{ episode.name }} ({{ episode.ep || index + 1 }})</p> -->
+                <p class="episode-subtitle">{{ episode.name }} ({{ episode.ep || index + 1 }})</p>
                 <p class="episode-date" v-if="episode.airdate">放送日期: {{ episode.airdate }}</p>
                 <p class="episode-duration" v-if="episode.duration">时长: {{ episode.duration }}</p>
-                <p class="episode-description" v-if="episode.description">{{ episode.description.substring(0, 50) }}...</p>
+                <!-- <p class="episode-description" v-if="episode.description">{{ episode.description.substring(0, 50) }}...</p> -->
               </div>
             </div>
           </div>
@@ -206,6 +199,7 @@
           </div>
         </div>
       </div>
+
     </div>
     
     
@@ -228,14 +222,13 @@
       @ended="onVideoEnded"
     />
 
-
   </div>
   
 </template>
 
 <script>
 import { getMovieDetail,getMovieCharacter,getMovieEpisode,getPlayerUrl } from '@/api/movie/movieDb';
-import { getSimpleConfig } from '@/api/system/dict';
+import { getDict } from '@/api/system/dict';
 import { getAISummary } from '@/api/ai/movie';
 import { isLogin } from '@/api/system/auth';
 import { getToken } from '@/utils/auth';
@@ -253,16 +246,16 @@ export default {
   data() {
     return {
       defaultImage: require('@/assets/images/default-avatar.png'),
-      movieDetail: null,
-      characters: [],
-      episodes: [],
-      showVideoPlayer: false,
-      currentVideoUrl: '',
-      currentEpisode: null,
-      showAISummary: false,
-      aiSummaryText: '',
-      isAIGenerating: false,
-      aiEventSource: null,
+      movieDetail: null, // 影视详情数据
+      characters: [],//角色数据
+      episodes: [],//章节数据
+      showVideoPlayer: false,//视频播放器显示状态
+      currentVideoUrl: '',//视频播放器地址
+      currentEpisode: null,//当前播放的章节数据
+      showAISummary: false,//AI摘要显示状态
+      aiSummaryText: '',//摘要回复文本
+      isAIGenerating: false,//摘要生成中
+      aiEventSource: null,//连接源
     }
   },
   computed: {
@@ -279,9 +272,9 @@ export default {
   methods: {
     //初始化
     init(){
-      this.loadMovieDetail();
-      this.loadCharacters();
-      this.loadEpisodes();
+      this.loadMovieDetail();//加载详情数据
+      this.loadCharacters();//角色数据
+      this.loadEpisodes();//章节数据
     },
     //加载DB数据
     async loadMovieDetail() {
@@ -402,7 +395,7 @@ export default {
     async checkLogin(){
       //先在本地查验
       let localToken = getToken();
-      if(!localToken || localToken==='' || localToken==='null' || localToken==='undefined' || localToken===' '){ 
+      if(!localToken || localToken==='' || localToken==='null' || localToken==='undefined'){ 
         this.$message.warning('AI功能需要登录');
         return false;
       }else{
@@ -433,7 +426,7 @@ export default {
     },
     //打开nas云存储地址
     openNasCloud(){
-        getSimpleConfig('nas_share').then(res=>{
+        getDict('nas_share').then(res=>{
           if(res.code==200){ 
             window.open(res.data.dictValue);
           }else{
@@ -478,67 +471,56 @@ export default {
       }
     }
   }
-  
+  // 详情区域
   .detail-content {
     max-width: 1500px;
     margin: 0 auto;
     display: flex;
     gap: 30px;
     width: 100%;
-    
+    // 主内容
     .main-content {
       flex: 1;
-      
       .content-header {
         display: flex;
         gap: 30px;
         margin-bottom: 30px;
-        
         .poster-section {
           flex: 0 0 400px;
-          
           .movie-poster {
             width: 100%;
             border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            display: block;
-            
           }
         }
-        
+        // 基本信息
         .info-section {
           flex: 1;
-          
           .movie-title {
             font-size: 32px;
             margin-bottom: 10px;
             color: white;
           }
-          
           .original-title {
             font-size: 18px;
             color: #aaa;
             margin-bottom: 10px;
             font-style: italic;
           }
-          
+          // 信息
           .movie-meta {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-top: 20px;
             margin-bottom: 20px;
-            
             .meta-item {
               display: flex;
               flex-direction: column;
-              
               .meta-label {
                 font-size: 14px;
                 color: #aaa;
                 margin-bottom: 5px;
-              }
-              
+              }     
               .meta-value {
                 font-size: 16px;
                 font-weight: bold;
@@ -549,10 +531,9 @@ export default {
               }
             }
           }
-          
+          // tags
           .tags-section {
             margin-bottom: 20px;
-            
             .tag-item {
               margin-right: 8px;
               margin-bottom: 8px;
@@ -560,13 +541,12 @@ export default {
               border-color: rgba(26, 188, 156, 0.3);
             }
           }
-          
+          // 简介
           .movie-description {
             h3 {
               font-size: 18px;
               margin-bottom: 10px;
             }
-            
             p {
               line-height: 1.6;
               color: #ccc;
@@ -574,7 +554,7 @@ export default {
           }
         }
       }
-      
+      // 标签
       .tags-section-full {
         margin-bottom: 20px;
         .tags-list {
@@ -586,7 +566,7 @@ export default {
           }
         }
       }
-
+      // 按钮
       .action-buttons {
         display: flex;
         gap: 15px;
@@ -615,8 +595,8 @@ export default {
           }
         }
       }
-      
-      .ai-summary-section {
+    // ai回复区域
+    .ai-summary-section {
         min-height: 120px;
         margin-top: 20px;
         padding: 20px;
@@ -629,69 +609,49 @@ export default {
           margin: 0 0 15px 0;
           color: #1abc9c;
         }
-        
-    .ai-summary-content {
-        margin-bottom: 15px;
-        position: relative;
-        background: linear-gradient(45deg, #6cb3ff, #8a2be2, #1abc9c, #ff6b6b, #ffa500, #e8469c, #00ff7f, #9370db, #6cb3ff);
-        background-size: 400% 400%;
-        animation: gradientShift 8s ease infinite;
-        border-radius: 8px;
-        padding: 15px;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        color: transparent;
-        
-        .summary-text {
-          text-align: left;
-          line-height: 1.6;
+        // 文本内容
+       .ai-summary-content {
+          margin-bottom: 15px;
+          position: relative;
           background: linear-gradient(45deg, #6cb3ff, #8a2be2, #1abc9c, #ff6b6b, #ffa500, #e8469c, #00ff7f, #9370db, #6cb3ff);
-          background-size: 600% 600%;
-          animation: gradientShift 20s ease infinite;
+          background-size: 400% 400%;
+          animation: gradientShift 8s ease infinite;
+          border-radius: 8px;
+          padding: 15px;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          white-space: pre-wrap;
-          word-break: break-word;
-        }
-        
-        .loading-indicator {
-          margin-top: 10px;
-          background: linear-gradient(45deg, #6cb3ff, #8a2be2, #1abc9c, #ff6b6b, #ffa500, #e8469c, #00ff7f, #9370db, #6cb3ff);
-          background-size: 600% 600%;
-          animation: gradientShift 20s ease infinite;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          font-style: italic;
+          color: transparent;
           
-          .el-icon-loading {
-            margin-right: 5px;
+          .summary-text {
+            text-align: left;
+            line-height: 1.6;
+            background: linear-gradient(45deg, #6cb3ff, #8a2be2, #1abc9c, #ff6b6b, #ffa500, #e8469c, #00ff7f, #9370db, #6cb3ff);
+            background-size: 600% 600%;
+            animation: gradientShift 20s ease infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: pre-wrap;
+            word-break: break-word;
+          }
+        
+       }
+
+        @keyframes gradientShift {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
           }
         }
       }
 
-      @keyframes gradientShift {
-        0% {
-          background-position: 0% 50%;
-        }
-        50% {
-          background-position: 100% 50%;
-        }
-        100% {
-          background-position: 0% 50%;
-        }
-      }
-
-        .stop-button {
-          background-color: rgba(231, 76, 60, 0.2);
-          border-color: #e74c3c;
-          color: #e74c3c;
-        }
-      }
-
-      
+      //角色 
       .character-section {
         margin-top: 30px;
         max-width: 1100px;
@@ -710,19 +670,6 @@ export default {
           padding: 10px 5px 20px 5px;
           scrollbar-width: thin;
           scrollbar-color: #1abc9c transparent;
-          
-          &::-webkit-scrollbar {
-            height: 6px;
-          }
-          
-          &::-webkit-scrollbar-thumb {
-            background: #1abc9c;
-            border-radius: 3px;
-          }
-          
-          &::-webkit-scrollbar-track {
-            background: transparent;
-          }
         }
         
         .character-item {
@@ -749,7 +696,7 @@ export default {
             align-items: center;
             justify-content: center;
             ::v-deep .el-image__inner {
-              object-position: top;  // 添加这行，使图片顶部对齐
+              object-position: top; 
               width: 100%;
               height: 100%;
             }
@@ -775,7 +722,7 @@ export default {
         }
       }
     }
-    
+    // 侧边栏
     .sidebar {
       flex: 0 0 300px;
       background-color: rgba(30, 30, 30, 0.7);
@@ -816,18 +763,18 @@ export default {
       }
     }
   }
-  
-  .section-title {
-      font-size: 24px;
-      margin: 30px 0 20px 0;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #1abc9c;
-  }
-  
-   .episode-section {
+
+  // 章节信息
+  .episode-section {
     margin-top: 30px;
     max-width: 1100px;
-    
+      
+    .section-title {
+        font-size: 24px;
+        margin: 30px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #1abc9c;
+    }
     .episode-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -867,33 +814,23 @@ export default {
       flex: 1;
       display: flex;
       flex-direction: column;
-      
       .episode-title {
         font-size: 16px;
         margin: 0 0 5px 0;
         color: white;
         font-weight: bold;
       }
-      
       .episode-subtitle {
         font-size: 14px;
         color: #aaa;
         margin: 0 0 8px 0;
       }
-      
       .episode-date, .episode-duration {
         font-size: 13px;
         color: #777;
         margin: 3px 0;
       }
-      
-      .episode-description {
-        font-size: 13px;
-        color: #ccc;
-        margin: 8px 0 0 0;
-        line-height: 1.4;
-        flex: 1;
-      }
+
     }
   }
   

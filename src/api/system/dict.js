@@ -2,8 +2,8 @@ import api from '@/utils/request.js'
 
 const module = '/system/dict'
 
-//随机获取数据
-export function getSimpleConfig(key) {
+//获取字典配置
+export function getDict(key) {
   let url = module+'/getByKey'
   return api.get(url,{
     params:{

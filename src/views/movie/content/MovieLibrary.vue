@@ -29,6 +29,7 @@
           @click="viewMovieDetail(movie.id)"
         >
           <div class="movie-poster">
+            <!-- 图片 -->
             <div class="movie-poster">
               <el-image 
                 :src="movie.posterUrl" 
@@ -44,6 +45,7 @@
                   <i class="el-icon-picture-outline"></i> 图片加载失败
                 </div>
               </el-image>
+              <!-- 操作按钮 -->
               <div 
                 class="movie-overlay" 
                 @mouseenter="currentHoveredMovie = movie.id" 
@@ -65,11 +67,13 @@
                 </el-dropdown>
               </div>
             </div>
+            <!-- 悬浮信息 -->
             <div class="movie-details">
               <span class="movie-rating">{{ movie.rating }}</span>
               <span class="movie-directory">{{ movie.platform }}</span>
             </div>
           </div>
+          <!-- 下方信息 -->
           <div class="movie-info">
             <h3>{{ movie.name }}</h3>
             <span class="movie-year">{{ movie.releaseYear }}</span>
@@ -78,14 +82,6 @@
       </div>
     
     </div>
-
-    <!-- 加载更多提示 -->
-    <!-- <div v-if="!searchKeyword && hasMore && !loadingMore && movies.length > 0" class="load-more-tips">
-      <p>滚动加载更多...</p>
-    </div>
-    <div v-if="hasMore && !searchKeyword" class="no-more-tips">
-      <p>没有更多数据了</p>
-    </div> -->
   </div>
 </template>
 
@@ -132,7 +128,7 @@ export default {
     // 添加滚动监听事件
     window.addEventListener('scroll', this.handleScroll);
   },
-    beforeDestroy() {
+  beforeDestroy() {
     // 移除滚动监听事件
     window.removeEventListener('scroll', this.handleScroll);
   },
@@ -144,9 +140,9 @@ export default {
           let data = res.data.list;
           this.totalCount = res.data.total;
           data.forEach(movie => {
-          movie.posterUrl = movie.posterUrl || "",
-          movie.rating = movie.rating?movie.rating.toFixed(1):0;
-          movie.imageLoadError = false; // 添加图片加载状态
+            //处理下数据
+            movie.posterUrl = movie.posterUrl || "",
+            movie.rating = movie.rating?movie.rating.toFixed(1):0;
           });
           
           if (isLoadMore) {
@@ -177,7 +173,7 @@ export default {
       this.loadMovies(true);
     },
     
-    // 搜索电影
+    // 关键字搜索电影
     async searchMovies() {
       if (!this.searchKeyword.trim()) {
         this.initSearch();
@@ -199,7 +195,6 @@ export default {
           data.forEach(movie => {
             movie.posterUrl = movie.posterUrl || "";
             movie.rating = movie.rating ? movie.rating.toFixed(1) : 0;
-            movie.imageLoadError = false; // 添加图片加载状态
           });
           this.movies = data;
         }
@@ -281,7 +276,7 @@ export default {
         document.documentElement.offsetHeight
       );
       
-      // 当距离底部小于300px时触发加载
+      // 当距离底部小于100px时触发加载
       return scrollTop + windowHeight >= documentHeight - 100;
     },
 

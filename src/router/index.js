@@ -7,7 +7,12 @@ const constantRoutes = [
     path: '/',
     name: 'home',
     component: () => import('@/views/Home.vue')
-  }
+  },
+  {
+    path: '/rimworld',
+    name: 'rimworld',
+    component: () => import('@/views/rimworld/TranslateMod.vue')
+  },
 ]
 
 /**

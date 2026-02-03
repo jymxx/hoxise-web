@@ -17,6 +17,7 @@
         mode="vertical"
         default-opened
       >
+        <!-- 一级菜单 -->
         <el-menu-item 
           v-for="item in simpleMenuItems" 
           :key="item.key" 
@@ -25,9 +26,9 @@
           <i :class="item.icon"></i>
           <span slot="title">{{ item.name }}</span>
         </el-menu-item>
-        
+        <!-- 子级菜单 -->
         <el-submenu 
-          v-for="subMenu in subMenuItems" 
+          v-for="subMenu in libraryMenus" 
           :key="subMenu.key" 
           :index="subMenu.key" 
         >
@@ -55,6 +56,7 @@
 import { movieStat } from '@/api/movie/movieCatalog'
 export default {
   name: 'MovieTabs',
+  inject: ['showSmsLoginDlgProvide'],//显示短信登录弹窗
   data() {
     return {
       defaultActive: 'home',
@@ -62,7 +64,8 @@ export default {
         { key: 'home', name: '首页', icon: 'el-icon-menu' },
         { key: 'history', name: '收藏记录', icon: 'el-icon-film' }
       ],
-      subMenuItems: [
+      //子级菜单项
+      libraryMenus: [
         { 
           key: 'library', 
           name: '影视库', 
@@ -85,44 +88,39 @@ export default {
   methods: {
     loadData(){
       movieStat().then(res => {
-           let data = res.data;
+        let data = res.data;
         // 根据后端字段更新菜单项计数
-        this.subMenuItems.forEach(menu => {
-          // 更新一级菜单"影视库"的总计数
-          if (menu.key === 'movies') {
-            menu.count = data?.totalCount || 0;
-          }
-          
+        this.libraryMenus.forEach(menu => {
           // 更新子菜单的计数
-          if (menu.children && Array.isArray(menu.children)) {
-            menu.children.forEach(child => {
-              switch (child.key) {
-                case 'anime':
-                  child.count = data?.totalAnime || '';
-                  break;
-                case 'animeMovie':
-                  child.count = data?.totalAnimeMovie || '';
-                  break;
-                case 'jpTV':
-                  child.count = data?.totalJpTv || '';
-                  break;
-                case 'library':
-                  child.count = data?.totalCount || '';
-                  break;
-                default:
-                  child.count = 0;
-              }
-            });
-          }
+          menu.children.forEach(child => {
+            switch (child.key) {
+              case 'anime':
+                child.count = data?.totalAnime || '';
+                break;
+              case 'animeMovie':
+                child.count = data?.totalAnimeMovie || '';
+                break;
+              case 'jpTV':
+                child.count = data?.totalJpTv || '';
+                break;
+              case 'library':
+                child.count = data?.totalCount || '';
+                break;
+              default:
+                child.count = 0;
+            }
+          });
         });   
       })
     },
+    // 选择菜单
     handleSelect(index){
         this.$emit('menu-selected', index);
     },
     // 点击logo
     clickLogo(){
-        this.$emit('show-login');
+      //登录弹窗
+      this.showSmsLoginDlgProvide();
     }
   }
 }
@@ -174,7 +172,6 @@ export default {
     
     .menu-count {
       margin-left: auto;
-      // background-color: #1abc9c;
       color: white;
       border-radius: 10px;
       padding: 2px 8px;

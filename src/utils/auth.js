@@ -2,6 +2,7 @@ const AccessTokenKey = 'hoxise_token'
 const RefreshTokenKey = 'hoxise_refresh_token'
 
 import store from '@/store/index'
+
 // ========== Token 相关 ==========
 
 export function getToken () {

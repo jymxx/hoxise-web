@@ -2,18 +2,15 @@
   <div class="movie-home">
     <div class="container">
       <!-- 侧边栏 -->
-      <div class="sidebar-wrapper">
-        <MovieTabs
-          @menu-selected="selectMenu" 
-          @show-login="showLoginDialog"
-        />         
-      </div>
+      <MovieTabs
+        @menu-selected="selectMenu" 
+      />  
       
       <!-- 主内容区 -->
       <div class="main-content">
+        <!-- 首页 -->
         <MovieHome
           v-if="activeMenu=='home'"
-          @show-login="showLoginDialog"
           @go-allMovie="selectMenu"
           @go-detail="openDetail"
           ref="movieHomeRef"/>
@@ -27,7 +24,10 @@
          />
       </div>
 
-      <!-- 详情 -->
+      <!-- 详情 
+        目前使用组件而非路由
+        因为详情里没多少操作
+        -->
       <div 
         v-if="showDetail" 
         class="detail-overlay"
@@ -42,11 +42,13 @@
           />
         </div>
       </div>
+      
     </div>
 
     <!-- 短信登录弹窗 -->
     <SmsLoginDialog
-      ref="smsLoginDialog"
+      v-if="showSmsLogin"
+      @close="showSmsLogin = false"
     />
 
     <!-- 匹配组件 -->
@@ -80,11 +82,17 @@ export default {
     MovieMatchingDialog,
 
   },
-
+  provide() {
+    return {
+      showSmsLoginDlgProvide: this.showLoginDialog,
+      showDetailDlgProvide: this.openDetail,
+    }
+  },
   data() {
     return {
       activeMenu: 'home',
-      searchDirectory: '',//查询目录 动漫、动漫电影、日剧
+      showSmsLogin: false,//短信登录组件显示
+      searchDirectory: '',//查询目录 如动漫、动漫电影、日剧
       detailCatalogid: '',//详情影视id,
       showDetail: false,///详情页显示
       showMatching: false, //匹配组件显示
@@ -111,26 +119,21 @@ export default {
     selectMenu(key) {
       switch (key) {
         case 'home':
+          //点击刷新随机影视
           if (this.$refs.movieHomeRef) {
             this.$refs.movieHomeRef.getRandomMovies();
           }
-          this.searchDirectory = '';
+          this.activeMenu = key;
           break;
         case 'library':
-          this.searchDirectory = '';
-          break;
         case 'history':
           this.searchDirectory = '';
+          this.activeMenu = 'library';
           break;
         default:
           this.searchDirectory = key;
+          this.activeMenu = 'library';
           break;
-      }
-      //处理key
-      if (key == 'home') {
-        this.activeMenu = key;
-      }else{
-        this.activeMenu = 'library';
       }
     },
     //打开详情页面
@@ -148,9 +151,9 @@ export default {
     },
     //显示登录弹窗组件
     showLoginDialog() {
-      this.$refs.smsLoginDialog.show();
+      this.showSmsLogin = true;
     },
-    //展示匹配组件
+    //显示匹配组件
     showMatchingDialog(movie) {
       this.matchingMovie = movie;
       this.showMatching= true;
@@ -163,8 +166,6 @@ export default {
         this.$refs.movieDetailRef.init();
         return;
       }else if (this.activeMenu == 'library') {
-        //因为有缓存 所以重新加载没用 
-        //考虑是否清理缓存？
         // this.$refs.movieLibraryRef.loadMovies();
       }
 

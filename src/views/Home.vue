@@ -4,7 +4,6 @@
     <div class="icp-info">
       <p>ICP备案/许可证号：蜀ICP备2025179642号 | 川公网安备51010702043884号</p>
     </div>
-
     <!-- 点击界面出现烟花效果 -->
     <Hanabi class="firework" />
   </div>
@@ -20,14 +19,6 @@ export default {
     MovieHome,
     Hanabi
   },  
-  data() {
-    return {
-      
-    }
-  },
-  methods: {
-
-  }
 }
 </script>
 

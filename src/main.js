@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import store from './store/index'
+import directive from './directives' // directive
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
@@ -8,6 +9,8 @@ import router from './router/index' //路由
 import 'video.js/dist/video-js.css'//视频播放器
 
 Vue.use(ElementUI)
+Vue.use(directive)
+
 //配置请求的根路径
 Vue.prototype.$axios = axios
 Vue.prototype.$store = store

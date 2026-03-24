@@ -15,6 +15,7 @@
               :src="movieDetail.posterUrl" 
               fit="cover"
               class="movie-poster image-slot"
+              lazy
             >
               <div slot="placeholder" class="image-slot">
                 <i class="el-icon-loading"></i>
@@ -89,13 +90,10 @@
           <el-button type="primary" size="large" class="play-button" @click="handleButtonClick('play')">
             <i class="el-icon-video-play"></i> 立即观看
           </el-button>
-          <el-button type="primary" size="large" class="play-button" @click="handleButtonClick('nasCloud')">
-            <i class="el-icon-upload"></i> Nas云存储库
-          </el-button>
           <el-button size="large" class="collect-button"  @click="handleButtonClick('collect')">
             <i class="el-icon-star-off"></i> 收藏 
           </el-button>
-          <el-button v-if="this.roles && this.roles.includes('manager')" type="primary" size="large" class="play-button"  @click="handleButtonClick('match')">
+          <el-button v-hasRole="['manager']" type="primary" size="large" class="play-button"  @click="handleButtonClick('match')">
             <i class="el-icon-search"></i> 手动匹配信息
           </el-button>
           <el-button type="primary" size="large" class="play-button" 
@@ -228,11 +226,9 @@
 
 <script>
 import { getMovieDetail,getMovieCharacter,getMovieEpisode,getPlayerUrl } from '@/api/movie/movieDb';
-import { getDict } from '@/api/system/dict';
 import { getAISummary } from '@/api/ai/movie';
 import { isLogin } from '@/api/system/auth';
 import { getToken } from '@/utils/auth';
-import { mapState } from 'vuex'
 import SimpleVideoPlayer from '@/views/movie/components/SimpleVideoPlayer.vue';
 
 export default {
@@ -246,24 +242,17 @@ export default {
   data() {
     return {
       defaultImage: require('@/assets/images/default-avatar.png'),
-      movieDetail: null, // 影视详情数据
+      movieDetail: {}, // 影视详情数据
       characters: [],//角色数据
       episodes: [],//章节数据
       showVideoPlayer: false,//视频播放器显示状态
       currentVideoUrl: '',//视频播放器地址
-      currentEpisode: null,//当前播放的章节数据
+      currentEpisode: {},//当前播放的章节数据
       showAISummary: false,//AI摘要显示状态
       aiSummaryText: '',//摘要回复文本
       isAIGenerating: false,//摘要生成中
       aiEventSource: null,//连接源
     }
-  },
-  computed: {
-    ...mapState({
-      userId: state => state.user.userId,
-      name: state => state.user.name,
-      roles: state => state.user.roles,
-    }),
   },
   mounted() {
     this.init();
@@ -326,9 +315,6 @@ export default {
         case 'play': //播放
           this.openVideoPlayer();
           break;
-        case 'nasCloud': //nas云
-          this.openNasCloud();
-          break;
         case 'match': //匹配
           this.openMatchingDialog();
           break;
@@ -355,6 +341,8 @@ export default {
     
     // 生成AI简介
     async generateAISummary() {
+      this.$message.warning('功能维护升级中...');
+      return
       const checkRes = await this.checkLogin();
       if (!checkRes){
         this.$emit('show-login');
@@ -407,9 +395,7 @@ export default {
         }
       }
       return true;
-    },
-
-    //返回
+    },    //返回
     goBack() {
       this.$emit('go-back');  // 使用$emit触发go-back事件
     },
@@ -423,16 +409,6 @@ export default {
           this.$message.error(res.message || '获取播放地址失败');
         }
       })
-    },
-    //打开nas云存储地址
-    openNasCloud(){
-        getDict('nas_share').then(res=>{
-          if(res.code==200){ 
-            window.open(res.data.dictValue);
-          }else{
-            this.$message.error(res.message || '获取nas云存储地址失败');
-          }
-        })
     },
     //打开匹配组件
     openMatchingDialog(){

@@ -19,6 +19,7 @@
                   :src="movies[0]?.posterUrl"
                   fit="cover"
                   class="image-slot"
+                  lazy
                 >
                   <div slot="placeholder" class="image-slot">
                     <i class="el-icon-loading"></i>
@@ -58,6 +59,7 @@
                     :src="movie.posterUrl"
                     fit="cover"
                     class="image-slot"
+                    lazy
                   >
                     <div slot="placeholder" class="image-slot">
                       <i class="el-icon-loading"></i>
@@ -151,7 +153,7 @@
 <script>
 import { randomQuery,lastUpdate } from '@/api/movie/movieCatalog';
 import AiChat from './home/AiChat.vue'; 
-
+import { getTargetUserIdOrDefault } from '@/utils/route';
 import '@/assets/css/responsive-moviehome.css'; // 1080p兼容
 
 export default {
@@ -163,17 +165,18 @@ export default {
     return {
       movies: [],
       lastUpdate: [],
+      targetUserid: getTargetUserIdOrDefault(this),//查询目标用户数据
     }
   },
   mounted() {
     this.getRandomMovies();
     this.getLastUpdate();
   },
-
-  methods: {
+  methods:{
     //随机影视
     getRandomMovies() {
-      randomQuery(20).then(res => {
+      //获取路由id
+      randomQuery(20, this.targetUserid).then(res => {
         if(res.code ==200){
           this.movies = res.data;
           this.movies.forEach(movie => {
@@ -187,7 +190,7 @@ export default {
     },
     //最近更新
     getLastUpdate() {
-      lastUpdate().then(res => {
+      lastUpdate(this.targetUserid).then(res => {
         this.lastUpdate = res.data;
         this.lastUpdate.forEach(movie => {
           movie.posterUrl = movie.posterUrl==null?"":movie.posterUrl,

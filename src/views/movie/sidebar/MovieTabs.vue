@@ -1,9 +1,13 @@
 <template>
   <div class="sidebar">
+    <!-- 用户信息 -->
     <div class="sidebar-header">
-      <h2 class="logo-text" @click="clickLogo">风间</h2>
+      <!-- 未登录时 -->
+      <h2 v-if="!isLogin" class="logo-text" @click="clickLogo">风间</h2>
+      <!-- 登录后显示用户信息组件 -->
+      <user-info-dropdown v-else />
     </div>
-    
+
     <div class="movie-tabs">
       <el-menu
         :default-openeds="['library']"
@@ -18,28 +22,28 @@
         default-opened
       >
         <!-- 一级菜单 -->
-        <el-menu-item 
-          v-for="item in simpleMenuItems" 
-          :key="item.key" 
+        <el-menu-item
+          v-for="item in simpleMenuItems"
+          :key="item.key"
           :index="item.key"
         >
           <i :class="item.icon"></i>
           <span slot="title">{{ item.name }}</span>
         </el-menu-item>
         <!-- 子级菜单 -->
-        <el-submenu 
-          v-for="subMenu in libraryMenus" 
-          :key="subMenu.key" 
-          :index="subMenu.key" 
+        <el-submenu
+          v-for="subMenu in libraryMenus"
+          :key="subMenu.key"
+          :index="subMenu.key"
         >
           <template slot="title">
             <i :class="subMenu.icon"></i>
             <span>{{ subMenu.name }}</span>
             <span class="menu-count">{{ subMenu.count }}</span>
           </template>
-          <el-menu-item 
-            v-for="child in subMenu.children" 
-            :key="child.key" 
+          <el-menu-item
+            v-for="child in subMenu.children"
+            :key="child.key"
             :index="child.key"
           >
             <i :class="child.icon"></i>
@@ -54,9 +58,23 @@
 
 <script>
 import { movieStat } from '@/api/movie/movieCatalog'
+import { getTargetUserIdOrDefault } from '@/utils/route';
+import UserInfoDropdown from '@/views/system/components/UserInfoDropdown.vue';
+
 export default {
   name: 'MovieTabs',
+  components: {
+    UserInfoDropdown
+  },
   inject: ['showSmsLoginDlgProvide'],//显示短信登录弹窗
+  computed: {
+    // 使用计算属性从 store 获取登录状态，实现响应式更新
+    isLogin() {
+      const userId = this.$store.getters.userId;
+      console.log('isLogin computed, userId:', userId);
+      return !!userId;
+    }
+  },
   data() {
     return {
       defaultActive: 'home',
@@ -66,28 +84,30 @@ export default {
       ],
       //子级菜单项
       libraryMenus: [
-        { 
-          key: 'library', 
-          name: '影视库', 
+        {
+          key: 'library',
+          name: '影视库',
           icon: 'el-icon-video-play',
           count: '',
           children: [
             { key: 'library', name: '全部', icon: 'el-icon-s-grid', count: '' },
             { key: 'anime', name: '动漫', icon: 'el-icon-star-off', count: '' },
             { key: 'animeMovie', name: '动漫电影', icon: 'el-icon-video-camera', count: '' },
-            { key: 'jpTV', name: '日剧', icon: 'el-icon-monitor', count: '' },
-          ] 
+            { key: 'other', name: '其它', icon: 'el-icon-monitor', count: '' },
+          ]
         }
-      ]
+      ],
+      targetUserid: getTargetUserIdOrDefault(this),//查询目标用户数据
     }
   },
   mounted() {
     this.loadData();
   },
-     
+
   methods: {
+
     loadData(){
-      movieStat().then(res => {
+      movieStat(this.targetUserid).then(res => {
         let data = res.data;
         // 根据后端字段更新菜单项计数
         this.libraryMenus.forEach(menu => {
@@ -100,8 +120,8 @@ export default {
               case 'animeMovie':
                 child.count = data?.totalAnimeMovie || '';
                 break;
-              case 'jpTV':
-                child.count = data?.totalJpTv || '';
+              case 'other':
+                child.count = data?.totalOther || '';
                 break;
               case 'library':
                 child.count = data?.totalCount || '';
@@ -110,14 +130,14 @@ export default {
                 child.count = 0;
             }
           });
-        });   
+        });
       })
     },
     // 选择菜单
     handleSelect(index){
         this.$emit('menu-selected', index);
     },
-    // 点击logo
+    // 点击 logo
     clickLogo(){
       //登录弹窗
       this.showSmsLoginDlgProvide();
@@ -134,27 +154,27 @@ export default {
   height: calc(100vh);
   position: fixed;
   overflow-y: auto;
-  
+
   .sidebar-header {
     padding: 20px;
     background-color: #1a252f;
-    
+
     .logo-text {
       cursor: pointer;
       margin: 0;
       font-size: 24px;
       font-weight: bold;
       color: #ecf0f1;
-      text-shadow: 
+      text-shadow:
         2px 2px 4px rgba(0, 0, 0, 0.5),
         0 0 10px rgba(26, 188, 156, 0.3);
       font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
       letter-spacing: 2px;
       transition: all 0.3s ease;
-      
+
       &:hover {
         color: #1abc9c;
-        text-shadow: 
+        text-shadow:
           2px 2px 4px rgba(0, 0, 0, 0.5),
           0 0 15px rgba(26, 188, 156, 0.6);
         transform: scale(1.05);
@@ -164,12 +184,12 @@ export default {
 }
 .sidebar-menu {
   text-align: left;
-  
+
   ::v-deep .el-menu-item,
   ::v-deep .el-submenu__title {
     display: flex;
     align-items: center;
-    
+
     .menu-count {
       margin-left: auto;
       color: white;
@@ -179,7 +199,7 @@ export default {
       line-height: 1;
     }
   }
-  
+
   ::v-deep .el-submenu__title {
     .menu-count {
       margin-right: 20px; // 为箭头留出空间

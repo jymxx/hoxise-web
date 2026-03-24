@@ -50,7 +50,7 @@
                 class="movie-overlay" 
                 @mouseenter="currentHoveredMovie = movie.id" 
                 @mouseleave="currentHoveredMovie = null" 
-                v-if="roles && roles.includes('manager')"
+                v-hasRole="['manager']"
               >
                 <el-dropdown trigger="click" @command="(command) => handleDropdownCommand(command, movie)">
                   <button 
@@ -88,8 +88,9 @@
 <script>
 import { getLibrary,pageSimple } from '@/api/movie/movieCatalog';
 import { deleteCatalog } from '@/api/movie/movieManage';
-import { mapState } from 'vuex'
-import '@/assets/css/responsive-movielibrary.css';
+import { getTargetUserIdOrDefault } from '@/utils/route';
+import '@/assets/css/responsive-movielibrary.css';//1080P兼容
+
 export default {
   name: 'MovieLibrary',
   props: {
@@ -101,22 +102,17 @@ export default {
       pageParams:{
         pageNum:1,
         pageSize:50,
-        directory:this.directory
+        directory:this.directory,
+        userid: getTargetUserIdOrDefault(this),//查询目标用户数据
+        notMatched: false,//是否过滤未匹配数据
       },
       totalCount: 0,
       searchKeyword: '', // 搜索关键词
       isSearching: false, // 是否正在搜索
       currentHoveredMovie: null, // 跟踪当前悬停的电影
       loadingMore: false, // 是否正在加载更多
-      hasMore: true // 没有更多数据了
+      hasMore: true, // 没有更多数据了
     }
-  },
-  computed: {
-    ...mapState({
-      userId: state => state.user.userId,
-      name: state => state.user.name,
-      roles: state => state.user.roles,
-    }),
   },
   watch: {
     directory: function(newVal, oldVal) {
@@ -187,6 +183,8 @@ export default {
         pageSize:50,
         directory:this.directory,
         keyword:this.searchKeyword,
+        userid: getTargetUserIdOrDefault(this),//查询目标用户数据
+        notMatched: false,//是否过滤未匹配数据
       }
       try{
         const res = await pageSimple(searchParams);
@@ -208,7 +206,9 @@ export default {
         this.pageParams={
           pageNum:1,
           pageSize:50,
-          directory:this.directory
+          directory:this.directory,
+          userid: getTargetUserIdOrDefault(this),//查询目标用户数据
+          notMatched: false,//是否过滤未匹配数据
         }
         this.searchKeyword = '';
         this.movies = [];
@@ -279,7 +279,6 @@ export default {
       // 当距离底部小于100px时触发加载
       return scrollTop + windowHeight >= documentHeight - 100;
     },
-
   }
 }
 </script>

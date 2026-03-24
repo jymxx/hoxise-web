@@ -104,16 +104,15 @@ export default {
   },
   methods: {
     //初始化登录信息
-    loginInit(){
+    async loginInit(){
       if (!getToken()) {
         return;
       }
-      getUserInfo().then(res => {
-        if (res.code == 200) {
+      const res = await getUserInfo();
+      if (res.code == 200) {
           let data = res.data;
           setUserInfo(data);
         }
-      })
     },
     //sidebar菜单点击事件
     selectMenu(key) {

@@ -23,3 +23,15 @@ export function deleteCatalog(catalogid) {
   let url = module+'/deleteCatalog/'+catalogid;
   return api.delete(url);
 }
+
+//扫描目录上传数据
+export function scanUpload(data) {
+  let url = module+'/scanUpload'
+  return api.post(url, data);
+}
+
+//自动匹配数据
+export function autoMatch() {
+  let url = module+'/autoMatch'
+  return api.post(url);
+}

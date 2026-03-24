@@ -9,10 +9,11 @@ const constantRoutes = [
     component: () => import('@/views/Home.vue')
   },
   {
-    path: '/rimworld',
-    name: 'rimworld',
-    component: () => import('@/views/rimworld/TranslateMod.vue')
-  },
+    path: '/:userid/profile',
+    name: 'UserProfile',
+    component: () => import('@/views/Home.vue'),
+    props: true
+  }
 ]
 
 /**

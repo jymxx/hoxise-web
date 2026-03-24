@@ -3,9 +3,7 @@ const user = {
   state: {
     id: '', 
     name: '',
-    token:'',
     roles:[]
-
   },
 
   mutations: {

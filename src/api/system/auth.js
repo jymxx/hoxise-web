@@ -8,6 +8,11 @@ export function loginBySms(formData) {
   return api.post(url, formData);
 }
 
+//登出
+export function logout() {
+  let url = module+'/logout'
+  return api.post(url);
+}
 
 //判断是否登录
 export function isLogin() {

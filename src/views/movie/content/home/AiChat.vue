@@ -181,10 +181,13 @@ export default {
 
     // 获取AI推荐
     async getAIRecommendation(userText) {
+      this.$message.warning('功能维护升级中...');
+      return 
       this.stopAddShow = false;
       if (this.isAIGenerating) {
         return;
       }
+      //校验登录
       const checkRes = await this.checkLogin();
       if (!checkRes){
         this.showSmsLoginDlgProvide();

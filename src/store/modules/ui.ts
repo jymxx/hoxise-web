@@ -12,6 +12,7 @@ import { getSettings, setSetting } from '@/utils/setting'
  */
 export interface UserSettings {
   enableBgEffect: boolean | string // 背景特效开关
+  enableClickEffect : boolean | string // 点击特效开关
   enableSleekLineCursor: boolean | string // 流线鼠标轨迹开关
 }
 
@@ -29,6 +30,7 @@ export const useUIStore = defineStore('ui', () => {
 
   // ========== 用户设置 有默认值 ==========
   const settings = ref<UserSettings>({
+    enableClickEffect: true,
     enableBgEffect: true,
     enableSleekLineCursor: false,
   })
@@ -39,6 +41,7 @@ export const useUIStore = defineStore('ui', () => {
   const loadSettings = () => {
     const saved = getSettings()
     if (saved.enableBgEffect != null) settings.value.enableBgEffect = saved.enableBgEffect
+    if (saved.enableClickEffect != null) settings.value.enableClickEffect = saved.enableClickEffect
     if (saved.enableSleekLineCursor != null) settings.value.enableSleekLineCursor = saved.enableSleekLineCursor
   }
 

@@ -159,22 +159,14 @@ const secondaryMovies2 = computed(() => movies.value.slice(6, 11))
 
 // 加载随机影视
 const getRandomMovies = async () => {
-  try {
     const res = await randomQuery(20, getTargetUserid())
     movies.value = res.map(processMovie)
-  } catch (error) {
-    console.error('获取随机影视失败:', error)
-  }
 }
 
 // 加载最近添加
 const getLastUpdate = async () => {
-  try {
     const res = await lastUpdate(getTargetUserid())
     lastUpdateMovies.value = res.map(processMovie)
-  } catch (error) {
-    console.error('获取最近添加失败:', error)
-  }
 }
 
 // 触发详情事件

@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-import { cn } from '@inspira-ui/plugins'
+import { cn } from "@inspira-ui/plugins";
 defineProps({
   count: {
-    // 动画中显示的流星数量。
     type: Number,
     default: 20,
   },
-  class: String, //	应用于流星的额外 CSS 类，便于自定义。
-})
+  class: String,
+});
 </script>
 
 <template>
@@ -25,7 +24,8 @@ defineProps({
         `animate-meteor-effect absolute h-0.5 w-0.5 rotate-45 rounded-[9999px] bg-slate-500 shadow-[0_0_0_1px_#ffffff10] before:absolute before:top-1/2 before:h-px before:w-[50px] before:-translate-y-[50%] before:transform before:bg-linear-to-r before:from-[#64748b] before:to-transparent before:content-['']`,
         $props.class,
       )
-    " />
+    "
+  />
 </template>
 
 <style scoped>
@@ -47,3 +47,4 @@ defineProps({
   animation: meteor 5s linear infinite;
 }
 </style>
+

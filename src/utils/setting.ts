@@ -30,9 +30,6 @@ export function getSettings(): Partial<UserSettings> {
 export function setSetting(key: keyof UserSettings, value: boolean | string): void {
   const settings = getSettings()
   settings[key] = value
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
-  } catch (error) {
-    console.error('保存设置失败:', error)
-  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+
 }

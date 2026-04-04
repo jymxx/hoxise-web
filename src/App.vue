@@ -2,28 +2,35 @@
   <div id="app">
     <router-view />
 
-    <!-- 点击界面出现烟花效果 -->
-    <Hanabi class="firework" />
+    <!-- 鼠标点击 -> 粒子特效 -->
+    <Hanabi v-if="enableClickEffect" />
 
-    <!-- 鼠标拖尾 -> 流线光标 (根据设置控制显示) -->
+    <!-- 鼠标拖尾 -> 流线光标 -->
     <SleekLineCursor v-if="enableSleekLineCursor" />
 
+    <!-- 樱花背景 -->
+    <SakuraBg v-if="enableBgEffect"/>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue'
 import { getUserInfo } from '@/api/system/user'
 import { useUserStore } from '@/store/modules/user'
 import { useUIStore } from '@/store/modules/ui'
 // 特效组件
 import Hanabi from '@/components/Hanabi.vue'
 import SleekLineCursor from '@/components/inspira-ui/cursor/SleekLineCursor.vue'
+import SakuraBg from '@/components/effects/SakuraBg.vue'
+
 
 const uiStore = useUIStore()
 const userStore = useUserStore()
 
 // 从 store 获取设置状态
+const enableClickEffect = computed(() => uiStore.getSetting('enableClickEffect'))
 const enableSleekLineCursor = computed(() => uiStore.getSetting('enableSleekLineCursor'))
+const enableBgEffect = computed(() => uiStore.getSetting('enableBgEffect'))
 
 // 加载用户信息
 const loadUserInfo = async () => {
@@ -38,7 +45,6 @@ const loadUserInfo = async () => {
       avatar: result.avatar,
     })
   } catch (error) {
-    console.error('加载用户信息失败:', error)
   }
 }
 

@@ -3,6 +3,8 @@
     <div class="sidebar-header">
       <h2 v-if="!isLogin" class="logo-text" @click="handleClickLogo">风间</h2>
       <UserInfoDropdown v-if="isLogin" />
+      <!-- 流星雨 -->
+      <Meteors :count="30"/>
     </div>
 
     <div class="movie-tabs">
@@ -35,7 +37,7 @@
         </el-sub-menu>
       </el-menu>
     </div>
-    
+
   </div>
 </template>
 
@@ -47,6 +49,7 @@ import UserInfoDropdown from '@/views/system/components/UserInfoDropdown.vue'
 import { useUserStore } from '@/store/modules/user'
 import { useLogin } from '@/composables/useLogin'
 import { getTargetUserid } from '@/utils/route'
+import Meteors from '@/components/inspira-ui/special-effects/Meteors.vue'
 
 // Emits
 const emit = defineEmits<{
@@ -136,6 +139,8 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     height: 100px;
+    position: relative;
+    overflow: hidden;
     /* Logo 文字 */
     .logo-text {
       cursor: pointer;
@@ -164,21 +169,72 @@ onMounted(() => {
 /* ========== 菜单区域 ========== */
 .sidebar-menu {
   text-align: left;
+  border-right: none;
 
   /* 菜单项和子菜单标题 */
   :deep(.el-menu-item),
   :deep(.el-sub-menu__title) {
     display: flex;
     align-items: center;
+    height: 50px;
+    margin: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 
     /* 数量标签 */
     .menu-count {
       margin-left: auto;
-      color: white;
+      color: #94a3b8;
       border-radius: 10px;
       padding: 2px 8px;
-      font-size: 12px;
+      font-size: 11px;
       line-height: 1;
+      background-color: rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    /* hover 效果 */
+    &:hover {
+      background-color: rgba(26, 188, 156, 0.1);
+
+      .menu-count {
+        background-color: rgba(26, 188, 156, 0.2);
+        color: #1abc9c;
+      }
+    }
+
+    /* 选中状态 */
+    &.is-active {
+      background: linear-gradient(135deg, rgba(26, 188, 156, 0.2), rgba(26, 188, 156, 0.1));
+      box-shadow: 0 2px 12px rgba(26, 188, 156, 0.15);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 60%;
+        background: linear-gradient(180deg, #1abc9c, #148f74);
+        border-radius: 0 4px 4px 0;
+      }
+
+      .menu-count {
+        background-color: #1abc9c;
+        color: white;
+      }
+    }
+  }
+
+  /* 子菜单 */
+  :deep(.el-sub-menu) {
+    margin-bottom: 2px;
+
+    &.is-opened > .el-sub-menu__title {
+      background-color: rgba(255, 255, 255, 0.05);
     }
   }
 
@@ -187,6 +243,43 @@ onMounted(() => {
     .menu-count {
       margin-right: 20px;
     }
+  }
+
+  /* 子菜单项 */
+  :deep(.el-menu--inline .el-menu-item) {
+    height: 44px;
+    margin: 2px 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    margin-left: 12px;
+    margin-right: 12px;
+    width: calc(100% - 24px);
+
+    &:hover {
+      background-color: rgba(26, 188, 156, 0.15);
+    }
+
+    &.is-active {
+      background-color: rgba(26, 188, 156, 0.25);
+    }
+  }
+
+  /* 展开动画 */
+  :deep(.el-menu--inline) {
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+  }
+}
+
+/* 展开动画 keyframes */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

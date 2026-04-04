@@ -2,6 +2,12 @@
   <div class="profile-container">
     <div class="profile-card">
       <div class="profile-header">
+        <div class="header-left">
+          <el-button link class="back-btn" @click="goBack">
+            <el-icon><ArrowLeft /></el-icon>
+            返回
+          </el-button>
+        </div>
         <h2 class="page-title">个人中心</h2>
       </div>
 
@@ -68,19 +74,30 @@
           </el-descriptions>
         </div>
       </div>
+
     </div>
+
+    <!-- 星空背景 -->
+    <StarsBg  star-color="#fff" class="absolute inset-0 bg-transparent" />
   </div>
 
-  <!-- 星空背景 -->
-  <StarsBg :factor="0.05" :speed="50" star-color="#fff" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Camera, Edit, CopyDocument } from '@element-plus/icons-vue'
+import { Camera, Edit, CopyDocument, ArrowLeft } from '@element-plus/icons-vue'
 import { uploadAvatar, getUserInfo, modifyUserInfo } from '@/api/system/user'
 import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'
+import { useRouter } from 'vue-router'
+
+// Router
+const router = useRouter()
+
+// 返回上一页
+const goBack = () => {
+  router.back()
+}
 
 // ========== 类型定义 ==========
 interface UserInfo {
@@ -116,7 +133,7 @@ const copyProfileUrl = async () => {
     await navigator.clipboard.writeText(profileUrl.value)
     ElMessage.success('链接已复制')
   } catch (error) {
-    ElMessage.error('复制失败')
+    ElMessage.error('复制失败' + error)
   }
 }
 /**
@@ -141,8 +158,8 @@ const handleAvatarUpload = async (options: { file: File }) => {
     const newAvatarUrl = await uploadAvatar(file)
     userInfo.value.avatar = newAvatarUrl
     ElMessage.success('头像上传成功')
-  } catch (error) {
-    ElMessage.error('头像上传失败: ' + error)
+  } catch (error : any) {
+    ElMessage.error('头像上传失败: ' + error.message)
   }
 }
 
@@ -165,8 +182,8 @@ const handleSubmit = async () => {
     userInfo.value.nickName = editForm.value.nickName
     ElMessage.success('修改成功')
     editing.value = false
-  } catch (error) {
-    ElMessage.error('修改失败：' + error)
+  } catch (error : any) {
+    ElMessage.error('修改失败：' + error.message)
   } finally {
     submitting.value = false
   }
@@ -179,7 +196,7 @@ const loadUserInfo = async () => {
   try {
     userInfo.value = await getUserInfo()
   } catch (error) {
-    console.error('[加载用户信息失败]', error)
+    ElMessage.error('加载用户信息失败：' + error)
   }
 }
 
@@ -190,49 +207,93 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-// 页面容器
+// ========== 页面容器 ==========
 .profile-container {
+  position: relative;
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: transparent;
   padding: 24px;
 
   // 卡片主体
   .profile-card {
+    position: relative;
+    z-index: 10;
     max-width: 800px;
-    margin: 0 auto;
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    margin: 40px auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
     overflow: hidden;
+    animation: cardFadeIn 0.5s ease;
 
-    // 头部
+    // 头部区域
     .profile-header {
-      padding: 24px;
+      padding: 32px 24px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
 
+      // 返回按钮
+      .header-left {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        .back-btn {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 10px 14px;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+          &:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          }
+        }
+      }
+
+      // 标题
       .page-title {
         margin: 0;
-        font-size: 24px;
+        font-size: 26px;
         font-weight: 600;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
     }
 
-    // 内容区
+    // 内容区域
     .profile-content {
-      padding: 32px;
+      padding: 40px 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 32px;
+      gap: 36px;
 
       // 头像区域
       .avatar-section {
         .avatar-container {
           position: relative;
           cursor: pointer;
+          transition: transform 0.3s ease;
 
           &:hover {
+            transform: scale(1.02);
+
             .avatar-overlay {
               opacity: 1;
             }
@@ -258,7 +319,7 @@ onMounted(() => {
         }
       }
 
-      // 用户信息区域
+      // 信息区域
       .info-section {
         width: 100%;
         max-width: 500px;
@@ -267,13 +328,27 @@ onMounted(() => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
 
           .section-title {
             margin: 0;
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: #2c3e50;
+            position: relative;
+            padding-left: 12px;
+
+            &::before {
+              content: '';
+              position: absolute;
+              left: 0;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 4px;
+              height: 18px;
+              background: linear-gradient(180deg, #667eea, #764ba2);
+              border-radius: 2px;
+            }
           }
 
           .header-actions {
@@ -282,13 +357,26 @@ onMounted(() => {
           }
         }
 
-        :deep(.el-descriptions__label) {
-          width: 100px;
-          font-weight: 500;
-          color: #606266;
+        // 描述列表
+        :deep(.el-descriptions) {
+          .el-descriptions__label {
+            width: 100px;
+            font-weight: 500;
+            color: #606266;
+            background-color: rgba(102, 126, 234, 0.05);
+          }
+
+          .el-descriptions__content {
+            color: #303133;
+            font-weight: 400;
+          }
+
+          .el-descriptions__cell {
+            padding: 14px 16px;
+          }
         }
 
-        // 个人主页链接样式
+        // URL 链接
         .profile-url {
           display: flex;
           justify-content: space-between;
@@ -297,17 +385,29 @@ onMounted(() => {
 
           .url-text {
             flex: 1;
-            font-family: monospace;
-            color: #303133;
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #555;
             word-break: break-all;
-          }
-
-          .el-button {
-            flex-shrink: 0;
+            font-size: 13px;
+            background-color: rgba(102, 126, 234, 0.08);
+            padding: 6px 10px;
+            border-radius: 6px;
           }
         }
       }
     }
+  }
+}
+
+// 卡片进入动画
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

@@ -47,10 +47,10 @@ const createSubtleFireworks = (x: number, y: number) => {
 
   // 创建粒子效果
   confetti({
-    particleCount: 20, // 粒子数量
+    particleCount: 30, // 粒子数量
     angle: 90, // 弹射角度
-    spread: 45, // 扩散角度
-    startVelocity: 8, // 初始速度
+    spread: 360, // 扩散角度
+    startVelocity: 7, // 初始速度
     decay: 0.9, // 粒子衰减
     gravity: 1, // 重力
     drift: 0, // 飘落水平偏移

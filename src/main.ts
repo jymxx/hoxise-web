@@ -15,11 +15,13 @@ import { loadFull } from 'tsparticles'
 
 import { setupDirectives } from './directives' // 自定义指令
 
+
 const app = createApp(App) // 创建 Vue 应用实例
 
 // 注册插件
 app.use(pinia) // 注册状态管理
 app.use(router) // 注册路由
+setupDirectives(app) // 注册自定义指令
 app.use(ElementPlus, { locale: zhCn }) // 注册 UI 组件库（设置中文）
 app.use(Particles, {
   // 注册粒子效果组件
@@ -28,6 +30,5 @@ app.use(Particles, {
   },
 })
 
-setupDirectives(app) // 注册自定义指令
 
 app.mount('#app') // 挂载应用到 DOM

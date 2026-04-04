@@ -1,5 +1,5 @@
 <template>
-  <div class="user-info-dropdown">
+  <div class="user-info-dropdown ">
     <el-dropdown trigger="click" popper-class="user-dropdown-popper">
       <div class="user-info">
         <!-- 用户头像 -->
@@ -39,8 +39,6 @@
       </template>
     </el-dropdown>
 
-    <!-- 流星雨 -->
-    <Meteors :count="20"/>
   </div>
 </template>
 
@@ -53,7 +51,6 @@ import { removeToken } from '@/utils/auth'
 import { useUserStore } from '@/store/modules/user'
 import { useUIStore, type UserSettings } from '@/store/modules/ui'
 import { useRouter } from 'vue-router'
-import Meteors from '@/components/inspira-ui/special-effects/Meteors.vue'
 
 // ========== Store & Router ==========
 const userStore = useUserStore()
@@ -65,7 +62,8 @@ const avatarUrl = computed(() => userStore.avatar || '')
 
 // 设置配置项
 const SETTINGS_CONFIG = [
-  { key: 'enableBgEffect' as keyof UserSettings, label: '背景特效' },
+  { key: 'enableBgEffect' as keyof UserSettings, label: '飘落特效' },
+  { key: 'enableClickEffect' as keyof UserSettings, label: '点击特效' },
   { key: 'enableSleekLineCursor' as keyof UserSettings, label: '鼠标轨迹' },
 ]
 
@@ -105,6 +103,7 @@ const handleLogout = async () => {
   background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
   border-radius: 12px;
   padding: 4px;
+  overflow: hidden; /* 防止流星雨撑大容器 */
 
   /* 用户信息区域 - 头像 + 昵称 + 箭头 */
   .user-info {
@@ -146,7 +145,7 @@ const handleLogout = async () => {
     /* 用户头像 */
     .user-avatar {
       margin-right: 10px;
-      border: 2px solid rgba(26, 188, 156, 0.5);
+      border: 1px solid rgba(26, 188, 156, 0.5);
       transition: all 0.3s ease;
       box-shadow: 0 2px 8px rgba(26, 188, 156, 0.3);
 
@@ -196,11 +195,10 @@ const handleLogout = async () => {
   padding: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(26, 188, 156, 0.1);
   animation: menuSlideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
+  overflow: hidden;
   .el-menu-item,
   :deep(.el-sub-menu__title) {
     border-radius: 8px;
-    margin: 4px 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 44px;
     display: flex;

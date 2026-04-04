@@ -20,7 +20,7 @@
       </el-input>
 
       <!-- 筛选条件下拉 -->
-      <el-popover placement="bottom" :width="400" trigger="click" :hide-after="0" popper-class="filter-popover" class="filter-popover">
+      <el-popover placement="bottom" :width="400" trigger="click" :hide-after="0" popper-class="filter-popover">
         <template #reference>
           <el-button class="filter-btn">
             <el-icon><Filter /></el-icon>
@@ -168,9 +168,7 @@
       </div>
 
       <!-- 没有更多提示 -->
-      <div v-if="!hasMore && movies.length > 0" class="end-title">
-        没有更多了
-      </div>
+      <div v-if="!hasMore && movies.length > 0" class="end-title">没有更多了</div>
     </el-scrollbar>
   </div>
 </template>
@@ -709,6 +707,12 @@ onMounted(() => {
 
 /* 筛选 popover 样式 */
 .filter-popover {
+  &.el-popover {
+    padding: 0 !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); // 外部阴影
+    border: 1px solid rgba(255, 255, 255, 0.1); // 边框
+  }
+
   /* 筛选面板内容 */
   .filter-panel {
     padding: 18px;

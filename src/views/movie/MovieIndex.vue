@@ -1,213 +1,154 @@
 <template>
-  <div class="movie-home">
-    <div class="container">
-      <!-- 侧边栏 -->
-      <MovieTabs
-        @menu-selected="selectMenu" 
-      />  
-      
-      <!-- 主内容区 -->
-      <div class="main-content">
-        <!-- 首页 -->
-        <MovieHome
-          v-if="activeMenu=='home'"
-          @go-allMovie="selectMenu"
-          @go-detail="openDetail"
-          ref="movieHomeRef"/>
-        <!-- 影视库 -->
-        <MovieLibrary
-           v-if="activeMenu=='library'"
-           @go-detail="openDetail"
-           :directory="searchDirectory"
-            @show-matching="showMatchingDialog"
-            ref="movieLibraryRef"
-         />
-      </div>
-
-      <!-- 详情 
-        目前使用组件而非路由
-        因为详情里没多少操作
-        -->
-      <div 
-        v-if="showDetail" 
-        class="detail-overlay"
-      >
-        <div class="detail-content" @click.stop>
-          <MovieDetail 
-            :catalogid="detailCatalogid"
-            @show-login="showLoginDialog"
-            @show-matching="showMatchingDialog"
-            @go-back="detailGoBack()"
-            ref="movieDetailRef"
-          />
-        </div>
-      </div>
-      
+  <!-- 禁用浏览器右键信息 -->
+  <div class="movie-index" @contextmenu.prevent>
+    <!-- 侧边栏 -->
+    <div class="main-sidebar">
+      <MovieTabs @menu-selected="handleMenuSelected" />
     </div>
 
-    <!-- 短信登录弹窗 -->
-    <SmsLoginDialog
-      v-if="showSmsLogin"
-      @close="showSmsLogin = false"
-    />
+    <!-- 主内容区域 -->
+    <Transition name="fade" mode="out-in" class="main-content">
+      <!-- 首页 -->
+      <MovieHome
+        v-if="activeTab === TabType.HOME"
+        :key="'home'"
+        @go-detail="handleGoDetail"
+        @go-allMovie="handleGoAllMovie" />
 
-    <!-- 匹配组件 -->
-    <MovieMatchingDialog
-      v-if="showMatching"
-      :movieInfo="matchingMovie"
-      @close="showMatching = false"
-      @submitSuccess="matchingSuccess"
-    />
+      <!-- 影视库 -->
+      <MovieLibrary
+        v-else
+        :key="'library-' + currentDirectory"
+        :directory="currentDirectory"
+        @go-detail="handleGoDetail"
+        @show-matching="handleShowMatching" />
+    </Transition>
 
+    <!-- 登录弹窗 -->
+    <SmsLoginDialog />
+
+    <!-- 点击界面出现烟花效果 -->
+    <Hanabi class="firework" />
+
+    <!-- 鼠标拖尾 -> 流线光标 (根据设置控制显示) -->
+    <SleekLineCursor v-if="enableSleekLineCursor" />
+
+    <!-- 鼠标拖尾 ->流体光标 (根据设置控制显示) -->
+    <FluidCursor v-if="enableFluidCursor" />
+
+    <!-- 星空背景 -->
+    <StarsBg class="background-star" />
   </div>
 </template>
 
-<script>
-import { getUserInfo } from '@/api/system/user';
-import { getToken,setUserInfo } from '@/utils/auth'
-import MovieTabs from '@/views/movie/sidebar/MovieTabs.vue'
-import MovieHome from './content/MovieHome.vue';
-import MovieLibrary from './content/MovieLibrary.vue';
-import MovieDetail from './content/MovieDetail.vue';
-import SmsLoginDialog from '@/views/system/components/SmsLoginDialog.vue';
-import MovieMatchingDialog from '@/views/movie/components/MovieMatchingDialog.vue';
-export default {
-  name: 'MovieIndex',
-  components: {
-    MovieTabs,
-    MovieHome,
-    MovieLibrary,
-    MovieDetail,
-    SmsLoginDialog,
-    MovieMatchingDialog,
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import MovieTabs from './sidebar/MovieTabs.vue'
+import MovieHome from './content/MovieHome.vue'
+import MovieLibrary from './content/MovieLibrary.vue'
+import SmsLoginDialog from '@/views/system/components/SmsLoginDialog.vue'
+import Hanabi from '@/components/Hanabi.vue'
+import SleekLineCursor from '@/components/inspira-ui/cursor/SleekLineCursor.vue'
+import FluidCursor from '@/components/inspira-ui/cursor/FluidCursor.vue'
+import { useUIStore } from '@/store/modules/ui'
+import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'
 
-  },
-  provide() {
-    return {
-      showSmsLoginDlgProvide: this.showLoginDialog,
-      showDetailDlgProvide: this.openDetail,
-    }
-  },
-  data() {
-    return {
-      activeMenu: 'home',
-      showSmsLogin: false,//短信登录组件显示
-      searchDirectory: '',//查询目录 如动漫、动漫电影、日剧
-      detailCatalogid: '',//详情影视id,
-      showDetail: false,///详情页显示
-      showMatching: false, //匹配组件显示
-      matchingMovie: {id:'',name:''},//需要匹配的数据
-    }
-  },
-  mounted() {
-    this.loginInit();
-  },
-  methods: {
-    //初始化登录信息
-    async loginInit(){
-      if (!getToken()) {
-        return;
-      }
-      const res = await getUserInfo();
-      if (res.code == 200) {
-          let data = res.data;
-          setUserInfo(data);
-        }
-    },
-    //sidebar菜单点击事件
-    selectMenu(key) {
-      switch (key) {
-        case 'home':
-          //点击刷新随机影视
-          if (this.$refs.movieHomeRef) {
-            this.$refs.movieHomeRef.getRandomMovies();
-          }
-          this.activeMenu = key;
-          break;
-        case 'library':
-        case 'history':
-          this.searchDirectory = '';
-          this.activeMenu = 'library';
-          break;
-        default:
-          this.searchDirectory = key;
-          this.activeMenu = 'library';
-          break;
-      }
-    },
-    //打开详情页面
-    openDetail(id){
-      if (id == null) {
-        return
-      }
-      this.detailCatalogid=id;
-      this.showDetail = true;
-    },
-    //关闭详情页面
-    detailGoBack(){
-      this.detailCatalogid = '';
-      this.showDetail = false;
-    },
-    //显示登录弹窗组件
-    showLoginDialog() {
-      this.showSmsLogin = true;
-    },
-    //显示匹配组件
-    showMatchingDialog(movie) {
-      this.matchingMovie = movie;
-      this.showMatching= true;
-    },
-    //手动匹配完成
-    matchingSuccess() {
-      this.showMatching = false;
-      //在详情页面
-      if (this.showDetail) {
-        this.$refs.movieDetailRef.init();
-        return;
-      }else if (this.activeMenu == 'library') {
-        // this.$refs.movieLibraryRef.loadMovies();
-      }
+const uiStore = useUIStore()
 
-    },
+// 从 store 获取设置状态
+const enableSleekLineCursor = computed(() => uiStore.getSetting('enableSleekLineCursor'))
+const enableFluidCursor = computed(() => uiStore.getSetting('enableFluidCursor'))
 
+// 标签页枚举
+enum TabType {
+  HOME = 'home', // 首页
+  LIBRARY = 'library', // 影视库
+}
+
+// 当前激活的标签
+const activeTab = ref(TabType.HOME)
+
+// 当前目录 (过滤参数)
+const currentDirectory = ref('')
+
+// 菜单选择处理
+const handleMenuSelected = (key: string) => {
+  switch (key) {
+    case 'home':
+      activeTab.value = TabType.HOME
+      currentDirectory.value = ''
+      break
+    case 'library':
+    case 'history':
+      activeTab.value = TabType.LIBRARY
+      currentDirectory.value = ''
+      break
+    default:
+      activeTab.value = TabType.LIBRARY
+      currentDirectory.value = key
   }
+}
+
+// 跳转详情
+const handleGoDetail = (id: number) => {
+  console.log('go detail:', id)
+  // TODO: 跳转详情
+}
+
+// 显示全部影视
+const handleGoAllMovie = (key: string) => {
+  handleMenuSelected(key)
+}
+
+// 显示匹配对话框
+const handleShowMatching = (movie: { id: string | number; name: string }) => {
+  console.log('show matching:', movie)
+  // TODO: 显示匹配对话框
 }
 </script>
 
 <style scoped lang="scss">
-.movie-home {
-  padding: 0;
-  background-color: #000000;
-  min-height: calc(100vh - 100px);
-  
-  .container {
-    display: flex;
-    height: 100%;
+.movie-index {
+  display: flex;
+  height: 100vh;
+  background-color: #0a0a0a;
+
+  .main-sidebar {
+    width: 220px;
   }
 
   .main-content {
     flex: 1;
-    margin-left: 220px;
-    padding: 20px;
+    overflow-y: auto;
+    width: 2500px;
   }
-    // 详情覆盖层样式
-  .detail-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;
-    
-    .detail-content {
-      width: 100%;
-      height: 100%;
-    }
-  }
+}
+
+/* 页面切换动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+// 背景
+.background-star {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
 }
 </style>

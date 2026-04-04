@@ -1,11 +1,8 @@
 <template>
   <div class="sidebar">
-    <!-- 用户信息 -->
     <div class="sidebar-header">
-      <!-- 未登录时 -->
-      <h2 v-if="!isLogin" class="logo-text" @click="clickLogo">风间</h2>
-      <!-- 登录后显示用户信息组件 -->
-      <user-info-dropdown v-else />
+      <h2 v-if="!isLogin" class="logo-text" @click="handleClickLogo">风间</h2>
+      <UserInfoDropdown v-if="isLogin" />
     </div>
 
     <div class="movie-tabs">
@@ -13,152 +10,132 @@
         :default-openeds="['library']"
         :default-active="defaultActive"
         class="sidebar-menu"
-        @select="handleSelect"
-        background-color="#2c3e50"
-        text-color="#fff"
-        active-text-color="#1abc9c"
-        unique-opened
-        mode="vertical"
-        default-opened
-      >
+        :background-color="'#2c3e50'"
+        :text-color="'#fff'"
+        :active-text-color="'#1abc9c'"
+        @select="handleSelect">
         <!-- 一级菜单 -->
-        <el-menu-item
-          v-for="item in simpleMenuItems"
-          :key="item.key"
-          :index="item.key"
-        >
-          <i :class="item.icon"></i>
-          <span slot="title">{{ item.name }}</span>
+        <el-menu-item v-for="item in simpleMenuItems" :key="item.key" :index="item.key">
+          <el-icon :size="18"><component :is="item.icon" /></el-icon>
+          <span>{{ item.name }}</span>
         </el-menu-item>
+
         <!-- 子级菜单 -->
-        <el-submenu
-          v-for="subMenu in libraryMenus"
-          :key="subMenu.key"
-          :index="subMenu.key"
-        >
-          <template slot="title">
-            <i :class="subMenu.icon"></i>
+        <el-sub-menu v-for="subMenu in libraryMenus" :key="subMenu.key" :index="subMenu.key">
+          <template #title>
+            <el-icon :size="18"><component :is="subMenu.icon" /></el-icon>
             <span>{{ subMenu.name }}</span>
             <span class="menu-count">{{ subMenu.count }}</span>
           </template>
-          <el-menu-item
-            v-for="child in subMenu.children"
-            :key="child.key"
-            :index="child.key"
-          >
-            <i :class="child.icon"></i>
+          <el-menu-item v-for="child in subMenu.children" :key="child.key" :index="child.key">
+            <el-icon :size="18"><component :is="child.icon" /></el-icon>
             {{ child.name }}
-            <span  class="menu-count">{{ child.count }}</span>
+            <span class="menu-count">{{ child.count }}</span>
           </el-menu-item>
-        </el-submenu>
+        </el-sub-menu>
       </el-menu>
     </div>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, ref, onMounted, markRaw } from 'vue'
+import { Menu, Film, VideoPlay, Grid, Star, VideoCamera, Monitor } from '@element-plus/icons-vue'
 import { movieStat } from '@/api/movie/movieCatalog'
-import { getTargetUserIdOrDefault } from '@/utils/route';
-import UserInfoDropdown from '@/views/system/components/UserInfoDropdown.vue';
+import UserInfoDropdown from '@/views/system/components/UserInfoDropdown.vue'
+import { useUserStore } from '@/store/modules/user'
+import { useLogin } from '@/composables/useLogin'
+import { getTargetUserid } from '@/utils/route'
 
-export default {
-  name: 'MovieTabs',
-  components: {
-    UserInfoDropdown
-  },
-  inject: ['showSmsLoginDlgProvide'],//显示短信登录弹窗
-  computed: {
-    // 使用计算属性从 store 获取登录状态，实现响应式更新
-    isLogin() {
-      const userId = this.$store.getters.userId;
-      console.log('isLogin computed, userId:', userId);
-      return !!userId;
-    }
-  },
-  data() {
-    return {
-      defaultActive: 'home',
-      simpleMenuItems: [
-        { key: 'home', name: '首页', icon: 'el-icon-menu' },
-        { key: 'history', name: '收藏记录', icon: 'el-icon-film' }
-      ],
-      //子级菜单项
-      libraryMenus: [
-        {
-          key: 'library',
-          name: '影视库',
-          icon: 'el-icon-video-play',
-          count: '',
-          children: [
-            { key: 'library', name: '全部', icon: 'el-icon-s-grid', count: '' },
-            { key: 'anime', name: '动漫', icon: 'el-icon-star-off', count: '' },
-            { key: 'animeMovie', name: '动漫电影', icon: 'el-icon-video-camera', count: '' },
-            { key: 'other', name: '其它', icon: 'el-icon-monitor', count: '' },
-          ]
-        }
-      ],
-      targetUserid: getTargetUserIdOrDefault(this),//查询目标用户数据
-    }
-  },
-  mounted() {
-    this.loadData();
-  },
+// Emits
+const emit = defineEmits<{
+  'menu-selected': [key: string]
+}>()
 
-  methods: {
+// Store
+const userStore = useUserStore()
+const { open: openLogin } = useLogin()
 
-    loadData(){
-      movieStat(this.targetUserid).then(res => {
-        let data = res.data;
-        // 根据后端字段更新菜单项计数
-        this.libraryMenus.forEach(menu => {
-          // 更新子菜单的计数
-          menu.children.forEach(child => {
-            switch (child.key) {
-              case 'anime':
-                child.count = data?.totalAnime || '';
-                break;
-              case 'animeMovie':
-                child.count = data?.totalAnimeMovie || '';
-                break;
-              case 'other':
-                child.count = data?.totalOther || '';
-                break;
-              case 'library':
-                child.count = data?.totalCount || '';
-                break;
-              default:
-                child.count = 0;
-            }
-          });
-        });
-      })
-    },
-    // 选择菜单
-    handleSelect(index){
-        this.$emit('menu-selected', index);
-    },
-    // 点击 logo
-    clickLogo(){
-      //登录弹窗
-      this.showSmsLoginDlgProvide();
+// 登录状态（计算属性）
+const isLogin = computed(() => userStore.isLogin)
+
+// 菜单数据
+const defaultActive = ref('home')
+const simpleMenuItems = [
+  { key: 'home', name: '首页', icon: markRaw(Menu) },
+  { key: 'history', name: '收藏记录', icon: markRaw(Film) },
+]
+const libraryMenus = ref([
+  {
+    key: 'library',
+    name: '影视库',
+    icon: markRaw(VideoPlay),
+    count: '',
+    children: [
+      { key: 'library', name: '全部', icon: markRaw(Grid), count: '' },
+      { key: 'anime', name: '动漫', icon: markRaw(Star), count: '' },
+      { key: 'animeMovie', name: '动漫电影', icon: markRaw(VideoCamera), count: '' },
+      { key: 'other', name: '其它', icon: markRaw(Monitor), count: '' },
+    ],
+  },
+])
+
+// 加载统计数据
+const loadStats = async () => {
+  const data = await movieStat(getTargetUserid())
+  libraryMenus.value[0].children.forEach((child) => {
+    switch (child.key) {
+      case 'anime':
+        child.count = data?.totalAnime || ''
+        break
+      case 'animeMovie':
+        child.count = data?.totalAnimeMovie || ''
+        break
+      case 'other':
+        child.count = data?.totalOther || ''
+        break
+      case 'library':
+        child.count = data?.totalCount || ''
+        break
     }
-  }
+  })
 }
+
+// 菜单选择
+const handleSelect = (index: string) => {
+  emit('menu-selected', index)
+}
+
+// 点击 Logo
+const handleClickLogo = () => {
+  openLogin()
+}
+
+// 初始化
+onMounted(() => {
+  loadStats()
+})
 </script>
 
 <style scoped lang="scss">
+/* ========== 侧边栏容器 ========== */
 .sidebar {
   width: 220px;
   background-color: #2c3e50;
   color: white;
-  height: calc(100vh);
+  height: 100vh;
   position: fixed;
   overflow-y: auto;
 
+  /* 侧边栏头部 - Logo 区域 */
   .sidebar-header {
     padding: 20px;
     background-color: #1a252f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
+    /* Logo 文字 */
     .logo-text {
       cursor: pointer;
       margin: 0;
@@ -182,14 +159,18 @@ export default {
     }
   }
 }
+
+/* ========== 菜单区域 ========== */
 .sidebar-menu {
   text-align: left;
 
-  ::v-deep .el-menu-item,
-  ::v-deep .el-submenu__title {
+  /* 菜单项和子菜单标题 */
+  :deep(.el-menu-item),
+  :deep(.el-sub-menu__title) {
     display: flex;
     align-items: center;
 
+    /* 数量标签 */
     .menu-count {
       margin-left: auto;
       color: white;
@@ -200,9 +181,10 @@ export default {
     }
   }
 
-  ::v-deep .el-submenu__title {
+  /* 子菜单标题的数量标签 */
+  :deep(.el-sub-menu__title) {
     .menu-count {
-      margin-right: 20px; // 为箭头留出空间
+      margin-right: 20px;
     }
   }
 }

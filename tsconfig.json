@@ -1,0 +1,46 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json", // 继承 Vue 官方基础配置
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0", // 静音弃用警告
+    // ========== 目标环境 ==========
+    "target": "ES2020", // 编译成 ES2020 (ES11)
+    "module": "ESNext", // 模块系统用最新的
+    "lib": ["ES2020", "DOM", "DOM.Iterable"], // 可用的 API
+
+    // ========== 模块解析 ==========
+    "moduleResolution": "bundler", // 打包工具处理模块
+    "baseUrl": ".", // 路径别名基础目录
+    "paths": { "@/*": ["src/*"] }, // @ 对应 src 目录
+
+    // ========== 严格模式 ==========
+    "strict": true, // 开启所有严格检查
+    "noUnusedLocals": true, // 未使用局部变量报错
+    "noUnusedParameters": true, // 未使用参数报错
+    "noFallthroughCasesInSwitch": true, // switch 必须有 break
+
+    // ========== Vue 特定 ==========
+    "jsx": "preserve", // JSX 交给 Babel/Vite 处理
+    "allowImportingTsExtensions": true, // 允许 import .ts 文件
+    "resolveJsonModule": true, // 允许 import .json
+    "isolatedModules": true, // 每个文件独立编译
+
+    // ========== 输出控制 ==========
+    "noEmit": true // 不输出 .js 文件 (Vite 处理)
+  },
+
+  // ========== 文件范围 ==========
+  "include": [
+    "src/**/*.ts", // src 下所有 .ts
+    "src/**/*.tsx", // src 下所有 .tsx
+    "src/**/*.vue", // src 下所有 .vue
+    "types/**/*.d.ts"
+  ],
+
+  // ========== 排除目录 ==========
+  "exclude": ["node_modules", "dist"],
+
+  // ========== 项目引用 ==========
+  "references": [
+    { "path": "./tsconfig.node.json" } // 引用另一个配置
+  ]
+}

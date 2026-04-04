@@ -86,10 +86,7 @@ const handleLogout = async () => {
     await logout()
     removeToken()
     userStore.reset()
-    ElMessage.success('退出登录成功')
-    setTimeout(() => {
-      location.reload()
-    }, 500)
+    location.reload()
   } catch {
     // 用户取消
   }

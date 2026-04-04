@@ -1,0 +1,416 @@
+/* ========== Element Plus Message 样式覆盖 - 动漫风格 ========== */
+
+/* 消息框容器 */
+.el-message {
+  min-width: 260px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #fff9fc, #fff);
+  backdrop-filter: blur(10px);
+  border: 1px solid #ffb7d9;
+  border-radius: 50px;
+  box-shadow:
+    0 8px 32px rgba(255, 183, 217, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 成功消息 - 薄荷绿 */
+.el-message--success {
+  border-color: #a8e6cf;
+  background: linear-gradient(135deg, #f0fff9, #fff);
+  box-shadow:
+    0 8px 32px rgba(168, 230, 207, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.el-message--success .el-message__icon {
+  color: #5ddab3;
+}
+
+/* 警告消息 - 柠檬黄 */
+.el-message--warning {
+  border-color: #ffd93d;
+  background: linear-gradient(135deg, #fffdf0, #fff);
+  box-shadow:
+    0 8px 32px rgba(255, 217, 61, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.el-message--warning .el-message__icon {
+  color: #ffb142;
+}
+
+/* 错误消息 - 樱花粉 */
+.el-message--error {
+  border-color: #ff8fa3;
+  background: linear-gradient(135deg, #fff0f3, #fff);
+  box-shadow:
+    0 8px 32px rgba(255, 143, 163, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.el-message--error .el-message__icon {
+  color: #ff6b8a;
+}
+
+/* 普通消息 - 天空蓝 */
+.el-message--info {
+  border-color: #a8d8ff;
+  background: linear-gradient(135deg, #f0f8ff, #fff);
+  box-shadow:
+    0 8px 32px rgba(168, 216, 255, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.el-message--info .el-message__icon {
+  color: #6ab7ff;
+}
+
+/* 消息图标 */
+.el-message__icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 消息文字 */
+.el-message__content {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* 关闭按钮 */
+.el-message__closeBtn {
+  color: #aaa;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.el-message__closeBtn:hover {
+  color: #ff8fa3;
+  transform: rotate(90deg);
+}
+
+/* 进入动画 */
+.el-message-fade-enter-from,
+.el-message-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-30px) scale(0.9);
+}
+
+.el-message-fade-enter-active,
+.el-message-fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+
+/* ========== Element Plus MessageBox 样式覆盖 - 动漫风格 ========== */
+
+/* MessageBox 容器 */
+.el-message-box {
+  background: linear-gradient(145deg, #fff, #fff9fc);
+  backdrop-filter: blur(10px);
+  border: 1px solid #ffb7d9;
+  border-radius: 24px;
+  box-shadow:
+    0 20px 60px rgba(255, 183, 217, 0.3),
+    0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 28px 24px 24px;
+  max-width: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 顶部装饰条 */
+.el-message-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  /* background: linear-gradient(90deg, #ffb7d9, #ffc2e0, #ffb7d9); */
+}
+
+/* MessageBox 标题 */
+.el-message-box__header {
+  padding: 0 0 14px 0;
+  text-align: center;
+}
+
+.el-message-box__title {
+  color: #ff8fa3;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(255, 143, 163, 0.2);
+}
+
+/* MessageBox 内容 */
+.el-message-box__content {
+  padding: 0 0 22px 0;
+}
+
+.el-message-box__message {
+  color: #666;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.el-message-box__message p {
+  margin: 0;
+}
+
+/* MessageBox 图标 */
+.el-message-box__status {
+  font-size: 56px !important;
+  margin-bottom: 8px !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+}
+
+.el-message-box__status.el-icon-success {
+  color: #5ddab3;
+}
+
+.el-message-box__status.el-icon-warning {
+  color: #ffb142;
+}
+
+.el-message-box__status.el-icon-error {
+  color: #ff6b8a;
+}
+
+.el-message-box__status.el-icon-info {
+  color: #6ab7ff;
+}
+
+/* MessageBox 按钮组 */
+.el-message-box__btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 0;
+}
+
+/* MessageBox 取消按钮 */
+.el-message-box__cancel-btn {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+  padding: 12px 32px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.el-message-box__cancel-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-color: #adb5bd;
+  color: #495057;
+}
+
+/* MessageBox 确认按钮 */
+.el-message-box__confirm-btn {
+  background: linear-gradient(135deg, #ffb7d9, #ff9ec7);
+  border: 1px solid #ff8fb8;
+  color: white;
+  padding: 12px 32px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow:
+    0 6px 20px rgba(255, 183, 217, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+  text-shadow: 0 -1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.el-message-box__confirm-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow:
+    0 8px 28px rgba(255, 183, 217, 0.5),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffc2e0, #ffb7d9);
+}
+
+.el-message-box__confirm-btn:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* MessageBox 进入动画 */
+.el-message-box-fade-enter-from,
+.el-message-box-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.8) translateY(-30px) rotate(-5deg);
+}
+
+.el-message-box-fade-enter-active,
+.el-message-box-fade-leave-active {
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* MessageBox 遮罩 */
+.el-message-box__wrapper {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+/* 小爱心装饰（可选） */
+.el-message-box::after {
+  content: '💕';
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 14px;
+  opacity: 0.5;
+}
+
+/* MessageBox 输入框（prompt 类型） */
+.el-message-box__input {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa, #fff);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.el-message-box__input:hover {
+  border-color: #ffc2e0;
+}
+
+.el-message-box__input:focus-within {
+  border-color: #ffb7d9;
+  box-shadow: 0 0 0 3px rgba(255, 183, 217, 0.2);
+  background: #fff;
+}
+
+.el-message-box__input input {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  color: #555;
+  outline: none;
+}
+
+.el-message-box__input input::placeholder {
+  color: #aaa;
+}
+
+
+/* ========== Element Plus Notification 样式覆盖 - 动漫风格 ========== */
+
+/* 通知容器 */
+.el-notification {
+  min-width: 320px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #fff, #fff9fc);
+  backdrop-filter: blur(10px);
+  border: 1px solid #ffb7d9;
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(255, 183, 217, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 成功通知 */
+.el-notification--success {
+  border-color: #a8e6cf;
+  box-shadow: 0 8px 32px rgba(168, 230, 207, 0.3);
+}
+
+.el-notification--success .el-notification__icon {
+  color: #5ddab3;
+}
+
+/* 警告通知 */
+.el-notification--warning {
+  border-color: #ffd93d;
+  box-shadow: 0 8px 32px rgba(255, 217, 61, 0.3);
+}
+
+.el-notification--warning .el-notification__icon {
+  color: #ffb142;
+}
+
+/* 错误通知 */
+.el-notification--error {
+  border-color: #ff8fa3;
+  box-shadow: 0 8px 32px rgba(255, 143, 163, 0.3);
+}
+
+.el-notification--error .el-notification__icon {
+  color: #ff6b8a;
+}
+
+/* 普通通知 */
+.el-notification--info {
+  border-color: #a8d8ff;
+  box-shadow: 0 8px 32px rgba(168, 216, 255, 0.3);
+}
+
+.el-notification--info .el-notification__icon {
+  color: #6ab7ff;
+}
+
+/* 通知图标 */
+.el-notification__icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* 通知标题 */
+.el-notification__title {
+  color: #ff8fa3;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* 通知内容 */
+.el-notification__content {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 通知关闭按钮 */
+.el-notification__closeBtn {
+  color: #aaa;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.el-notification__closeBtn:hover {
+  color: #ff8fa3;
+  transform: rotate(90deg);
+}
+
+/* 通知进入动画 */
+.el-notification-fade-enter-from {
+  opacity: 0;
+  transform: translateX(100%) scale(0.9);
+}
+
+.el-notification-fade-enter-active {
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.el-notification-fade-leave-to {
+  opacity: 0;
+  transform: translateX(100%) scale(0.95);
+}
+
+.el-notification-fade-leave-active {
+  transition: all 0.3s ease;
+}

@@ -383,7 +383,6 @@ onMounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background-color: #0a0a0a;
   color: white;
   padding: 20px;
 
@@ -492,7 +491,15 @@ onMounted(() => {
       box-shadow 0.3s ease;
     background-color: #1a1a1a;
     height: 380px;
-    perspective: 1000px; // 3D 透视深度
+    perspective: 1000px;
+    animation: cardEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+
+    //  staggered animation for each card
+    @for $i from 1 through 50 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.05}s;
+      }
+    }
 
     /* 卡片内部容器 - 翻转的核心 */
     .movie-card-inner {
@@ -704,6 +711,18 @@ onMounted(() => {
     padding: 20px;
     color: #aaa;
     font-size: 14px;
+  }
+}
+
+// 卡片进入动画
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 

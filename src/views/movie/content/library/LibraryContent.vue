@@ -1,83 +1,14 @@
 <template>
-  <div class="movie-library">
-    <!-- 头部 -->
-    <div class="header-container">
-      <sparkles-text text="全部影视" :sparklesCount="5" class="sparkles-text" />
-    </div>
-
-    <!-- 搜索和筛选区域 -->
-    <div class="search-area">
-      <el-input
-        v-model="pageParams.keyword"
-        placeholder="按回车搜索..."
-        clearable
-        @keyup.enter="handleSearch"
-        class="search-input">
-        <template #prefix>
-          <el-icon><Search /></el-icon>
-          <glow-boder />
-        </template>
-      </el-input>
-
-      <!-- 筛选条件下拉 -->
-      <el-popover placement="bottom" :width="400" trigger="click" :hide-after="0" popper-class="filter-popover" class="filter-popover">
-        <template #reference>
-          <el-button class="filter-btn">
-            <el-icon><Filter /></el-icon>
-            筛选
-          </el-button>
-        </template>
-        <div class="filter-panel">
-          <div class="filter-item">
-            <div class="filter-label">
-              <el-icon><Sort /></el-icon>
-              <span>排序方式</span>
-            </div>
-            <el-select v-model="pageParams.orderBy" placeholder="选择排序字段" clearable :teleported="false">
-              <el-option label="上传时间" value="createTime" />
-              <el-option label="文件大小" value="totalSize" />
-              <el-option label="播出日期" value="releaseDate" />
-            </el-select>
-          </div>
-          <div class="filter-item">
-            <div class="filter-label">
-              <el-icon><ArrowUp /></el-icon>
-              <span>排序顺序</span>
-            </div>
-            <el-radio-group v-model="pageParams.isAsc" size="default">
-              <el-radio-button :value="false">降序 ↓</el-radio-button>
-              <el-radio-button :value="true">升序 ↑</el-radio-button>
-            </el-radio-group>
-          </div>
-          <div class="filter-item">
-            <div class="filter-label">
-              <el-icon><DataAnalysis /></el-icon>
-              <span>数据筛选</span>
-            </div>
-            <el-checkbox v-model="pageParams.notMatched" class="not-matched-checkbox"> 仅显示未匹配数据 </el-checkbox>
-          </div>
-          <div class="filter-actions">
-            <el-button @click="resetAndLoad">
-              <el-icon><RefreshLeft /></el-icon>
-              重置
-            </el-button>
-            <el-button type="primary" @click="handleSearch">
-              <el-icon><Search /></el-icon>
-              应用筛选
-            </el-button>
-          </div>
-        </div>
-      </el-popover>
-    </div>
-
+  <div class="library-content">
     <!-- 影视列表和滚动区域 -->
-    <el-scrollbar @end-reached="loadMore" :distance="20" class="movie-scroll">
+    <el-scrollbar @end-reached="emit('load-more')" :distance="20" class="movie-scroll">
       <!-- 影视列表 -->
       <div v-loading.lock="loading" class="movie-grid">
         <div
-          v-for="movie in movies"
-          :key="movie.id"
+          v-for="(movie, index) in movies"
+          :key="`${movie.id}-${index}`"
           :class="['movie-card', { flipped: flippedMovieId === movie.id }]"
+          :style="{ animationDelay: `${index * 0.05}s` }"
           @click="emit('go-detail', movie.id)"
           @contextmenu.prevent="handleFlip(movie)"
           @mouseleave="handleMouseLeave(movie)">
@@ -176,282 +107,100 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import {
-  Loading,
-  Picture,
-  More,
-  Search,
-  Filter,
-  Sort,
-  DataAnalysis,
-  RefreshLeft,
-  ArrowUp,
-} from '@element-plus/icons-vue'
-import { getLibrary, pageSimple } from '@/api/movie/movieCatalog'
-import { deleteCatalog } from '@/api/movie/movieManage'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed } from 'vue'
+import { Loading, Picture, More } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import { useMovieStore } from '@/store/modules/movie'
-import { getTargetUserid } from '@/utils/route'
-import GlowBoder from '@/components/inspira-ui/special-effects/GlowBoder.vue'
-import SparklesText from '@/components/inspira-ui/text-animations/SparklesText.vue'
 
-// Props & Emits
-const props = defineProps<{
-  directory?: string
-}>()
+interface Movie {
+  id: number | string
+  name: string
+  originName: string
+  platform: string
+  releaseYear: string
+  rating: string
+  metaTags?: string[]
+  posterUrl: string
+  totalSize?: string
+  createTime?: string
+}
+
+interface Props {
+  movies: Movie[]
+  loading: boolean
+  loadingMore: boolean
+  hasMore: boolean
+  canOperate: boolean
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   'go-detail': [id: number]
   'show-matching': [movie: { id: string | number; name: string }]
+  'load-more': []
+  'delete': [movie: Movie]
 }>()
 
-// Store
-const userStore = useUserStore()
-const movieStore = useMovieStore()
-
-// 状态
-const movies = ref<any[]>([])
-const loading = ref(false)
-const hasMore = ref(true)
-const loadingMore = ref(false)
+// 本地状态
 const hoveredMovieId = ref<number | null>(null)
 const flippedMovieId = ref<number | string | null>(null)
 
-// 监听 directory 变化
-watch(
-  () => props.directory,
-  () => resetAndLoad(),
-)
-
-// 分页参数 (pageSimple 接口用)
-const pageParams = ref({
-  pageNum: 1,
-  pageSize: 50,
-  directory: '', // 目录过滤
-  keyword: '', // 模糊查询名称
-  notMatched: false, // 是否过滤出未匹配数据
-  orderBy: '', // 后端默认时间升序
-  isAsc: true, // 默认升序
-})
-
-// 已登录且访问的是自己的数据
-const canOperate = computed(() => {
-  return userStore.isLogin && !movieStore.accessUserid
-})
-
-// 判断是否有筛选条件
-const hasFilterCondition = computed(() => {
-  return !!(
-    pageParams.value.keyword ||
-    pageParams.value.orderBy ||
-    pageParams.value.notMatched ||
-    pageParams.value.orderBy ||
-    !pageParams.value.isAsc
-  )
-})
-
-// 加载数据
-// 根据是否有筛选条件决定使用哪个接口
-const fetchData = async () => {
-  hasMore.value = true // 默认还有更多数据
-  loadingMore.value = true
-  try {
-    // 根据是否有筛选条件决定使用哪个接口
-    const api = hasFilterCondition.value ? pageSimple : getLibrary
-
-    let res
-    if (hasFilterCondition.value) {
-      // 有筛选条件，走 pageSimple（带筛选参数）
-      res = await api(pageParams.value, getTargetUserid())
-    } else {
-      // 无筛选条件，走 getLibrary 查询缓存数据
-      res = await api(
-        {
-          pageNum: pageParams.value.pageNum,
-          directory: pageParams.value.directory,
-        },
-        getTargetUserid(),
-      )
-    }
-
-    // 处理数据
-    const newList = res.list.map((item: any) => ({
-      ...item,
-      posterUrl: item.posterUrl || '',
-    }))
-
-    movies.value = [...movies.value, ...newList] // 追加数据
-    hasMore.value = newList.length >= pageParams.value.pageSize // 判断是否还有更多数据
-  } catch (error) {
-    ElMessage.error('加载失败:' + error)
-  } finally {
-    loading.value = false
-    loadingMore.value = false
-  }
-}
-
-// 搜索/筛选（重置页码并重新加载）
-const handleSearch = () => {
-  loading.value = true
-  pageParams.value.pageNum = 1
-  movies.value = []
-  fetchData()
-}
-
-// 重置条件并加载
-const resetAndLoad = () => {
-  pageParams.value.pageNum = 1
-  pageParams.value.directory = props.directory || ''
-  pageParams.value.keyword = ''
-  pageParams.value.notMatched = false
-  pageParams.value.orderBy = ''
-  pageParams.value.isAsc = true
-  movies.value = []
-  loading.value = true
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-  fetchData()
-}
-
-// 加载更多
-const loadMore = async () => {
-  if (!hasMore.value) return
-  pageParams.value.pageNum++
-  fetchData()
+// 格式化时间
+const formatDateTime = (dateTime: string) => {
+  if (!dateTime) return ''
+  return dateTime.split(' ')[0]
 }
 
 // 下拉菜单命令
-const handleCommand = (command: string, movie: any) => {
+const handleCommand = (command: string, movie: Movie) => {
   switch (command) {
-    case 're-match': // 重新匹配
+    case 're-match':
       emit('show-matching', { id: movie.id, name: movie.name })
       break
-    case 'remove': // 删除
+    case 'remove':
       handleDelete(movie)
       break
   }
 }
 
 // 删除
-const handleDelete = (movie: any) => {
+const handleDelete = (movie: Movie) => {
   ElMessageBox.confirm(`确定要删除"${movie.name}"吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
   })
-    .then(async () => {
-      await deleteCatalog(movie.id)
-      movies.value = movies.value.filter((m) => m.id !== movie.id)
-      ElMessage.success('删除成功')
+    .then(() => {
+      emit('delete', movie)
     })
     .catch(() => {})
 }
 
-// 格式化时间 yyyy-MM-dd HH:mm:ss -> yyyy-MM-dd
-const formatDateTime = (dateTime: string) => {
-  if (!dateTime) return ''
-  return dateTime.split(' ')[0]
-}
-
 // 翻转卡片
-const handleFlip = (movie: any) => {
+const handleFlip = (movie: Movie) => {
   if (flippedMovieId.value === movie.id) {
-    flippedMovieId.value = null // 再次右键翻回
+    flippedMovieId.value = null
   } else {
     flippedMovieId.value = movie.id
   }
 }
 
 // 鼠标移出翻回
-const handleMouseLeave = (movie: any) => {
+const handleMouseLeave = (movie: Movie) => {
   if (flippedMovieId.value === movie.id) {
     flippedMovieId.value = null
   }
 }
-
-// 生命周期
-onMounted(() => {
-  pageParams.value.directory = props.directory || ''
-  fetchData()
-})
 </script>
 
 <style scoped lang="scss">
-.movie-library {
-  height: 100vh;
+.library-content {
+  flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background-color: #0a0a0a;
-  color: white;
-  padding: 20px;
-
-  /* 头部区域 - 标题和搜索框 */
-  .header-container {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 20px;
-    margin-bottom: 0;
-
-    /* 闪光文字样式覆盖 */
-    .sparkles-text {
-      font-size: 28px; // 文字大小
-      margin-right: 10px;
-    }
-  }
-
-  /* 搜索区域 */
-  .search-area {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    padding: 0 20px 20px;
-
-    .search-input {
-      width: 300px;
-      height: 40px;
-
-      :deep(.el-input__wrapper) {
-        border-radius: 20px;
-        background-color: #1a1a1a;
-        border-color: #333;
-        box-shadow: none;
-
-        .el-input__inner {
-          color: white;
-        }
-
-        &:focus-within {
-          border-color: #1abc9c;
-          box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.2);
-        }
-
-        .el-input__prefix {
-          color: #888;
-        }
-      }
-    }
-
-    .filter-btn {
-      border-radius: 20px;
-      padding: 10px 20px;
-      background-color: #1abc9c;
-      border-color: #1abc9c;
-      color: white;
-
-      .el-icon {
-        margin-right: 5px;
-      }
-
-      &:hover {
-        background-color: #16a085;
-        border-color: #16a085;
-      }
-    }
-  }
 
   /* 滚动区域 */
   .movie-scroll {
@@ -493,22 +242,15 @@ onMounted(() => {
     background-color: #1a1a1a;
     height: 380px;
     perspective: 1000px;
-    animation: cardEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-
-    //  staggered animation for each card
-    @for $i from 1 through 50 {
-      &:nth-child(#{$i}) {
-        animation-delay: #{$i * 0.05}s;
-      }
-    }
+    animation: cardEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
 
     /* 卡片内部容器 - 翻转的核心 */
     .movie-card-inner {
       position: relative;
       width: 100%;
       height: 100%;
-      transform-style: preserve-3d; // 保持 3D 空间
-      transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1); // 翻转动画
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
 
       /* 正面和背面共用样式 */
       .movie-card-front,
@@ -516,7 +258,7 @@ onMounted(() => {
         position: absolute;
         width: 100%;
         height: 100%;
-        backface-visibility: hidden; // 背面不可见
+        backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
         border-radius: 10px;
         overflow: hidden;
@@ -529,7 +271,7 @@ onMounted(() => {
 
       /* 卡片背面 - 翻转后显示 */
       .movie-card-back {
-        transform: rotateY(180deg); // 初始旋转 180 度
+        transform: rotateY(180deg);
         background: linear-gradient(135deg, #1a2a3a, #0d1520);
         border: 1px solid rgba(26, 188, 156, 0.3);
 
@@ -553,11 +295,11 @@ onMounted(() => {
             color: #b0b0b0;
 
             .label {
-              color: #888; // 标签文字颜色
+              color: #888;
             }
 
             .rating-text {
-              color: #ff9e02; // 评分金色
+              color: #ff9e02;
               font-weight: bold;
             }
           }
@@ -591,10 +333,9 @@ onMounted(() => {
     /* 翻转状态 - 卡片被翻转时 */
     &.flipped {
       .movie-card-inner {
-        transform: rotateY(180deg); // 整体旋转 180 度
+        transform: rotateY(180deg);
       }
 
-      // 翻转时禁用 hover 效果
       &:hover {
         transform: none;
         box-shadow: none;
@@ -603,12 +344,11 @@ onMounted(() => {
 
     /* 鼠标悬停效果 */
     &:hover {
-      transform: translateY(-7px) scale(1.02); // 上浮 + 微放大
+      transform: translateY(-7px) scale(1.02);
       box-shadow:
         0 15px 35px rgba(0, 0, 0, 0.6),
-        // 深色阴影
-        0 0 25px rgba(26, 188, 156, 0.3); // 绿色光晕
-      filter: brightness(1.02); // 轻微提亮
+        0 0 25px rgba(26, 188, 156, 0.3);
+      filter: brightness(1.02);
     }
 
     /* 海报容器 */
@@ -724,49 +464,6 @@ onMounted(() => {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-/* 筛选 popover 样式 */
-.filter-popover {
-  /* 筛选面板内容 */
-  .filter-panel {
-    padding: 18px;
-    background-color: #fff;
-    border-radius: 12px;
-
-    /* 单个筛选项 */
-    .filter-item {
-      margin-bottom: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    /* 筛选标签标题 */
-    .filter-label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 15px;
-      color: #333;
-      font-weight: 600;
-
-      .el-icon {
-        color: #1abc9c; // 图标绿色
-        font-size: 18px;
-      }
-    }
-
-    /* 底部操作按钮 */
-    .filter-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 16px;
-      margin-top: 28px;
-      padding-top: 20px;
-      border-top: 1px solid #e0e0e0; // 分隔线
-    }
   }
 }
 </style>

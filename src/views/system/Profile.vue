@@ -8,87 +8,141 @@
             返回
           </el-button>
         </div>
-        <h2 class="page-title">个人中心</h2>
+        <h2 class="page-title">
+          <el-icon class="title-icon"><User /></el-icon>
+          个人中心
+        </h2>
       </div>
 
       <div class="profile-content">
         <!-- 头像区域 -->
         <div class="avatar-section">
+          <div class="avatar-ring"></div>
+          <div class="avatar-ring ring-2"></div>
           <el-upload action="#" :http-request="handleAvatarUpload" :show-file-list="false" accept="image/*">
             <div class="avatar-container">
-              <el-avatar :src="userInfo.avatar" shape="circle" :size="120" fit="cover" />
+              <el-avatar :src="userInfo.avatar" shape="circle" :size="130" fit="cover" class="main-avatar" />
               <div class="avatar-overlay">
-                <el-icon :size="24"><Camera /></el-icon>
-                <span>点击更换</span>
+                <el-icon :size="28"><Camera /></el-icon>
+                <span>更换头像</span>
               </div>
             </div>
           </el-upload>
+          <div class="avatar-glow"></div>
         </div>
 
         <!-- 用户信息区域 -->
         <div class="info-section">
           <div class="section-header">
-            <h3 class="section-title">基本信息</h3>
+            <h3 class="section-title">
+              <el-icon class="section-icon"><UserFilled /></el-icon>
+              基本信息
+            </h3>
             <div class="header-actions">
               <template v-if="!editing">
-                <el-button type="primary" size="small" @click="startEditing">
+                <el-button class="edit-btn" type="primary" size="small" @click="startEditing">
                   <el-icon><Edit /></el-icon>
-                  编辑
+                  编辑资料
                 </el-button>
               </template>
               <template v-else>
-                <el-button size="small" @click="cancelEditing">取消</el-button>
-                <el-button type="primary" size="small" :loading="submitting" @click="handleSubmit"> 确认 </el-button>
+                <el-button class="action-btn" size="small" @click="cancelEditing">取消</el-button>
+                <el-button class="action-btn confirm-btn" type="primary" size="small" :loading="submitting" @click="handleSubmit">
+                  <el-icon><Check /></el-icon>
+                  确认保存
+                </el-button>
               </template>
             </div>
           </div>
-          <el-descriptions :column="1" border>
-            <el-descriptions-item label="用户 ID">
-              {{ userInfo.userId }}
-            </el-descriptions-item>
-            <el-descriptions-item label="昵称">
-              <template v-if="!editing">
-                {{ userInfo.nickName }}
-              </template>
-              <template v-else>
-                <el-input v-model="editForm.nickName" maxlength="20" placeholder="请输入昵称" />
-              </template>
-            </el-descriptions-item>
-            <el-descriptions-item label="手机号">
-              {{ userInfo.phoneNumber }}
-            </el-descriptions-item>
-            <el-descriptions-item label="角色">
-              <el-tag v-for="role in userInfo.roles" :key="role" size="small" style="margin-right: 8px">
-                {{ role }}
-              </el-tag>
-            </el-descriptions-item>
-            <el-descriptions-item label="访问地址">
-              <div class="profile-url">
-                <span class="url-text">{{ profileUrl }}</span>
-                <el-button type="primary" size="small" @click="copyProfileUrl">
+
+          <div class="info-cards">
+            <!-- 用户 ID 卡片 -->
+            <div class="info-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><User /></el-icon>
+                用户 ID
+              </div>
+              <div class="info-value">{{ userInfo.userId }}</div>
+            </div>
+
+            <!-- 昵称卡片 -->
+            <div class="info-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><Star /></el-icon>
+                昵称
+              </div>
+              <div class="info-value">
+                <template v-if="!editing">
+                  {{ userInfo.nickName }}
+                </template>
+                <template v-else>
+                  <el-input
+                    v-model="editForm.nickName"
+                    maxlength="20"
+                    placeholder="请输入昵称"
+                    class="edit-input"
+                    clearable
+                  />
+                </template>
+              </div>
+            </div>
+
+            <!-- 手机号卡片 -->
+            <div class="info-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><Cellphone /></el-icon>
+                手机号
+              </div>
+              <div class="info-value phone-value">{{ userInfo.phoneNumber }}</div>
+            </div>
+
+            <!-- 角色卡片 -->
+            <div class="info-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><Trophy /></el-icon>
+                角色
+              </div>
+              <div class="info-value roles-value">
+                <el-tag
+                  v-for="role in userInfo.roles"
+                  :key="role"
+                  class="role-tag"
+                  effect="light"
+                >
+                  {{ role }}
+                </el-tag>
+              </div>
+            </div>
+
+            <!-- 访问地址卡片 -->
+            <div class="info-card url-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><Link /></el-icon>
+                个人访问地址
+              </div>
+              <div class="info-value url-value">
+                <div class="url-box">
+                  <el-icon class="url-icon"><Link /></el-icon>
+                  <span class="url-text">{{ profileUrl }}</span>
+                </div>
+                <el-button class="copy-btn" size="small" @click="copyProfileUrl">
                   <el-icon><CopyDocument /></el-icon>
                   复制
                 </el-button>
               </div>
-            </el-descriptions-item>
-          </el-descriptions>
+            </div>
+          </div>
         </div>
       </div>
-
     </div>
-
-    <!-- 星空背景 -->
-    <StarsBg  star-color="#fff" class="absolute inset-0 bg-transparent" />
   </div>
-
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Camera, Edit, CopyDocument, ArrowLeft } from '@element-plus/icons-vue'
+import { Camera, Edit, CopyDocument, ArrowLeft, User, UserFilled, Star, Cellphone, Trophy, Link, Check } from '@element-plus/icons-vue'
 import { uploadAvatar, getUserInfo, modifyUserInfo } from '@/api/system/user'
-import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'
 import { useRouter } from 'vue-router'
 
 // Router
@@ -207,30 +261,41 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+// ========== CSS 变量 ==========
+$primary: #667eea;
+$secondary: #764ba2;
+$accent: #f093fb;
+$text-dark: #1a1a2e;
+$text-muted: #6a6a8a;
+
 // ========== 页面容器 ==========
 .profile-container {
   position: relative;
   min-height: 100vh;
-  background-color: transparent;
+  background: linear-gradient(135deg, #0c0c1e 0%, #1a1a3e 50%, #0f0f2d 100%);
   padding: 24px;
+  overflow: hidden;
 
-  // 卡片主体
+
+
+  // 个人资料卡片
   .profile-card {
     position: relative;
     z-index: 10;
-    max-width: 800px;
-    margin: 40px auto;
-    background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    backdrop-filter: blur(10px);
+    max-width: 700px;
+    margin: 30px auto;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 255, 0.95));
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    animation: cardFadeIn 0.5s ease;
+    animation: cardFadeIn 0.6s ease;
 
-    // 头部区域
+    // 卡片头部
     .profile-header {
-      padding: 32px 24px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 24px;
+      background: linear-gradient(135deg, $primary 0%, $secondary 50%, $accent 100%);
+      background-size: 200% 200%;
+      animation: gradientFlow 6s ease infinite;
       color: #fff;
       display: flex;
       align-items: center;
@@ -240,71 +305,111 @@ onMounted(() => {
       // 返回按钮
       .header-left {
         position: absolute;
-        left: 16px;
+        left: 20px;
         top: 50%;
         transform: translateY(-50%);
+        z-index: 20;
 
         .back-btn {
-          color: rgba(255, 255, 255, 0.9);
+          color: rgba(255, 255, 255, 0.95);
           font-size: 14px;
+          font-weight: 500;
           display: flex;
           align-items: center;
           gap: 6px;
-          padding: 10px 14px;
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.1);
+          padding: 10px 16px;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.15);
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
 
           &:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             transform: translateX(-4px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           }
         }
       }
 
-      // 标题
+      // 页面标题
       .page-title {
         margin: 0;
-        font-size: 26px;
-        font-weight: 600;
-        letter-spacing: 1px;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        font-size: 28px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .title-icon {
+          font-size: 32px;
+        }
       }
     }
 
-    // 内容区域
+    // 卡片内容区
     .profile-content {
       padding: 40px 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 36px;
+      gap: 40px;
 
       // 头像区域
       .avatar-section {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        // 旋转光环
+        .avatar-ring {
+          position: absolute;
+          width: 160px;
+          height: 160px;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          border-top-color: rgba($primary, 0.6);
+          border-right-color: rgba($secondary, 0.6);
+          animation: ringRotate 3s linear infinite;
+        }
+
+        .ring-2 {
+          width: 180px;
+          height: 180px;
+          border-top-color: rgba($accent, 0.4);
+          border-right-color: rgba($primary, 0.4);
+          animation-duration: 5s;
+          animation-direction: reverse;
+        }
+
+        @keyframes ringRotate {
+          to { transform: rotate(360deg); }
+        }
+
+        // 头像容器
         .avatar-container {
           position: relative;
           cursor: pointer;
-          transition: transform 0.3s ease;
+          transition: all 0.4s ease;
+          z-index: 10;
 
           &:hover {
-            transform: scale(1.02);
+            transform: scale(1.05);
+            .avatar-overlay { opacity: 1; }
+          }
 
-            .avatar-overlay {
-              opacity: 1;
-            }
+          .main-avatar {
+            box-shadow: 0 4px 20px rgba($primary, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.8);
           }
         }
 
+        // 头像悬浮遮罩
         .avatar-overlay {
           position: absolute;
           inset: 0;
           border-radius: 50%;
-          background-color: rgba(0, 0, 0, 0.5);
+          background: linear-gradient(135deg, rgba($primary, 0.85), rgba($secondary, 0.85));
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -313,85 +418,211 @@ onMounted(() => {
           opacity: 0;
           transition: opacity 0.3s ease;
 
-          span {
-            font-size: 12px;
-          }
+          span { font-size: 12px; }
+        }
+
+        // 底部光晕
+        .avatar-glow {
+          position: absolute;
+          width: 140px;
+          height: 140px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba($primary, 0.3) 0%, transparent 70%);
+          filter: blur(20px);
+          z-index: 0;
+          animation: glowPulse 3s ease-in-out infinite;
         }
       }
 
-      // 信息区域
+      // 用户信息区域
       .info-section {
         width: 100%;
-        max-width: 500px;
 
+        // 区域头部
         .section-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
+          margin-bottom: 24px;
+          padding-bottom: 16px;
+          border-bottom: 2px solid rgba($primary, 0.15);
 
           .section-title {
             margin: 0;
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
-            position: relative;
-            padding-left: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: $text-dark;
+            display: flex;
+            align-items: center;
+            gap: 10px;
 
+            .section-icon {
+              font-size: 24px;
+              color: $primary;
+            }
+          }
+
+          // 头部操作按钮
+          .header-actions {
+            display: flex;
+            gap: 10px;
+
+            .edit-btn {
+              background: linear-gradient(135deg, $primary, $secondary);
+              padding: 8px 20px;
+
+              &:hover {
+                transform: translateY(-2px);
+              }
+            }
+
+            .action-btn {
+              padding: 8px 18px;
+
+              &.confirm-btn {
+                background: linear-gradient(135deg, #6cc7ff, #38ef7d);
+                &:hover { transform: translateY(-2px); }
+              }
+            }
+          }
+        }
+
+        // 信息卡片组
+        .info-cards {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+
+          .info-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 255, 0.7));
+            border-radius: 14px;
+            border: 1px solid rgba($primary, 0.15);
+            transition: all 0.3s ease;
+
+            // 左侧彩色边框
             &::before {
               content: '';
               position: absolute;
               left: 0;
-              top: 50%;
-              transform: translateY(-50%);
+              top: 0;
+              bottom: 0;
               width: 4px;
-              height: 18px;
-              background: linear-gradient(180deg, #667eea, #764ba2);
-              border-radius: 2px;
+              background: linear-gradient(180deg, $primary, $secondary);
+            }
+
+            &:hover {
+              transform: translateX(6px);
+              border-color: rgba($primary, 0.3);
+            }
+
+            // 信息标签
+            .info-label {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              min-width: 100px;
+              font-size: 14px;
+              font-weight: 600;
+              color: $text-muted;
+
+              .label-icon {
+                font-size: 18px;
+                color: $primary;
+              }
+            }
+
+            // 信息值
+            .info-value {
+              flex: 1;
+              font-size: 15px;
+              color: $text-dark;
+              text-align: right;
+
+              // 手机号等宽字体
+              &.phone-value {
+                font-family: monospace;
+                letter-spacing: 1px;
+              }
+
+              // 角色标签组
+              &.roles-value {
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+
+                .role-tag {
+                  font-size: 12px;
+                  padding: 4px 12px;
+                  border-radius: 8px;
+                  border: 1px solid rgba($primary, 0.3);
+                  background: linear-gradient(rgba($primary, 0.1), rgba($secondary, 0.1));
+                  color: $primary;
+                  font-weight: 600;
+                }
+              }
+
+              // URL 值
+              &.url-value {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                justify-content: flex-end;
+              }
+            }
+
+            // URL 卡片特殊样式
+            &.url-card {
+              .url-box {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 14px;
+                background: linear-gradient(rgba($primary, 0.08), rgba($secondary, 0.08));
+                border-radius: 10px;
+                border: 1px solid rgba($primary, 0.15);
+                max-width: 380px;
+
+                .url-icon { color: $primary; font-size: 16px; flex-shrink: 0; }
+
+                .url-text {
+                  font-family: monospace;
+                  color: #4a4a6a;
+                  font-size: 12px;
+                  word-break: break-all;
+                }
+              }
+
+              .copy-btn {
+                background: linear-gradient(135deg, $primary, $secondary);
+                color: #fff;
+                padding: 10px 18px;
+                border-radius: 10px;
+                flex-shrink: 0;
+                transition: all 0.3s ease;
+
+                &:hover {
+                  transform: translateY(-2px);
+                }
+              }
             }
           }
-
-          .header-actions {
-            display: flex;
-            gap: 8px;
-          }
         }
 
-        // 描述列表
-        :deep(.el-descriptions) {
-          .el-descriptions__label {
-            width: 100px;
-            font-weight: 500;
-            color: #606266;
-            background-color: rgba(102, 126, 234, 0.05);
+        // 编辑输入框样式
+        .edit-input {
+          :deep(.el-input__wrapper) {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba($primary, 0.15);
+            padding: 8px 14px;
           }
-
-          .el-descriptions__content {
-            color: #303133;
-            font-weight: 400;
-          }
-
-          .el-descriptions__cell {
-            padding: 14px 16px;
-          }
-        }
-
-        // URL 链接
-        .profile-url {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 12px;
-
-          .url-text {
-            flex: 1;
-            font-family: 'Consolas', 'Monaco', monospace;
-            color: #555;
-            word-break: break-all;
-            font-size: 13px;
-            background-color: rgba(102, 126, 234, 0.08);
-            padding: 6px 10px;
-            border-radius: 6px;
+          :deep(.el-input__inner::placeholder) {
+            color: #a0a0c0;
           }
         }
       }
@@ -399,15 +630,16 @@ onMounted(() => {
   }
 }
 
-// 卡片进入动画
+// 卡片淡入动画
 @keyframes cardFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
+// 渐变流动动画
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 </style>

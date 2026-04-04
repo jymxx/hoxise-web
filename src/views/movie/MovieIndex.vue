@@ -1,6 +1,6 @@
 <template>
   <!-- 禁用浏览器右键信息 -->
-  <div class="movie-index" @contextmenu.prevent>
+  <div class="movie-index">
     <!-- 侧边栏 -->
     <div class="main-sidebar">
       <MovieTabs @menu-selected="handleMenuSelected" />
@@ -27,12 +27,11 @@
     <!-- 登录弹窗 -->
     <SmsLoginDialog />
 
-
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import MovieTabs from './sidebar/MovieTabs.vue'
 import MovieHome from './content/MovieHome.vue'
 import MovieLibrary from './content/MovieLibrary.vue'
@@ -92,15 +91,16 @@ const handleShowMatching = (movie: { id: string | number; name: string }) => {
   display: flex;
   height: 100vh;
   background-color: #0a0a0a;
-
   .main-sidebar {
     width: 220px;
+    z-index : 3;
   }
 
   .main-content {
     flex: 1;
     overflow-y: auto;
     width: 2500px;
+    z-index : 3;
   }
 }
 
@@ -122,13 +122,5 @@ const handleShowMatching = (movie: { id: string | number; name: string }) => {
   transform: translateX(20px);
 }
 
-// 背景
-.background-star {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
-}
+
 </style>

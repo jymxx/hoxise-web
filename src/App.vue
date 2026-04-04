@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app"  @contextmenu.prevent>
     <router-view />
 
     <!-- 鼠标点击 -> 粒子特效 -->
@@ -8,8 +8,12 @@
     <!-- 鼠标拖尾 -> 流线光标 -->
     <SleekLineCursor v-if="enableSleekLineCursor" />
 
-    <!-- 樱花背景 -->
-    <SakuraBg v-if="enableBgEffect"/>
+    <!-- 樱花效果 -->
+    <Sakura v-if="enableBgEffect"/>
+
+    <!-- 星空背景 -->
+    <StarsBg star-color="#fff" class="stars-bg" />
+
   </div>
 </template>
 
@@ -21,7 +25,8 @@ import { useUIStore } from '@/store/modules/ui'
 // 特效组件
 import Hanabi from '@/components/Hanabi.vue'
 import SleekLineCursor from '@/components/inspira-ui/cursor/SleekLineCursor.vue'
-import SakuraBg from '@/components/effects/SakuraBg.vue'
+import Sakura from '@/components/effects/Sakura.vue'
+import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'
 
 
 const uiStore = useUIStore()
@@ -65,5 +70,12 @@ onMounted(() => {
   color: #2c3e50;
   height: 100vh; /* 占满整个视口高度 */
   overflow: hidden; /* 防止出现双重滚动条 */
+}
+
+// 星空背景
+.stars-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0; // 确保在根容器上 在内容下
 }
 </style>

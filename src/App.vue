@@ -1,18 +1,52 @@
 <template>
   <div id="app">
     <router-view />
+
+    <!-- 点击界面出现烟花效果 -->
+    <Hanabi class="firework" />
+
+    <!-- 鼠标拖尾 -> 流线光标 (根据设置控制显示) -->
+    <SleekLineCursor v-if="enableSleekLineCursor" />
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { getUserInfo } from '@/api/system/user'
+import { useUserStore } from '@/store/modules/user'
 import { useUIStore } from '@/store/modules/ui'
+// 特效组件
+import Hanabi from '@/components/Hanabi.vue'
+import SleekLineCursor from '@/components/inspira-ui/cursor/SleekLineCursor.vue'
 
 const uiStore = useUIStore()
+const userStore = useUserStore()
+
+// 从 store 获取设置状态
+const enableSleekLineCursor = computed(() => uiStore.getSetting('enableSleekLineCursor'))
+
+// 加载用户信息
+const loadUserInfo = async () => {
+  try {
+    const result = await getUserInfo()
+    // 转换后端 VO 为前端 Store 格式
+    userStore.setUserInfo({
+      userId: String(result.userId),
+      userName: result.userName,
+      nickName: result.nickName,
+      roles: result.roles,
+      avatar: result.avatar,
+    })
+  } catch (error) {
+    console.error('加载用户信息失败:', error)
+  }
+}
 
 onMounted(() => {
-  uiStore.loadSettings()
+  loadUserInfo() // 加载用户信息
+  uiStore.loadSettings() // 加载设置
 })
+
 </script>
 
 <style lang="scss">

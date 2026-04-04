@@ -108,8 +108,8 @@ const handleSendCode = async () => {
       countdown.value--
       if (countdown.value <= 0) clearInterval(timer!)
     }, 1000)
-  } catch (error) {
-    console.error('[SendCode Error]', error)
+  } catch (error : any) {
+    ElMessage.error(error.message)
   } finally {
     sending.value = false
   }
@@ -131,8 +131,8 @@ const handleLogin = async () => {
     close()
     // 刷新以处理状态
     location.reload()
-  } catch (error) {
-    console.error('[Login Error]', error)
+  } catch (error : any) {
+    ElMessage.error(error.message)
   } finally {
     loading.value = false
   }

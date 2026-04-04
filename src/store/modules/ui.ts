@@ -12,8 +12,7 @@ import { getSettings, setSetting } from '@/utils/setting'
  */
 export interface UserSettings {
   enableBgEffect: boolean | string // 背景特效开关
-  enableSleekLineCursor: boolean | string // 流线光标开关
-  enableFluidCursor: boolean | string // 流体光标开关
+  enableSleekLineCursor: boolean | string // 流线鼠标轨迹开关
 }
 
 export const useUIStore = defineStore('ui', () => {
@@ -32,7 +31,6 @@ export const useUIStore = defineStore('ui', () => {
   const settings = ref<UserSettings>({
     enableBgEffect: true,
     enableSleekLineCursor: false,
-    enableFluidCursor: false,
   })
 
   /**
@@ -42,7 +40,6 @@ export const useUIStore = defineStore('ui', () => {
     const saved = getSettings()
     if (saved.enableBgEffect != null) settings.value.enableBgEffect = saved.enableBgEffect
     if (saved.enableSleekLineCursor != null) settings.value.enableSleekLineCursor = saved.enableSleekLineCursor
-    if (saved.enableFluidCursor != null) settings.value.enableFluidCursor = saved.enableFluidCursor
   }
 
   /**

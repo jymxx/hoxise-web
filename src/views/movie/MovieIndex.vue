@@ -27,17 +27,7 @@
     <!-- 登录弹窗 -->
     <SmsLoginDialog />
 
-    <!-- 点击界面出现烟花效果 -->
-    <Hanabi class="firework" />
 
-    <!-- 鼠标拖尾 -> 流线光标 (根据设置控制显示) -->
-    <SleekLineCursor v-if="enableSleekLineCursor" />
-
-    <!-- 鼠标拖尾 ->流体光标 (根据设置控制显示) -->
-    <FluidCursor v-if="enableFluidCursor" />
-
-    <!-- 星空背景 -->
-    <StarsBg class="background-star" />
   </div>
 </template>
 
@@ -47,17 +37,7 @@ import MovieTabs from './sidebar/MovieTabs.vue'
 import MovieHome from './content/MovieHome.vue'
 import MovieLibrary from './content/MovieLibrary.vue'
 import SmsLoginDialog from '@/views/system/components/SmsLoginDialog.vue'
-import Hanabi from '@/components/Hanabi.vue'
-import SleekLineCursor from '@/components/inspira-ui/cursor/SleekLineCursor.vue'
-import FluidCursor from '@/components/inspira-ui/cursor/FluidCursor.vue'
-import { useUIStore } from '@/store/modules/ui'
-import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'
 
-const uiStore = useUIStore()
-
-// 从 store 获取设置状态
-const enableSleekLineCursor = computed(() => uiStore.getSetting('enableSleekLineCursor'))
-const enableFluidCursor = computed(() => uiStore.getSetting('enableFluidCursor'))
 
 // 标签页枚举
 enum TabType {

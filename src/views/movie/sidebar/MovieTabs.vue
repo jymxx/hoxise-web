@@ -35,6 +35,7 @@
         </el-sub-menu>
       </el-menu>
     </div>
+    
   </div>
 </template>
 
@@ -134,7 +135,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-
+    height: 100px;
     /* Logo 文字 */
     .logo-text {
       cursor: pointer;

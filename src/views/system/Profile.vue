@@ -72,7 +72,7 @@
   </div>
 
   <!-- 星空背景 -->
-  <StarsBackground :factor="0.05" :speed="50" star-color="#fff" />
+  <StarsBg :factor="0.05" :speed="50" star-color="#fff" />
 </template>
 
 <script setup lang="ts">
@@ -80,7 +80,7 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Camera, Edit, CopyDocument } from '@element-plus/icons-vue'
 import { uploadAvatar, getUserInfo, modifyUserInfo } from '@/api/system/user'
-import StarsBackground from '@/components/inspira-ui/backgrounds/StarsBackground.vue'
+import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'
 
 // ========== 类型定义 ==========
 interface UserInfo {

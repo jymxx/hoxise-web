@@ -16,48 +16,20 @@
             <span>个人中心</span>
           </el-menu-item>
 
-          <!-- 设置菜单 - 使用 el-dropdown 实现向右展开 -->
-          <el-menu-item index="settings">
-            <el-dropdown trigger="hover" placement="right-start" :hide-on-click="false">
-              <div class="settings-menu-title">
-                <el-icon><Setting /></el-icon>
-                <span>设置</span>
-              </div>
-              <template #dropdown>
-                <el-dropdown-menu class="settings-dropdown-menu">
-                  <template v-for="item in SETTINGS_CONFIG" :key="item.key">
-                    <!-- 父级设置项 -->
-                    <el-dropdown-item v-if="!item.children" :index="item.key">
-                      <span>{{ item.label }}</span>
-                      <el-switch
-                        :model-value="getSettingValue(item.key)"
-                        size="small"
-                        style="margin-left: auto"
-                        @update:model-value="toggleSetting(item.key, $event)" />
-                    </el-dropdown-item>
-                    <!-- 子菜单 - 嵌套 dropdown -->
-                    <el-dropdown v-else trigger="hover" placement="right-start" :hide-on-click="false">
-                      <el-dropdown-item :index="item.key">
-                        <span>{{ item.label }}</span>
-                      </el-dropdown-item>
-                      <template #dropdown>
-                        <el-dropdown-menu class="settings-dropdown-menu">
-                          <el-dropdown-item v-for="child in item.children" :key="child.key" :index="child.key">
-                            <span>{{ child.label }}</span>
-                            <el-switch
-                              :model-value="getSettingValue(child.key)"
-                              size="small"
-                              style="margin-left: auto"
-                              @update:model-value="toggleSetting(child.key, $event)" />
-                          </el-dropdown-item>
-                        </el-dropdown-menu>
-                      </template>
-                    </el-dropdown>
-                  </template>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </el-menu-item>
+          <!-- 设置菜单 -->
+          <el-sub-menu index="settings">
+            <template #title>
+              <el-icon><Setting /></el-icon>
+              <span>设置</span>
+            </template>
+            <el-menu-item v-for="item in SETTINGS_CONFIG" :key="item.key" :index="item.key">
+              <span>{{ item.label }}</span>
+              <el-switch
+                :model-value="getSettingValue(item.key)"
+                size="small"
+                @update:model-value="toggleSetting(item.key, $event)" />
+            </el-menu-item>
+          </el-sub-menu>
 
           <el-menu-item index="logout" @click="handleLogout">
             <el-icon><SwitchButton /></el-icon>
@@ -66,6 +38,9 @@
         </el-menu>
       </template>
     </el-dropdown>
+
+    <!-- 流星雨 -->
+    <Meteors :count="20"/>
   </div>
 </template>
 
@@ -78,6 +53,7 @@ import { removeToken } from '@/utils/auth'
 import { useUserStore } from '@/store/modules/user'
 import { useUIStore, type UserSettings } from '@/store/modules/ui'
 import { useRouter } from 'vue-router'
+import Meteors from '@/components/inspira-ui/special-effects/Meteors.vue'
 
 // ========== Store & Router ==========
 const userStore = useUserStore()
@@ -90,14 +66,7 @@ const avatarUrl = computed(() => userStore.avatar || '')
 // 设置配置项
 const SETTINGS_CONFIG = [
   { key: 'enableBgEffect' as keyof UserSettings, label: '背景特效' },
-  {
-    key: 'cursorTails',
-    label: '鼠标轨迹',
-    children: [
-      { key: 'enableSleekLineCursor' as keyof UserSettings, label: '流线' },
-      { key: 'enableFluidCursor' as keyof UserSettings, label: '流体' },
-    ],
-  },
+  { key: 'enableSleekLineCursor' as keyof UserSettings, label: '鼠标轨迹' },
 ]
 
 // 获取设置的初始值
@@ -132,128 +101,181 @@ const handleLogout = async () => {
 <style scoped lang="scss">
 /* ========== 用户信息下拉容器 ========== */
 .user-info-dropdown {
-  background-color: #1a252f;
+  position: relative;
+  background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
+  border-radius: 12px;
+  padding: 4px;
 
   /* 用户信息区域 - 头像 + 昵称 + 箭头 */
   .user-info {
     display: flex;
     align-items: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    padding: 4px 8px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
+    padding: 6px 12px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(26, 188, 156, 0.1),
+        transparent
+      );
+      transition: left 0.5s ease;
+    }
 
     &:hover {
-      background-color: rgba(26, 188, 156, 0.1);
+      background-color: rgba(26, 188, 156, 0.15);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(26, 188, 156, 0.2);
+
+      &::before {
+        left: 100%;
+      }
     }
 
     /* 用户头像 */
     .user-avatar {
       margin-right: 10px;
-      border: 1px solid rgba(146, 219, 253, 0.3);
+      border: 2px solid rgba(26, 188, 156, 0.5);
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(26, 188, 156, 0.3);
+
+      &:hover {
+        border-color: rgba(26, 188, 156, 0.8);
+        transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(26, 188, 156, 0.5);
+      }
     }
 
     /* 用户昵称 */
     .user-nickName {
-      font-size: 18px;
-      color: #ecf0f1;
-      font-weight: 500;
+      font-size: 17px;
+      background: linear-gradient(135deg, #ecf0f1 0%, #1abc9c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 600;
       max-width: 120px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      transition: all 0.3s ease;
     }
 
     /* 下拉箭头图标 */
     .arrow-icon {
       margin-left: 6px;
-      font-size: 12px;
-      color: #999;
+      font-size: 14px;
+      color: #1abc9c;
+      transition: transform 0.3s ease;
     }
+  }
+
+  &:hover .arrow-icon {
+    transform: rotate(180deg);
   }
 }
 
 /* ========== 下拉菜单样式 ========== */
 .dropdown-menu {
-  background: transparent;
   border: none;
-  // width: 180px;
+  width: 180px;
+  background: linear-gradient(135deg, rgba(26, 37, 47, 0.98) 0%, rgba(44, 62, 80, 0.98) 100%);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(26, 188, 156, 0.1);
+  animation: menuSlideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* 菜单项样式 */
-  :deep(.el-menu-item) {
-    height: 40px;
-    line-height: 40px;
-    color: #606266;
-
-    &:hover {
-      background-color: #f5f7fa;
-    }
-  }
-
-  /* 子菜单标题样式 */
+  .el-menu-item,
   :deep(.el-sub-menu__title) {
-    height: 40px;
-    line-height: 40px;
-    color: #606266;
+    border-radius: 8px;
+    margin: 4px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
 
-    &:hover {
-      background-color: #f5f7fa;
+    .el-icon {
+      color: #1abc9c;
+      transition: all 0.3s ease;
+      font-size: 18px;
     }
-  }
-}
 
-/* ========== Popper 弹出层样式 ========== */
-.user-dropdown-popper {
-  /* 子菜单标题内的图标间距 */
-  .el-sub-menu__title .el-icon {
-    margin-right: 5px;
-  }
-
-  /* 菜单项内的图标间距 */
-  .el-menu-item .el-icon {
-    margin-right: 5px;
-  }
-
-  /* 菜单项内容布局 */
-  .el-menu-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  /* switch 右侧间距 */
-  .el-switch {
-    margin-left: auto;
-  }
-}
-
-/* ========== 设置菜单标题样式 ========== */
-.settings-menu-title {
-  display: flex;
-  align-items: center;
-  height: 40px;
-
-  .el-icon {
-    margin-right: 5px;
-  }
-}
-
-/* ========== 设置下拉菜单样式 ========== */
-.settings-dropdown-menu {
-  /* 下拉项内容布局 */
-  .el-dropdown-menu__item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    span {
+      color: #ecf0f1;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
 
     &:hover {
-      background-color: #f5f7fa;
+      background: linear-gradient(135deg, rgba(26, 188, 156, 0.15) 0%, rgba(26, 188, 156, 0.05) 100%);
+      transform: translateX(4px);
+
+      .el-icon {
+        color: #48dbfb;
+        transform: scale(1.1);
+      }
+    }
+
+    &.is-active {
+      background: rgba(26, 188, 156, 0.2);
+
+      .el-icon {
+        color: #48dbfb;
+      }
     }
   }
 
-  /* switch 右侧间距 */
-  .el-switch {
-    margin-left: auto;
+  /* 子菜单样式 */
+  :deep(.el-sub-menu) {
+    .el-menu {
+      background: transparent;
+      border-radius: 8px;
+      padding-left: 8px;
+
+      .el-menu-item {
+        min-height: 40px;
+        padding-left: 44px;
+
+        &:hover {
+          background: rgba(26, 188, 156, 0.1);
+        }
+      }
+    }
+  }
+
+
+}
+
+/* 开关样式 */
+.el-switch {
+  margin-left: 10px;
+  --el-switch-on-color: #1abc9c;
+  --el-switch-off-color: #34495e;
+}
+
+/* 菜单下滑动画 */
+@keyframes menuSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
+
 </style>

@@ -11,5 +11,7 @@ const MODULE = '/system/sms'
  * @param phone 手机号
  */
 export function sendVerifyCode(phone: string): Promise<void> {
-  return request.post(MODULE + '/send', { phone })
+  const formData = new FormData()
+  formData.append('phone', phone)
+  return request.post(MODULE + '/send',  formData )
 }

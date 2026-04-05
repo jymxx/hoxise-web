@@ -126,12 +126,33 @@ const handleLogin = () => {
   }
 }
 
-// 覆盖 SuspendIsland 文本颜色
+// 覆盖 SuspendIsland 文本颜色 - 动态渐变
 :deep(.island-custom #motion-id) {
   color: transparent;
-  background-image: linear-gradient(to right, #fbbf24, #f97316, #ef4444);
+  background-image: linear-gradient(
+    to right,
+    #fbbf24,
+    #f97316,
+    #ef4444,
+    #f97316,
+    #fbbf24
+  );
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 // 覆盖超链接颜色

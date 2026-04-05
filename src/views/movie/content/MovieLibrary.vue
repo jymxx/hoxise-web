@@ -77,20 +77,18 @@
     </div>
 
     <!-- 影视列表和滚动区域 -->
-    <div class="movie-scroll" @scroll="handleScroll">
-      <RecycleScroller :items="movieGroups" :item-size="420" key-field="id" class="movie-grid">
-        <template #default="{ item: group }">
-          <div class="movie-row">
-            <div v-for="movie in group.movies" :key="movie.id" class="movie-card">
-              <MovieCardInner
-                :movie="movie"
-                :can-operate="canOperate"
-                @command="handleCommand"
-                @go-detail="emit('go-detail', $event)" />
-            </div>
+    <el-scrollbar class="movie-scroll" @end-reached="handleScrollEnd" :distance="10">
+      <div class="movie-grid">
+        <template v-for="movie in movieList" :key="movie.id">
+          <div class="movie-card" :style="{ animationDelay: `${movie._aniIndex * 0.05}s` }">
+            <MovieCardInner
+              :movie="movie"
+              :can-operate="canOperate"
+              @command="handleCommand"
+              @go-detail="emit('go-detail', $event)" />
           </div>
         </template>
-      </RecycleScroller>
+      </div>
 
       <!-- 加载中提示 -->
       <div v-if="hasMore && loadingMore && totalCount > 0" class="end-title">
@@ -100,7 +98,7 @@
 
       <!-- 没有更多提示 -->
       <div v-if="!hasMore && totalCount > 0" class="end-title">没有更多了</div>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -109,8 +107,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Search, Filter, Sort, DataAnalysis, RefreshLeft, ArrowUp, Loading } from '@element-plus/icons-vue'
 import { getLibrary, pageSimple } from '@/api/movie/movieCatalog'
 import { deleteCatalog } from '@/api/movie/movieManage'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { RecycleScroller } from 'vue-virtual-scroller'
+import { ElMessage, ElMessageBox, ElScrollbar } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import { useMovieStore } from '@/store/modules/movie'
 import { getTargetUserid } from '@/utils/route'
@@ -136,12 +133,12 @@ const movieStore = useMovieStore()
 const loading = ref(false)
 const hasMore = ref(true)
 const loadingMore = ref(false)
-// 分组数据（虚拟滚动容器，需要保持 id 稳定以复用组件）
-const movieGroups = ref<{ id: string; movies: any[] }[]>([])
+// 影视列表
+const movieList = ref<any[]>([])
 
 // 计算总数据量
 const totalCount = computed(() => {
-  return movieGroups.value.reduce((sum, group) => sum + group.movies.length, 0)
+  return movieList.value.length
 })
 
 // 监听 directory 变化
@@ -166,20 +163,12 @@ const canOperate = computed(() => {
   return userStore.isLogin && !movieStore.accessUserid
 })
 
-// 追加新数据到分组（只追加新组，不触动已有组）
-const appendMovieGroups = (newMovies: any[]) => {
-  const pageSize = 10
-  const startIndex = totalCount.value
-  const newGroups: { id: string; movies: any[] }[] = []
-  for (let i = 0; i < newMovies.length; i += pageSize) {
-    const chunk = newMovies.slice(i, i + pageSize)
-    newGroups.push({
-      id: `group-${startIndex + i}`,
-      movies: chunk,
-    })
-  }
-  // 追加数据
-  movieGroups.value = [...movieGroups.value, ...newGroups]
+// 追加新数据
+const appendMovieList = (newMovies: any[]) => {
+  newMovies.forEach((movie, i) => {
+    movie._aniIndex = i // 标记动画延迟索引
+    movieList.value.push(movie)
+  })
 }
 
 // 判断是否有筛选条件
@@ -219,7 +208,7 @@ const fetchData = async () => {
     // 处理数据
     const newList = res.list
 
-    appendMovieGroups(newList) // 追加新组
+    appendMovieList(newList) // 追加数据
     hasMore.value = newList.length >= pageParams.value.pageSize // 判断是否还有更多数据
   } catch (error) {
     ElMessage.error('加载失败:' + error)
@@ -233,7 +222,7 @@ const fetchData = async () => {
 const handleSearch = () => {
   loading.value = true
   pageParams.value.pageNum = 1
-  movieGroups.value = []
+  movieList.value = []
   fetchData()
 }
 
@@ -245,7 +234,7 @@ const resetAndLoad = () => {
   pageParams.value.notMatched = false
   pageParams.value.orderBy = ''
   pageParams.value.isAsc = true
-  movieGroups.value = []
+  movieList.value = []
   loading.value = true
   window.scrollTo({ top: 0, behavior: 'smooth' })
   fetchData()
@@ -258,14 +247,10 @@ const loadMore = async () => {
   fetchData()
 }
 
-// 监听滚动到底部
-const handleScroll = (e: Event) => {
-  const target = e.target as HTMLElement
-  const { scrollTop, scrollHeight, clientHeight } = target
-  // 距离底部 10px 时触发加载
-  if (scrollHeight - scrollTop - clientHeight < 10 && hasMore.value && !loadingMore.value) {
-    loadMore()
-  }
+// 滚动到底部
+const handleScrollEnd = () => {
+  if (!hasMore.value || loadingMore.value) return
+  loadMore()
 }
 
 // 下拉菜单命令
@@ -289,13 +274,8 @@ const handleDelete = (movie: any) => {
   })
     .then(async () => {
       await deleteCatalog(movie.id)
-      // 从 movieGroups 中过滤删除的电影
-      movieGroups.value = movieGroups.value
-        .map((group) => ({
-          ...group,
-          movies: group.movies.filter((m) => m.id !== movie.id),
-        }))
-        .filter((group) => group.movies.length > 0) // 移除空分组
+      // 从 movieList 中过滤删除的电影
+      movieList.value = movieList.value.filter((m) => m.id !== movie.id)
       ElMessage.success('删除成功')
     })
     .catch(() => {})
@@ -384,40 +364,47 @@ onMounted(() => {
     }
   }
 
+  /* 滚动区域 */
   .movie-scroll {
-    overflow-y: scroll;
-    /* 自定义滚动条样式 - 光条形式 */
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #1abc9c, #48dbfb);
-      border-radius: 2px;
-      box-shadow: 0 0 10px rgba(72, 219, 251, 0.5);
-      &:hover {
-        background: linear-gradient(180deg, #48dbfb, #0abde3);
-        box-shadow: 0 0 15px rgba(72, 219, 251, 0.8);
-      }
-    }
-    /* 影视网格布局 - RecycleScroller 内容 */
-    .movie-grid {
-      padding: 5px;
-      /* 影视行 - flex 布局容纳 10 个卡片 */
-      .movie-row {
-        margin-top: 10px;
-        display: flex;
-        gap: 10px;
-        padding: 5px;
-      }
+    flex: 1;
+    padding: 0 20px 20px;
+  }
 
-      /* 影视卡片 */
-      .movie-card {
-        flex: 0 0 calc((100% - 90px) / 10); /* 减去 9 个 gap 的宽度，平分剩余空间 */
-        border-radius: 10px;
-        height: 400px;
+  /* 影视网格布局 */
+  .movie-grid {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    position: relative;
+    min-height: 400px;
+
+    :deep(.el-loading-mask) {
+      background-color: rgba(10, 10, 10, 0.8);
+    }
+
+    :deep(.el-loading-spinner) {
+      color: #1abc9c;
+
+      .path {
+        stroke: #1abc9c;
+      }
+    }
+
+    /* 卡片依次进入动画 */
+    .movie-card {
+      opacity: 0;
+      animation: cardFadeIn 0.4s ease forwards;
+    }
+
+    @keyframes cardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
       }
     }
   }

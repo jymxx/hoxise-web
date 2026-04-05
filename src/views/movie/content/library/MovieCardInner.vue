@@ -146,11 +146,9 @@ const handleCommand = (command: string, movie: Movie) => {
 /* 外层包装器 - 处理 hover 位移和阴影效果 */
 .movie-card-wrapper {
   display: block;
-  height: 100%;
+  height: 380px;
   border-radius: 10px;
   overflow: hidden;
-  opacity: 0;
-  animation: cardEnter 0.5s ease forwards;
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease,
@@ -165,17 +163,7 @@ const handleCommand = (command: string, movie: Movie) => {
   }
 }
 
-/* 进入动画 */
-@keyframes cardEnter {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* 内层卡片 - 处理 3D 翻转 */
+/* 内层卡片 - 处理正反面切换 */
 .movie-card-inner {
   position: relative;
   width: 100%;

@@ -1,5 +1,5 @@
 <template>
-  <div id="app"  @contextmenu.prevent>
+  <div id="app" @contextmenu.prevent>
     <router-view />
 
     <!-- 鼠标点击 -> 粒子特效 -->
@@ -9,11 +9,10 @@
     <SleekLineCursor v-if="enableSleekLineCursor" />
 
     <!-- 樱花效果 -->
-    <Sakura v-if="enableBgEffect"/>
+    <Sakura v-if="enableBgEffect" />
 
     <!-- 星空背景 -->
     <StarsBg star-color="#fff" class="stars-bg" />
-
   </div>
 </template>
 
@@ -27,7 +26,6 @@ import Hanabi from '@/components/Hanabi.vue'
 import SleekLineCursor from '@/components/inspira-ui/cursor/SleekLineCursor.vue'
 import Sakura from '@/components/effects/Sakura.vue'
 import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'
-
 
 const uiStore = useUIStore()
 const userStore = useUserStore()
@@ -49,15 +47,13 @@ const loadUserInfo = async () => {
       roles: result.roles,
       avatar: result.avatar,
     })
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 
 onMounted(() => {
   loadUserInfo() // 加载用户信息
   uiStore.loadSettings() // 加载设置
 })
-
 </script>
 
 <style lang="scss">

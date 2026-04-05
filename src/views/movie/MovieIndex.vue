@@ -27,6 +27,13 @@
     <!-- 登录弹窗 -->
     <SmsLoginDialog />
 
+    <!-- 滚动岛 -->
+    <SuspendIsland title="提示：正在浏览他人数据" class="island-custom" v-if="seeOtherData">
+      <div class="my-3 flex flex-col gap-2">
+        <a href="/"># 返回首页</a>
+        <a v-if="!useUser.isLogin" @click.prevent="handleLogin" class="login-link"># 登录 </a>
+      </div>
+    </SuspendIsland>
   </div>
 </template>
 
@@ -36,7 +43,17 @@ import MovieTabs from './sidebar/MovieTabs.vue'
 import MovieHome from './content/MovieHome.vue'
 import MovieLibrary from './content/MovieLibrary.vue'
 import SmsLoginDialog from '@/views/system/components/SmsLoginDialog.vue'
+import SuspendIsland from '@/components/inspira-ui/miscellaneous/SuspendIsland.vue'
+import { getTargetUserid } from '@/utils/route'
+import { useUserStore } from '@/store/modules/user'
+import { useUIStore } from '@/store/modules/ui'
 
+const useUser = useUserStore()
+const useUi = useUIStore()
+// 是否浏览他人数据
+const seeOtherData = computed(() => {
+  return getTargetUserid() !== useUser.id
+})
 
 // 标签页枚举
 enum TabType {
@@ -57,8 +74,8 @@ const handleMenuSelected = (key: string) => {
       activeTab.value = TabType.HOME
       currentDirectory.value = ''
       break
-    case 'library':
     case 'history':
+    case 'library':
       activeTab.value = TabType.LIBRARY
       currentDirectory.value = ''
       break
@@ -84,6 +101,11 @@ const handleShowMatching = (movie: { id: string | number; name: string }) => {
   console.log('show matching:', movie)
   // TODO: 显示匹配对话框
 }
+
+// 打开登录弹窗
+const handleLogin = () => {
+  useUi.openLoginDialog()
+}
 </script>
 
 <style scoped lang="scss">
@@ -93,15 +115,28 @@ const handleShowMatching = (movie: { id: string | number; name: string }) => {
   background-color: #0a0a0a;
   .main-sidebar {
     width: 220px;
-    z-index : 3;
+    z-index: 3;
   }
 
   .main-content {
     flex: 1;
     overflow-y: auto;
     width: 2500px;
-    z-index : 3;
+    z-index: 3;
   }
+}
+
+// 覆盖 SuspendIsland 文本颜色
+:deep(.island-custom #motion-id) {
+  color: transparent;
+  background-image: linear-gradient(to right, #fbbf24, #f97316, #ef4444);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+// 覆盖超链接颜色
+:deep(.island-custom a) {
+  color: #60a5fa !important;
 }
 
 /* 页面切换动画 */
@@ -121,6 +156,4 @@ const handleShowMatching = (movie: { id: string | number; name: string }) => {
   opacity: 0;
   transform: translateX(20px);
 }
-
-
 </style>

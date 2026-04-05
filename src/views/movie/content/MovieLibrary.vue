@@ -304,7 +304,6 @@ onMounted(() => {
     justify-content: flex-start;
     align-items: center;
     padding: 20px;
-    margin-bottom: 0;
 
     /* 闪光文字样式覆盖 */
     .sparkles-text {

@@ -65,13 +65,13 @@ const createSubtleFireworks = (x: number, y: number) => {
 
 // ========== 生命周期 ==========
 onMounted(() => {
-  // 使用捕获阶段监听整个文档的点击事件
-  document.addEventListener('click', handleDocumentClick, true)
+  // 使用冒泡阶段监听整个文档的点击事件
+  document.addEventListener('click', handleDocumentClick, false)
 })
 
 onBeforeUnmount(() => {
   // 清理事件监听器
-  document.removeEventListener('click', handleDocumentClick, true)
+  document.removeEventListener('click', handleDocumentClick, false)
 })
 </script>
 

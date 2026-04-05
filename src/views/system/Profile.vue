@@ -47,7 +47,12 @@
               </template>
               <template v-else>
                 <el-button class="action-btn" size="small" @click="cancelEditing">取消</el-button>
-                <el-button class="action-btn confirm-btn" type="primary" size="small" :loading="submitting" @click="handleSubmit">
+                <el-button
+                  class="action-btn confirm-btn"
+                  type="primary"
+                  size="small"
+                  :loading="submitting"
+                  @click="handleSubmit">
                   <el-icon><Check /></el-icon>
                   确认保存
                 </el-button>
@@ -56,15 +61,6 @@
           </div>
 
           <div class="info-cards">
-            <!-- 用户 ID 卡片 -->
-            <div class="info-card">
-              <div class="info-label">
-                <el-icon class="label-icon"><User /></el-icon>
-                用户 ID
-              </div>
-              <div class="info-value">{{ userInfo.userId }}</div>
-            </div>
-
             <!-- 昵称卡片 -->
             <div class="info-card">
               <div class="info-label">
@@ -81,8 +77,7 @@
                     maxlength="20"
                     placeholder="请输入昵称"
                     class="edit-input"
-                    clearable
-                  />
+                    clearable />
                 </template>
               </div>
             </div>
@@ -103,22 +98,16 @@
                 角色
               </div>
               <div class="info-value roles-value">
-                <el-tag
-                  v-for="role in userInfo.roles"
-                  :key="role"
-                  class="role-tag"
-                  effect="light"
-                >
-                  {{ role }}
+                <el-tag v-for="role in userInfo.roles" :key="role" class="role-tag" effect="light">
+                  {{ getRoleLabel(role) }}
                 </el-tag>
               </div>
             </div>
-
             <!-- 访问地址卡片 -->
             <div class="info-card url-card">
               <div class="info-label">
                 <el-icon class="label-icon"><Link /></el-icon>
-                个人访问地址
+                站内分享地址
               </div>
               <div class="info-value url-value">
                 <div class="url-box">
@@ -131,6 +120,59 @@
                 </el-button>
               </div>
             </div>
+
+            <!-- 是否公开 -->
+            <div class="info-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><Star /></el-icon>
+                是否公开数据
+              </div>
+              <div class="info-value">【开发中】</div>
+            </div>
+            <!-- 访问次数 -->
+            <div class="info-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><Star /></el-icon>
+                被访问次数
+              </div>
+              <div class="info-value">【开发中】</div>
+            </div>
+
+            <!-- DB 数据来源卡片 -->
+            <div class="info-card source-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><DataLine /></el-icon>
+                DB数据来源 (主要)
+              </div>
+              <div class="info-value source-value">
+                <span>Bangumi 番组计划 </span>
+                <a href="https://bangumi.tv/" target="_blank" class="source-link">
+                  <el-icon><Link /></el-icon>
+                  https://bangumi.tv/
+                </a>
+              </div>
+            </div>
+            <div class="info-card source-card">
+              <div class="info-label">
+                <el-icon class="label-icon"><DataLine /></el-icon>
+                DB数据来源
+              </div>
+              <div class="info-value source-value">
+                <span>The Movie Database </span>
+                <a href="https://bangumi.tv/" target="_blank" class="source-link">
+                  <el-icon><Link /></el-icon>
+                  https://www.themoviedb.org/
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部联系邮箱按钮 -->
+          <div class="contact-section">
+            <el-button class="contact-btn" @click="copyContactEmail">
+              <el-icon><Message /></el-icon>
+              问题反馈
+            </el-button>
           </div>
         </div>
       </div>
@@ -141,9 +183,24 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Camera, Edit, CopyDocument, ArrowLeft, User, UserFilled, Star, Cellphone, Trophy, Link, Check } from '@element-plus/icons-vue'
+import {
+  Camera,
+  Edit,
+  CopyDocument,
+  ArrowLeft,
+  User,
+  UserFilled,
+  Star,
+  Cellphone,
+  Trophy,
+  Link,
+  Check,
+  DataLine,
+  Message,
+} from '@element-plus/icons-vue'
 import { uploadAvatar, getUserInfo, modifyUserInfo } from '@/api/system/user'
 import { useRouter } from 'vue-router'
+import { getRoleLabel } from '@/utils/enums/role'
 
 // Router
 const router = useRouter()
@@ -151,6 +208,16 @@ const router = useRouter()
 // 返回上一页
 const goBack = () => {
   router.back()
+}
+
+// 复制联系邮箱
+const copyContactEmail = async () => {
+  try {
+    await navigator.clipboard.writeText('2273554340@qq.com')
+    ElMessage.success('邮箱地址已复制')
+  } catch (error) {
+    ElMessage.error('复制失败')
+  }
 }
 
 // ========== 类型定义 ==========
@@ -212,7 +279,7 @@ const handleAvatarUpload = async (options: { file: File }) => {
     const newAvatarUrl = await uploadAvatar(file)
     userInfo.value.avatar = newAvatarUrl
     ElMessage.success('头像上传成功')
-  } catch (error : any) {
+  } catch (error: any) {
     ElMessage.error('头像上传失败: ' + error.message)
   }
 }
@@ -236,7 +303,7 @@ const handleSubmit = async () => {
     userInfo.value.nickName = editForm.value.nickName
     ElMessage.success('修改成功')
     editing.value = false
-  } catch (error : any) {
+  } catch (error: any) {
     ElMessage.error('修改失败：' + error.message)
   } finally {
     submitting.value = false
@@ -275,8 +342,6 @@ $text-muted: #6a6a8a;
   background: linear-gradient(135deg, #0c0c1e 0%, #1a1a3e 50%, #0f0f2d 100%);
   padding: 24px;
   overflow: hidden;
-
-
 
   // 个人资料卡片
   .profile-card {
@@ -383,7 +448,9 @@ $text-muted: #6a6a8a;
         }
 
         @keyframes ringRotate {
-          to { transform: rotate(360deg); }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         // 头像容器
@@ -395,7 +462,9 @@ $text-muted: #6a6a8a;
 
           &:hover {
             transform: scale(1.05);
-            .avatar-overlay { opacity: 1; }
+            .avatar-overlay {
+              opacity: 1;
+            }
           }
 
           .main-avatar {
@@ -418,7 +487,9 @@ $text-muted: #6a6a8a;
           opacity: 0;
           transition: opacity 0.3s ease;
 
-          span { font-size: 12px; }
+          span {
+            font-size: 12px;
+          }
         }
 
         // 底部光晕
@@ -481,7 +552,9 @@ $text-muted: #6a6a8a;
 
               &.confirm-btn {
                 background: linear-gradient(135deg, #6cc7ff, #38ef7d);
-                &:hover { transform: translateY(-2px); }
+                &:hover {
+                  transform: translateY(-2px);
+                }
               }
             }
           }
@@ -587,7 +660,11 @@ $text-muted: #6a6a8a;
                 border: 1px solid rgba($primary, 0.15);
                 max-width: 380px;
 
-                .url-icon { color: $primary; font-size: 16px; flex-shrink: 0; }
+                .url-icon {
+                  color: $primary;
+                  font-size: 16px;
+                  flex-shrink: 0;
+                }
 
                 .url-text {
                   font-family: monospace;
@@ -610,6 +687,44 @@ $text-muted: #6a6a8a;
                 }
               }
             }
+
+            // 数据来源卡片样式
+            &.source-card {
+              .source-value {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                justify-content: flex-end;
+
+                span {
+                  font-size: 14px;
+                  font-weight: 600;
+                  color: $text-muted;
+                }
+
+                .source-link {
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 6px;
+                  padding: 8px 14px;
+                  background: linear-gradient(rgba($primary, 0.08), rgba($secondary, 0.08));
+                  border-radius: 10px;
+                  border: 1px solid rgba($primary, 0.15);
+                  color: $primary;
+                  font-size: 13px;
+                  font-weight: 600;
+                  text-decoration: none;
+                  transition: all 0.3s ease;
+
+                  &:hover {
+                    background: linear-gradient(rgba($primary, 0.15), rgba($secondary, 0.15));
+                    border-color: rgba($primary, 0.3);
+                    color: $secondary;
+                    transform: translateY(-2px);
+                  }
+                }
+              }
+            }
           }
         }
 
@@ -625,6 +740,35 @@ $text-muted: #6a6a8a;
             color: #a0a0c0;
           }
         }
+
+        // 底部联系邮箱
+        .contact-section {
+          margin-top: 24px;
+          display: flex;
+          justify-content: flex-end;
+
+          .contact-btn {
+            background: linear-gradient(135deg, rgba($primary, 0.08), rgba($secondary, 0.08));
+            border: 1px solid rgba($primary, 0.2);
+            color: $primary;
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+
+            .el-icon {
+              margin-right: 4px;
+              font-size: 16px;
+            }
+
+            &:hover {
+              background: linear-gradient(135deg, rgba($primary, 0.15), rgba($secondary, 0.15));
+              border-color: rgba($primary, 0.35);
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba($primary, 0.2);
+            }
+          }
+        }
       }
     }
   }
@@ -632,14 +776,24 @@ $text-muted: #6a6a8a;
 
 // 卡片淡入动画
 @keyframes cardFadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // 渐变流动动画
 @keyframes gradientFlow {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
-
 </style>

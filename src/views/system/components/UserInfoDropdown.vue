@@ -1,5 +1,5 @@
 <template>
-  <div class="user-info-dropdown ">
+  <div class="user-info-dropdown">
     <el-dropdown trigger="click" popper-class="user-dropdown-popper">
       <div class="user-info">
         <!-- 用户头像 -->
@@ -38,13 +38,12 @@
         </el-menu>
       </template>
     </el-dropdown>
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { User, Setting, SwitchButton, ArrowDown } from '@element-plus/icons-vue'
 import { logout } from '@/api/system/auth'
 import { removeToken } from '@/utils/auth'
@@ -62,7 +61,7 @@ const avatarUrl = computed(() => userStore.avatar || '')
 
 // 设置配置项
 const SETTINGS_CONFIG = [
-  { key: 'enableBgEffect' as keyof UserSettings, label: '飘落特效' },
+  { key: 'enableBgEffect' as keyof UserSettings, label: '飘落效果' },
   { key: 'enableClickEffect' as keyof UserSettings, label: '点击特效' },
   { key: 'enableSleekLineCursor' as keyof UserSettings, label: '鼠标轨迹' },
 ]
@@ -120,12 +119,7 @@ const handleLogout = async () => {
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(26, 188, 156, 0.1),
-        transparent
-      );
+      background: linear-gradient(90deg, transparent, rgba(26, 188, 156, 0.1), transparent);
       transition: left 0.5s ease;
     }
 
@@ -190,7 +184,9 @@ const handleLogout = async () => {
   backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(26, 188, 156, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(26, 188, 156, 0.1);
   animation: menuSlideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   .el-menu-item,
@@ -250,8 +246,6 @@ const handleLogout = async () => {
       }
     }
   }
-
-
 }
 
 /* 开关样式 */
@@ -272,5 +266,4 @@ const handleLogout = async () => {
     transform: translateY(0) scale(1);
   }
 }
-
 </style>

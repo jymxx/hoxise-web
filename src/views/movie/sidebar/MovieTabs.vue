@@ -1,10 +1,13 @@
 <template>
   <div class="sidebar">
     <div class="sidebar-header">
-      <h2 v-if="!isLogin" class="logo-text" @click="handleClickLogo">风间</h2>
+      <div class="logo-wrapper" @click="handleClickLogo">
+        <h2 v-if="!isLogin" class="logo-text">风间</h2>
+        <span v-if="!isLogin" class="login-tip">点击登录</span>
+      </div>
       <UserInfoDropdown v-if="isLogin" />
       <!-- 流星雨 -->
-      <Meteors :count="30"/>
+      <Meteors :count="30" />
     </div>
 
     <div class="movie-tabs">
@@ -37,7 +40,6 @@
         </el-sub-menu>
       </el-menu>
     </div>
-
   </div>
 </template>
 
@@ -141,26 +143,51 @@ onMounted(() => {
     height: 100px;
     position: relative;
     overflow: hidden;
-    /* Logo 文字 */
-    .logo-text {
-      cursor: pointer;
-      margin: 0;
-      font-size: 24px;
-      font-weight: bold;
-      color: #ecf0f1;
-      text-shadow:
-        2px 2px 4px rgba(0, 0, 0, 0.5),
-        0 0 10px rgba(26, 188, 156, 0.3);
-      font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
-      letter-spacing: 2px;
-      transition: all 0.3s ease;
 
-      &:hover {
-        color: #1abc9c;
+    .logo-wrapper {
+      position: relative;
+      cursor: pointer;
+      text-align: center;
+
+      .logo-text {
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+        color: #ecf0f1;
         text-shadow:
           2px 2px 4px rgba(0, 0, 0, 0.5),
-          0 0 15px rgba(26, 188, 156, 0.6);
-        transform: scale(1.05);
+          0 0 10px rgba(26, 188, 156, 0.3);
+        font-family: 'Noto Serif SC', 'Source Han Serif CN', 'Songti SC', 'SimSun', serif;
+        letter-spacing: 8px;
+        transition: all 0.3s ease;
+        font-style: italic;
+      }
+
+      /* 登录提示文字 */
+      .login-tip {
+        display: block;
+        font-size: 12px;
+        color: rgba(26, 188, 156, 0.7);
+        margin-top: 6px;
+        letter-spacing: 4px;
+        opacity: 0.8;
+        transition: all 0.3s ease;
+      }
+
+      &:hover {
+        .logo-text {
+          color: #1abc9c;
+          text-shadow:
+            2px 2px 4px rgba(0, 0, 0, 0.5),
+            0 0 20px rgba(26, 188, 156, 0.8);
+          transform: scale(1.05);
+        }
+
+        .login-tip {
+          color: #1abc9c;
+          opacity: 1;
+          letter-spacing: 6px;
+        }
       }
     }
   }

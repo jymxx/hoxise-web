@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { getUserInfo } from '@/api/system/user'
+import { validate } from '@/api/system/access'
 import { useUserStore } from '@/store/modules/user'
 import { useUIStore } from '@/store/modules/ui'
 // 特效组件
@@ -26,6 +27,7 @@ import Hanabi from '@/components/effects/Hanabi.vue'
 import SleekLineCursor from '@/components/inspira-ui/cursor/SleekLineCursor.vue'
 import Sakura from '@/components/effects/Sakura.vue'
 import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'
+import { ElMessage } from 'element-plus'
 
 const uiStore = useUIStore()
 const userStore = useUserStore()
@@ -34,6 +36,15 @@ const userStore = useUserStore()
 const enableClickEffect = computed(() => uiStore.getSetting('enableClickEffect'))
 const enableSleekLineCursor = computed(() => uiStore.getSetting('enableSleekLineCursor'))
 const enableBgEffect = computed(() => uiStore.getSetting('enableBgEffect'))
+
+// 验证服务状态
+const checkServerStatus = async () => {
+  try {
+    await validate()
+  } catch (error) {
+    ElMessage.error(error || '服务器连接失败！！')
+  }
+}
 
 // 加载用户信息
 const loadUserInfo = async () => {
@@ -51,6 +62,7 @@ const loadUserInfo = async () => {
 }
 
 onMounted(() => {
+  checkServerStatus() // 验证服务状态
   loadUserInfo() // 加载用户信息
   uiStore.loadSettings() // 加载设置
 })

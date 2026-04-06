@@ -12,7 +12,7 @@ import { getSettings, setSetting } from '@/utils/setting'
  */
 export interface UserSettings {
   enableBgEffect: boolean | string // 背景特效开关
-  enableClickEffect : boolean | string // 点击特效开关
+  enableClickEffect: boolean | string // 点击特效开关
   enableSleekLineCursor: boolean | string // 流线鼠标轨迹开关
 }
 

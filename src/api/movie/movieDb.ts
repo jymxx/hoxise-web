@@ -9,31 +9,31 @@ const MODULE = '/movie/db'
 
 /**
  * 获取影视详情
- * @param catalogId 影视 ID
+ * @param bangumiId bangumi ID
  */
-export function getMovieDetail(catalogId: string): Promise<any> {
+export function getMovieDetail(bangumiId: string): Promise<any> {
   return request.get(MODULE + '/detail', {
-    params: { catalogId },
+    params: { bangumiId },
   })
 }
 
 /**
  * 获取影视角色
- * @param catalogId 影视 ID
+ * @param bangumiId bangumi ID
  */
-export function getMovieCharacter(catalogId: string): Promise<any> {
+export function getMovieCharacter(bangumiId: string): Promise<any> {
   return request.get(MODULE + '/characters', {
-    params: { catalogId },
+    params: { bangumiId },
   })
 }
 
 /**
  * 获取剧集信息
- * @param catalogId 影视 ID
+ * @param bangumiId bangumi ID
  */
-export function getMovieEpisode(catalogId: string): Promise<any> {
+export function getMovieEpisode(bangumiId: string): Promise<any> {
   return request.get(MODULE + '/episodes', {
-    params: { catalogId },
+    params: { bangumiId },
   })
 }
 

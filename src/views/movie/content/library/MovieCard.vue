@@ -21,9 +21,19 @@
             </template>
           </el-image>
 
+          <!-- 收藏按钮 -->
+          <div class="favorite-btn-wrapper" @click.stop="handleFavoriteClick" v-if="userStore.isLogin">
+            <el-icon v-if="props.movie.favorite" class="favorite-icon active">
+              <StarFilled />
+            </el-icon>
+            <el-icon v-else class="favorite-icon">
+              <Star />
+            </el-icon>
+          </div>
+
           <!-- 操作菜单 -->
           <div
-            v-if="canOperate"
+            v-if="canOperate && menuItems?.length"
             class="movie-overlay"
             @mouseenter="hoveredMovieId = movie.id"
             @mouseleave="hoveredMovieId = null">
@@ -37,8 +47,9 @@
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="re-match">重新匹配</el-dropdown-item>
-                  <el-dropdown-item command="remove">删除</el-dropdown-item>
+                  <el-dropdown-item v-for="item in menuItems" :key="item.command" :command="item.command">
+                    {{ item.label }}
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -61,10 +72,11 @@
       <div class="movie-card-back">
         <div class="back-content">
           <h4>{{ movie.name }}</h4>
-          <p class="back-meta">{{ movie.originName }}</p>
-          <p class="back-meta"><span class="label">平台：</span>{{ movie.platform }}</p>
-          <p class="back-meta"><span class="label">年份：</span>{{ movie.releaseYear }}</p>
-          <p class="back-meta">
+          <p class="back-meta" v-if="movie.originName">{{ movie.originName }}</p>
+          <p class="back-meta" v-if="movie.platform"><span class="label">平台：</span>{{ movie.platform }}</p>
+          <p class="back-meta" v-if="movie.releaseYear"><span class="label">年份：</span>{{ movie.releaseYear }}</p>
+          <p class="back-meta" v-if="movie.eps"><span class="label">集数：</span>{{ movie.eps }}</p>
+          <p class="back-meta" v-if="movie.rating">
             <span class="label">评分：</span>
             <span class="rating-text">{{ movie.rating }}</span>
           </p>
@@ -72,9 +84,11 @@
             <span class="label">标签：</span>
             <span class="tags">{{ movie.metaTags.join(', ') }}</span>
           </p>
-          <el-divider />
-          <p v-if="movie.totalSize" class="back-row"><span class="label">文件大小：</span> {{ movie.totalSize }} GB</p>
-          <p v-if="movie.createTime" class="back-row">
+          <el-divider v-if="userStore.isLogin" />
+          <p v-if="movie.totalSize && userStore.isLogin" class="back-row">
+            <span class="label">文件大小：</span> {{ movie.totalSize }} GB
+          </p>
+          <p v-if="movie.createTime && userStore.isLogin" class="back-row">
             <span class="label">上传时间：</span> {{ formatDateTime(movie.createTime) }}
           </p>
         </div>
@@ -85,34 +99,33 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Loading, Picture, More } from '@element-plus/icons-vue'
+import { Loading, Picture, More, Star, StarFilled } from '@element-plus/icons-vue'
+import { useUserStore } from '@/store/modules/user'
 
-interface Movie {
-  id: string | number
-  name: string
-  originName: string
-  posterUrl: string
-  platform: string
-  releaseYear: string
-  rating: string
-  metaTags?: string[]
-  totalSize?: number
-  createTime?: string
-}
+const userStore = useUserStore()
 
+// Props
 const props = defineProps<{
-  movie: Movie
+  movie: any
   canOperate: boolean
+  menuItems?: Array<{ command: string; label: string }>
 }>()
 
+// Emits
 const emit = defineEmits<{
-  'go-detail': [id: number]
+  'go-detail': [params: { catalogId: number; bangumiId?: number }]
   'show-matching': [movie: { id: string | number; name: string }]
-  command: [command: string, movie: Movie]
+  command: [command: string, movie: any]
+  favorite: [movie: any]
 }>()
 
 const hoveredMovieId = ref<number | string | null>(null)
 const isFlipped = ref(false)
+
+// 收藏点击
+const handleFavoriteClick = () => {
+  emit('favorite', props.movie)
+}
 
 // 格式化时间 yyyy-MM-dd HH:mm:ss -> yyyy-MM-dd
 const formatDateTime = (dateTime: string) => {
@@ -122,7 +135,10 @@ const formatDateTime = (dateTime: string) => {
 
 // 点击跳转详情
 const handleClick = () => {
-  emit('go-detail', props.movie.id as number)
+  emit('go-detail', {
+    catalogId: props.movie.id as number,
+    bangumiId: props.movie.bangumiId as number,
+  })
 }
 
 // 右键翻转
@@ -132,12 +148,12 @@ const handleContextMenu = (e: MouseEvent) => {
 }
 
 // 鼠标移出翻回
-const handleMouseLeave = () => {
+const handleMouseLeave = (): void => {
   isFlipped.value = false
 }
 
 // 下拉菜单命令
-const handleCommand = (command: string, movie: Movie) => {
+const handleCommand = (command: string, movie: any) => {
   emit('command', command, movie)
 }
 </script>
@@ -203,6 +219,16 @@ const handleCommand = (command: string, movie: Movie) => {
       color: white;
       height: 100%;
       overflow-y: auto;
+      overflow-x: hidden;
+
+      /* 隐藏滚动条 */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+
+      &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+      }
 
       h4 {
         font-size: 16px;
@@ -212,7 +238,7 @@ const handleCommand = (command: string, movie: Movie) => {
       }
 
       .back-meta {
-        font-size: 13px;
+        font-size: 12px;
         margin-bottom: 8px;
         color: #b0b0b0;
 
@@ -227,7 +253,7 @@ const handleCommand = (command: string, movie: Movie) => {
       }
 
       .back-tags {
-        font-size: 13px;
+        font-size: 12px;
         margin-bottom: 8px;
 
         .label {
@@ -260,6 +286,30 @@ const handleCommand = (command: string, movie: Movie) => {
     width: 100%;
     height: 100%;
     display: block;
+  }
+
+  /* 收藏按钮 */
+  .favorite-btn-wrapper {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+
+    .favorite-icon {
+      font-size: 28px;
+      color: rgba(255, 255, 255, 0.9);
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
+
+      &.active {
+        color: #ffd700;
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+      }
+    }
   }
 
   /* 操作按钮 */

@@ -7,12 +7,14 @@ interface Props {
   class?: string
   title?: string
   height?: number
+  gradientText?: boolean  // 是否启用渐变文字
 }
 
 const props = withDefaults(defineProps<Props>(), {
   class: '',
   title: 'Progress',
   height: 44,
+  gradientText: false,
 })
 
 const open = ref(false)
@@ -48,7 +50,11 @@ onUnmounted(() => {
     }">
     <div
       :class="
-        cn('bg-primary/90 border-radius fixed top-10 left-1/2 z-999 -translate-x-1/2 backdrop-blur-lg', $props.class)
+        cn(
+          'bg-primary/90 border-radius fixed top-10 left-1/2 z-999 -translate-x-1/2 backdrop-blur-lg suspend-island',
+          $props.class,
+          { 'gradient-text': props.gradientText }
+        )
       "
       @click="() => (open = !open)">
       <motion.div
@@ -79,5 +85,41 @@ onUnmounted(() => {
 <style scoped>
 .border-radius {
   border-radius: v-bind(borderRadius);
+}
+
+/* 渐变文字效果 */
+.gradient-text #motion-id {
+  color: transparent;
+  background-image: linear-gradient(
+    to right,
+    #fbbf24,
+    #f97316,
+    #ef4444,
+    #f97316,
+    #fbbf24
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+</style>
+
+<style lang="scss">
+/* 超链接颜色 - 使用非 scoped 样式穿透 slot */
+.suspend-island.gradient-text a {
+  color: #60a5fa !important;
 }
 </style>

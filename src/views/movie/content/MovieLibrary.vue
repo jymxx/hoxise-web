@@ -60,7 +60,7 @@
               <el-icon><DataAnalysis /></el-icon>
               <span>数据筛选</span>
             </div>
-            <el-checkbox v-model="pageParams.notMatched" class="not-matched-checkbox"> 仅显示未匹配数据 </el-checkbox>
+            <el-checkbox v-model="pageParams.notMatched" class="not-matched-checkbox"> 仅查询未匹配数据 </el-checkbox>
           </div>
           <div class="filter-actions">
             <el-button @click="resetAndLoad">
@@ -84,7 +84,9 @@
             <MovieCard
               :movie="movie"
               :can-operate="canOperate"
+              :menu-items="menuItems"
               @command="handleCommand"
+              @favorite="handleFavoriteClick"
               @go-detail="emit('go-detail', $event)" />
           </div>
         </template>
@@ -107,6 +109,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Search, Filter, Sort, DataAnalysis, RefreshLeft, ArrowUp, Loading } from '@element-plus/icons-vue'
 import { getLibrary, pageSimple } from '@/api/movie/movieCatalog'
 import { deleteCatalog } from '@/api/movie/movieManage'
+import { addFavorite, cancelFavorite } from '@/api/movie/movieFavorite'
 import { ElMessage, ElMessageBox, ElScrollbar } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import { useMovieStore } from '@/store/modules/movie'
@@ -121,13 +124,19 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'go-detail': [id: number]
+  'go-detail': [params: { catalogId: number; bangumiId?: number }]
   'show-matching': [movie: { id: string | number; name: string }]
 }>()
 
 // Store
 const userStore = useUserStore()
 const movieStore = useMovieStore()
+
+// 菜单配置
+const menuItems = [
+  { command: 're-match', label: '重新匹配' },
+  { command: 'remove', label: '删除' },
+]
 
 // 状态
 const loading = ref(false)
@@ -162,14 +171,6 @@ const pageParams = ref({
 const canOperate = computed(() => {
   return userStore.isLogin && !movieStore.accessUserid
 })
-
-// 追加新数据
-const appendMovieList = (newMovies: any[]) => {
-  newMovies.forEach((movie, i) => {
-    movie._aniIndex = i // 标记动画延迟索引
-    movieList.value.push(movie)
-  })
-}
 
 // 判断是否有筛选条件
 const hasFilterCondition = computed(() => {
@@ -207,7 +208,6 @@ const fetchData = async () => {
 
     // 处理数据
     const newList = res.list
-
     appendMovieList(newList) // 追加数据
     hasMore.value = newList.length >= pageParams.value.pageSize // 判断是否还有更多数据
   } catch (error) {
@@ -216,6 +216,14 @@ const fetchData = async () => {
     loading.value = false
     loadingMore.value = false
   }
+}
+
+// 追加新数据
+const appendMovieList = (newMovies: any[]) => {
+  newMovies.forEach((movie, i) => {
+    movie._aniIndex = i // 标记动画延迟索引
+    movieList.value.push(movie)
+  })
 }
 
 // 搜索/筛选（重置页码并重新加载）
@@ -262,6 +270,31 @@ const handleCommand = (command: string, movie: any) => {
     case 'remove': // 删除
       handleDelete(movie)
       break
+  }
+}
+
+// 收藏点击
+const handleFavoriteClick = (movie: any) => {
+  if (movie.favorite) {
+    // 已收藏 -> 取消收藏
+    cancelFavorite(movie.id)
+      .then(() => {
+        movie.favorite = false
+        ElMessage.success('取消收藏成功')
+      })
+      .catch((error) => {
+        ElMessage.error(error)
+      })
+  } else {
+    // 未收藏 -> 收藏
+    addFavorite(movie.id)
+      .then(() => {
+        movie.favorite = true
+        ElMessage.success('收藏成功')
+      })
+      .catch((error) => {
+        ElMessage.error(error)
+      })
   }
 }
 

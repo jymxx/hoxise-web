@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    v-model="showLogin"
+    v-model="uiStore.showLogin"
     width="900px"
     :close-on-click-modal="false"
     :close-on-press-escape="true"
@@ -99,13 +99,13 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { Phone, Message, Star, Moon, Position, ArrowRight, Lightning } from '@element-plus/icons-vue'
+import { Phone, Message, Star, Moon, Position, ArrowRight } from '@element-plus/icons-vue'
 import { loginBySms } from '@/api/system/auth'
 import { sendVerifyCode } from '@/api/system/sms'
 import { setToken } from '@/utils/auth'
-import { useLogin } from '@/composables/useLogin'
+import { useUIStore } from '@/store/modules/ui'
 
-const { showLogin, close } = useLogin()
+const uiStore = useUIStore()
 
 const loading = ref(false)
 const sending = ref(false)
@@ -156,7 +156,7 @@ const handleSendCode = async () => {
       if (countdown.value <= 0) clearInterval(timer!)
     }, 1000)
   } catch (error: any) {
-    ElMessage.error(error.message)
+    ElMessage.error(error)
   } finally {
     sending.value = false
   }
@@ -171,16 +171,21 @@ const handleLogin = async () => {
   try {
     const result = await loginBySms({ phone: form.value.phone, verifyCode: form.value.code })
     setToken(result.token)
-    close()
+    handleClose()
     location.reload()
   } catch (error: any) {
-    ElMessage.error(error.message)
+    ElMessage.error(error)
   } finally {
     loading.value = false
   }
 }
 
-const handleClose = () => close()
+// 关闭窗口
+const handleClose = () => {
+  form.value.phone = ''
+  form.value.code = ''
+  close()
+}
 </script>
 
 <style scoped lang="scss">

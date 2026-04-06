@@ -51,3 +51,10 @@ export function pageSimple(params: Record<string, any>, userid: string): Promise
 export function getLibrary(params: Record<string, any>, userid: string): Promise<any> {
   return request.get(MODULE + '/' + userid + '/library', { params })
 }
+
+/**
+ * 获取收藏列表（含 DB 数据）
+ */
+export function getFavoriteList(): Promise<any> {
+  return request.get(MODULE + '/listFavorite')
+}

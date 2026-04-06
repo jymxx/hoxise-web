@@ -49,7 +49,7 @@ import { Menu, Film, VideoPlay, Grid, Star, VideoCamera, Monitor } from '@elemen
 import { movieStat } from '@/api/movie/movieCatalog'
 import UserInfoDropdown from '@/views/system/components/UserInfoDropdown.vue'
 import { useUserStore } from '@/store/modules/user'
-import { useLogin } from '@/composables/useLogin'
+import { useUIStore } from '@/store/modules/ui'
 import { getTargetUserid } from '@/utils/route'
 import Meteors from '@/components/inspira-ui/special-effects/Meteors.vue'
 
@@ -60,7 +60,7 @@ const emit = defineEmits<{
 
 // Store
 const userStore = useUserStore()
-const { open: openLogin } = useLogin()
+const uiStore = useUIStore()
 
 // 登录状态（计算属性）
 const isLogin = computed(() => userStore.isLogin)
@@ -69,7 +69,7 @@ const isLogin = computed(() => userStore.isLogin)
 const defaultActive = ref('home')
 const simpleMenuItems = [
   { key: 'home', name: '首页', icon: markRaw(Menu) },
-  { key: 'history', name: '收藏记录', icon: markRaw(Film) },
+  { key: 'favorite', name: '收藏记录', icon: markRaw(Film) },
 ]
 const libraryMenus = ref([
   {
@@ -114,7 +114,7 @@ const handleSelect = (index: string) => {
 
 // 点击 Logo
 const handleClickLogo = () => {
-  openLogin()
+  uiStore.openLoginDialog()
 }
 
 // 初始化

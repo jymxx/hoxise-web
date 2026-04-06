@@ -39,7 +39,7 @@ service.interceptors.response.use(
 
     // 统一校验业务状态码
     if (res.code !== SUCCESS_CODE) {
-      return Promise.reject(new Error(res.msg || '请求失败'))
+      return Promise.reject(res.msg || '请求失败')
     }
 
     // 成功则直接返回解包后的数据

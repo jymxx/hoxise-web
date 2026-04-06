@@ -159,7 +159,7 @@
               </div>
               <div class="info-value source-value">
                 <span>The Movie Database </span>
-                <a href="https://bangumi.tv/" target="_blank" class="source-link">
+                <a href="https://www.themoviedb.org/" target="_blank" class="source-link">
                   <el-icon><Link /></el-icon>
                   https://www.themoviedb.org/
                 </a>
@@ -280,7 +280,7 @@ const handleAvatarUpload = async (options: { file: File }) => {
     userInfo.value.avatar = newAvatarUrl
     ElMessage.success('头像上传成功')
   } catch (error: any) {
-    ElMessage.error('头像上传失败: ' + error.message)
+    ElMessage.error(error)
   }
 }
 
@@ -720,7 +720,6 @@ $text-muted: #6a6a8a;
                     background: linear-gradient(rgba($primary, 0.15), rgba($secondary, 0.15));
                     border-color: rgba($primary, 0.3);
                     color: $secondary;
-                    transform: translateY(-2px);
                   }
                 }
               }

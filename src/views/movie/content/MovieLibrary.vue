@@ -81,7 +81,7 @@
       <div class="movie-grid">
         <template v-for="movie in movieList" :key="movie.id">
           <div class="movie-card" :style="{ animationDelay: `${movie._aniIndex * 0.05}s` }">
-            <MovieCardInner
+            <MovieCard
               :movie="movie"
               :can-operate="canOperate"
               @command="handleCommand"
@@ -113,7 +113,7 @@ import { useMovieStore } from '@/store/modules/movie'
 import { getTargetUserid } from '@/utils/route'
 import GlowBoder from '@/components/inspira-ui/special-effects/GlowBoder.vue'
 import SparklesText from '@/components/inspira-ui/text-animations/SparklesText.vue'
-import MovieCardInner from './library/MovieCardInner.vue'
+import MovieCard from './library/MovieCard.vue'
 
 // Props & Emits
 const props = defineProps<{

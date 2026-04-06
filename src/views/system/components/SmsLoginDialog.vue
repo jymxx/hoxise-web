@@ -140,6 +140,7 @@ onBeforeUnmount(() => {
   if (timer) clearInterval(timer)
 })
 
+// 发送验证码
 const handleSendCode = async () => {
   if (!isPhoneValid.value) {
     ElMessage.error('请输入正确的手机号')
@@ -160,7 +161,7 @@ const handleSendCode = async () => {
     sending.value = false
   }
 }
-
+// 处理登录
 const handleLogin = async () => {
   if (!canSubmit.value) {
     ElMessage.error('请填写完整的登录信息')

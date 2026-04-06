@@ -22,7 +22,7 @@ export function addFavorite(catalogId: number): Promise<any> {
  * @param catalogId 目录 ID
  */
 export function cancelFavorite(catalogId: number): Promise<any> {
-  return request.delete(MODULE + '/cancle/' + catalogId)
+  return request.delete(MODULE + '/cancel/' + catalogId)
 }
 
 /**

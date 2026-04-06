@@ -22,7 +22,7 @@ import { getUserInfo } from '@/api/system/user'
 import { useUserStore } from '@/store/modules/user'
 import { useUIStore } from '@/store/modules/ui'
 // 特效组件
-import Hanabi from '@/components/Hanabi.vue'
+import Hanabi from '@/components/effects/Hanabi.vue'
 import SleekLineCursor from '@/components/inspira-ui/cursor/SleekLineCursor.vue'
 import Sakura from '@/components/effects/Sakura.vue'
 import StarsBg from '@/components/inspira-ui/backgrounds/StarsBg.vue'

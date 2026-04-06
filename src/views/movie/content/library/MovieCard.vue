@@ -22,7 +22,7 @@
           </el-image>
 
           <!-- 收藏按钮 -->
-          <div class="favorite-btn-wrapper" @click.stop="handleFavoriteClick" v-if="userStore.isLogin">
+          <div class="favorite-btn-wrapper" @click.stop="handleFavoriteClick" v-if="canSeeFavorite">
             <el-icon v-if="props.movie.favorite" class="favorite-icon active">
               <StarFilled />
             </el-icon>
@@ -98,11 +98,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Loading, Picture, More, Star, StarFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/modules/user'
+import { addFavorite, cancelFavorite } from '@/api/movie/movieFavorite'
+import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
+
+//是否能看见收藏按钮
+const canSeeFavorite = computed((): boolean => {
+  // 已登录
+  return userStore.isLogin
+})
 
 // Props
 const props = defineProps<{
@@ -116,7 +124,7 @@ const emit = defineEmits<{
   'go-detail': [params: { catalogId: number; bangumiId?: number }]
   'show-matching': [movie: { id: string | number; name: string }]
   command: [command: string, movie: any]
-  favorite: [movie: any]
+  'favorite-update': [movie: any, isFavorite: boolean]
 }>()
 
 const hoveredMovieId = ref<number | string | null>(null)
@@ -124,7 +132,29 @@ const isFlipped = ref(false)
 
 // 收藏点击
 const handleFavoriteClick = () => {
-  emit('favorite', props.movie)
+  if (props.movie.favorite) {
+    // 已收藏 -> 取消收藏
+    cancelFavorite(props.movie.id)
+      .then(() => {
+        props.movie.favorite = false
+        ElMessage.success('取消收藏成功')
+        emit('favorite-update', props.movie, false)
+      })
+      .catch((error) => {
+        ElMessage.error(error)
+      })
+  } else {
+    // 未收藏 -> 收藏
+    addFavorite(props.movie.id)
+      .then(() => {
+        props.movie.favorite = true
+        ElMessage.success('收藏成功')
+        emit('favorite-update', props.movie, true)
+      })
+      .catch((error) => {
+        ElMessage.error(error)
+      })
+  }
 }
 
 // 格式化时间 yyyy-MM-dd HH:mm:ss -> yyyy-MM-dd

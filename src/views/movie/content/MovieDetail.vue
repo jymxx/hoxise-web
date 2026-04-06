@@ -53,8 +53,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getMovieDetail, getMovieCharacter, getMovieEpisode, getPlayerUrl } from '@/api/movie/movieDb'
-import SimpleVideoPlayer from '../components/SimpleVideoPlayer.vue'
+import { getMovieDetail, getMovieCharacter, getMovieEpisode } from '@/api/movie/movieDb'
+import SimpleVideoPlayer from '@/components/SimpleVideoPlayer.vue'
 import DetailInfo from './detail/DetailInfo.vue'
 import ActionButtons from './detail/ActionButtons.vue'
 import CharacterSection from './detail/CharacterSection.vue'
@@ -73,13 +73,13 @@ const emit = defineEmits<{
 }>()
 
 // 状态
-const movieDetail = ref<any>(null)
-const characters = ref<any[]>([])
-const episodes = ref<any[]>([])
-const showVideoPlayer = ref(false)
-const currentVideoUrl = ref('')
-const currentEpisode = ref<any>(null)
-const isAIGenerating = ref(false)
+const movieDetail = ref<any>(null) // 影视详情
+const characters = ref<any[]>([]) // 角色列表
+const episodes = ref<any[]>([]) // 章节列表
+const showVideoPlayer = ref(false) // 视频播放器
+const currentVideoUrl = ref('') // 视频播放地址
+const currentEpisode = ref<any>(null) // 当前播放的章节
+const isAIGenerating = ref(false) // AI 生成中
 
 // 初始化
 const init = async () => {
@@ -104,11 +104,9 @@ const loadMovieDetail = async (id: string) => {
 const loadCharacters = async (id: string) => {
   try {
     const res = await getMovieCharacter(id)
-    if (res.code === 200) {
-      characters.value = res.data
-    }
+    characters.value = res
   } catch (error) {
-    console.error('加载角色失败:', error)
+    console.error('加载角色数据失败:', error)
   }
 }
 
@@ -116,27 +114,25 @@ const loadCharacters = async (id: string) => {
 const loadEpisodes = async (id: string) => {
   try {
     const res = await getMovieEpisode(id)
-    if (res.code === 200) {
-      episodes.value = res.data
-    }
+    episodes.value = res
   } catch (error) {
-    console.error('加载章节失败:', error)
+    console.error('加载章节数据失败:', error)
   }
 }
 
 // 打开播放器
 const openVideoPlayer = async () => {
-  try {
-    const res = await getPlayerUrl({})
-    if (res.code === 200) {
-      currentVideoUrl.value = res.data
-      showVideoPlayer.value = true
-    } else {
-      ElMessage.error(res.message || '获取播放地址失败')
-    }
-  } catch (error) {
-    ElMessage.error('获取播放地址失败')
-  }
+  // try {
+  //   const res = await getPlayerUrl({})
+  //   if (res.code === 200) {
+  //     currentVideoUrl.value = res.data
+  //     showVideoPlayer.value = true
+  //   } else {
+  //     ElMessage.error(res.message || '获取播放地址失败')
+  //   }
+  // } catch (error) {
+  //   ElMessage.error('获取播放地址失败')
+  // }
 }
 
 // 关闭播放器
@@ -171,11 +167,6 @@ const handleClick = (key: string) => {
 const handleAiSummary = () => {
   ElMessage.warning('功能维护升级中...')
 }
-
-// 暴露方法
-defineExpose({
-  init,
-})
 
 // 初始化
 onMounted(() => {
@@ -248,15 +239,5 @@ onMounted(() => {
     max-width: 1200px;
     margin: 0 auto;
   }
-}
-
-.image-slot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  color: #909399;
-  font-size: 14px;
 }
 </style>

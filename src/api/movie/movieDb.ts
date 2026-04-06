@@ -36,11 +36,3 @@ export function getMovieEpisode(bangumiId: string): Promise<any> {
     params: { bangumiId },
   })
 }
-
-/**
- * 获取播放地址
- * @param params 查询参数
- */
-export function getPlayerUrl(params: Record<string, any>): Promise<any> {
-  return request.get(MODULE + '/playerUrl', { params })
-}

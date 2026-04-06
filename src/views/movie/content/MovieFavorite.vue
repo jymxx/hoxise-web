@@ -21,7 +21,7 @@
               :movie="movie"
               :can-operate="false"
               @command="{}"
-              @favorite="handleFavoriteClick"
+              @favorite-update="handleFavoriteUpdate"
               @go-detail="emit('go-detail', $event)" />
           </div>
         </template>
@@ -42,7 +42,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Collection, UserFilled } from '@element-plus/icons-vue'
-import { cancelFavorite } from '@/api/movie/movieFavorite'
 import { getFavoriteList } from '@/api/movie/movieCatalog'
 import { ElMessage, ElScrollbar } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
@@ -86,17 +85,12 @@ const fetchData = async () => {
   }
 }
 
-// 收藏点击
-const handleFavoriteClick = (movie: any) => {
-  // 收藏页默认已收藏，点击就是取消收藏
-  cancelFavorite(movie.id)
-    .then(() => {
-      movieList.value = movieList.value.filter((m) => m.id !== movie.id)
-      ElMessage.success('取消收藏成功')
-    })
-    .catch(() => {
-      ElMessage.error('取消收藏失败')
-    })
+// 收藏更新（取消收藏时从列表移除）
+const handleFavoriteUpdate = (movie: any, isFavorite: boolean) => {
+  // 只有取消收藏时才需要移除列表项
+  if (!isFavorite) {
+    movieList.value = movieList.value.filter((m) => m.id !== movie.id)
+  }
 }
 
 // 生命周期

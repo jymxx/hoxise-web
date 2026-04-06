@@ -86,7 +86,6 @@
               :can-operate="canOperate"
               :menu-items="menuItems"
               @command="handleCommand"
-              @favorite="handleFavoriteClick"
               @go-detail="emit('go-detail', $event)" />
           </div>
         </template>
@@ -109,7 +108,6 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { Search, Filter, Sort, DataAnalysis, RefreshLeft, ArrowUp, Loading } from '@element-plus/icons-vue'
 import { getLibrary, pageSimple } from '@/api/movie/movieCatalog'
 import { deleteCatalog } from '@/api/movie/movieManage'
-import { addFavorite, cancelFavorite } from '@/api/movie/movieFavorite'
 import { ElMessage, ElMessageBox, ElScrollbar } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import { useMovieStore } from '@/store/modules/movie'
@@ -270,31 +268,6 @@ const handleCommand = (command: string, movie: any) => {
     case 'remove': // 删除
       handleDelete(movie)
       break
-  }
-}
-
-// 收藏点击
-const handleFavoriteClick = (movie: any) => {
-  if (movie.favorite) {
-    // 已收藏 -> 取消收藏
-    cancelFavorite(movie.id)
-      .then(() => {
-        movie.favorite = false
-        ElMessage.success('取消收藏成功')
-      })
-      .catch((error) => {
-        ElMessage.error(error)
-      })
-  } else {
-    // 未收藏 -> 收藏
-    addFavorite(movie.id)
-      .then(() => {
-        movie.favorite = true
-        ElMessage.success('收藏成功')
-      })
-      .catch((error) => {
-        ElMessage.error(error)
-      })
   }
 }
 

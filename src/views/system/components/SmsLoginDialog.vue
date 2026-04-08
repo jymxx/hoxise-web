@@ -150,16 +150,17 @@ const handleSendCode = async () => {
   try {
     await sendVerifyCode(form.value.phone)
     ElMessage.success('验证码已发送，可能有延迟，请耐心等待')
-    countdown.value = 60
-    timer = setInterval(() => {
-      countdown.value--
-      if (countdown.value <= 0) clearInterval(timer!)
-    }, 1000)
   } catch (error: any) {
     ElMessage.error(error)
   } finally {
     sending.value = false
   }
+  // 倒计时
+  countdown.value = 60
+  timer = setInterval(() => {
+    countdown.value--
+    if (countdown.value <= 0) clearInterval(timer!)
+  }, 1000)
 }
 // 处理登录
 const handleLogin = async () => {

@@ -61,10 +61,13 @@ const loadUserInfo = async () => {
   } catch (error) {}
 }
 
-onMounted(() => {
-  checkServerStatus() // 验证服务状态
-  loadUserInfo() // 加载用户信息
-  uiStore.loadSettings() // 加载设置
+onMounted(async () => {
+  await Promise.all([
+    checkServerStatus(), // 验证服务状态
+    loadUserInfo(), // 加载用户信息
+    uiStore.loadSettings(), // 加载设置
+  ])
+  uiStore.markInitialized() // 标记初始化完成
 })
 </script>
 

@@ -14,9 +14,17 @@ export interface UserSettings {
   enableBgEffect: boolean | string // 背景特效开关
   enableClickEffect: boolean | string // 点击特效开关
   enableSleekLineCursor: boolean | string // 流线鼠标轨迹开关
+  enableAnimation: boolean | string //  动画开关
 }
 
 export const useUIStore = defineStore('ui', () => {
+  // ========== 初始化状态 ==========
+  const initialized = ref(false)
+
+  const markInitialized = () => {
+    initialized.value = true
+  }
+
   // ========== 登录对话框 ==========
   const showLogin = ref(false)
 
@@ -33,6 +41,7 @@ export const useUIStore = defineStore('ui', () => {
     enableClickEffect: true,
     enableBgEffect: true,
     enableSleekLineCursor: false,
+    enableAnimation: true,
   })
 
   /**
@@ -43,6 +52,7 @@ export const useUIStore = defineStore('ui', () => {
     if (saved.enableBgEffect != null) settings.value.enableBgEffect = saved.enableBgEffect
     if (saved.enableClickEffect != null) settings.value.enableClickEffect = saved.enableClickEffect
     if (saved.enableSleekLineCursor != null) settings.value.enableSleekLineCursor = saved.enableSleekLineCursor
+    if (saved.enableAnimation != null) settings.value.enableAnimation = saved.enableAnimation
   }
 
   /**
@@ -55,9 +65,11 @@ export const useUIStore = defineStore('ui', () => {
 
   return {
     // state
+    initialized,
     showLogin,
     settings,
     // actions
+    markInitialized,
     openLoginDialog,
     closeLoginDialog,
     loadSettings,

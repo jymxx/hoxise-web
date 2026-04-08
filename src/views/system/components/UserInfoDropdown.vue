@@ -64,6 +64,7 @@ const SETTINGS_CONFIG = [
   { key: 'enableBgEffect' as keyof UserSettings, label: '飘落效果' },
   { key: 'enableClickEffect' as keyof UserSettings, label: '点击特效' },
   { key: 'enableSleekLineCursor' as keyof UserSettings, label: '鼠标轨迹' },
+  { key: 'enableAnimation' as keyof UserSettings, label: '加载动画' },
 ]
 
 // 获取设置的初始值

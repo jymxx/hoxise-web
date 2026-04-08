@@ -73,7 +73,8 @@ const useUi = useUIStore()
 // 显示浮动岛
 const enableSuspendIsland = computed(() => {
   // 是否浏览他人数据 或 在收藏页
-  return getTargetUserid() !== useUser.id && activeTab.value !== TabType.FAVORITE
+  // 且需要已经初始化完成
+  return useUi.initialized && getTargetUserid() !== useUser.id && activeTab.value !== TabType.FAVORITE
 })
 
 // 标签页枚举

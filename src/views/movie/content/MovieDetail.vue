@@ -50,6 +50,13 @@
       :video-poster="movieDetail?.posterUrl || ''"
       :current-episode="currentEpisode"
       @close="closeVideoPlayer" />
+
+    <!-- 动态光斑背景 -->
+    <div class="ambient-bg">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="glow glow-3"></div>
+    </div>
   </div>
 </template>
 
@@ -94,8 +101,6 @@ const init = async () => {
   }
   const bangumiId = String(props.bangumiId)
   await Promise.all([loadMovieDetail(bangumiId), loadCharacters(bangumiId), loadEpisodes(bangumiId)])
-  // 确保至少显示 x 秒
-  // await new Promise((resolve) => setTimeout(resolve, 1200))
   loading.value = false
 }
 
@@ -174,13 +179,16 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .movie-detail {
-  background-color: #0a0a0a;
+  background-color: transparent;
   min-height: 100vh;
   height: 100vh;
   color: white;
   padding: 20px;
   overflow-y: auto;
   overflow-x: hidden;
+  margin-top: 40px;
+  position: relative;
+  z-index: 1;
 
   /* 隐藏滚动条 */
   scrollbar-width: none;
@@ -242,7 +250,7 @@ onMounted(() => {
       flex-direction: column;
     }
 
-    > .sidebar {
+    .sidebar {
       flex: 0 0 300px;
     }
   }
@@ -313,6 +321,72 @@ onMounted(() => {
     transform: scale(1);
     opacity: 1;
     box-shadow: 0 0 30px rgba(34, 211, 238, 0.8);
+  }
+}
+</style>
+
+<style lang="scss">
+/* 动态光斑背景 - 需非 scoped */
+.ambient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0f0f1a 0%, #232335 50%, #0f0f1a 100%);
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.5;
+  animation: float 20s ease-in-out infinite;
+}
+
+.glow-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.6) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.glow-2 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.5) 0%, transparent 70%);
+  bottom: -150px;
+  right: -150px;
+  animation-delay: -8s;
+}
+
+.glow-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.5) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: -16s;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(50px, -80px) scale(1.1);
+  }
+  50% {
+    transform: translate(-30px, 60px) scale(0.9);
+  }
+  75% {
+    transform: translate(80px, 30px) scale(1.05);
   }
 }
 </style>

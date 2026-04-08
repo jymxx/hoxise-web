@@ -80,7 +80,7 @@
     <el-scrollbar class="movie-scroll" @end-reached="handleScrollEnd" :distance="10">
       <div class="movie-grid">
         <template v-for="movie in movieList" :key="movie.id">
-          <div class="movie-card" :style="{ animationDelay: `${movie._aniIndex * 0.05}s` }">
+          <div class="movie-card" :style="enableAnimation ? { animationDelay: `${movie._aniIndex * 0.05}s` } : {}">
             <MovieCard
               :movie="movie"
               :can-operate="canOperate"
@@ -111,6 +111,7 @@ import { deleteCatalog } from '@/api/movie/movieManage'
 import { ElMessage, ElMessageBox, ElScrollbar } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import { useMovieStore } from '@/store/modules/movie'
+import { useUIStore } from '@/store/modules/ui'
 import { getTargetUserid } from '@/utils/route'
 import GlowBoder from '@/components/inspira-ui/special-effects/GlowBoder.vue'
 import SparklesText from '@/components/inspira-ui/text-animations/SparklesText.vue'
@@ -129,6 +130,10 @@ const emit = defineEmits<{
 // Store
 const userStore = useUserStore()
 const movieStore = useMovieStore()
+const uiStore = useUIStore()
+
+// 动画开关
+const enableAnimation = uiStore.getSetting('enableAnimation')
 
 // 菜单配置
 const menuItems = [

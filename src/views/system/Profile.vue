@@ -182,7 +182,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import {
   Camera,
   Edit,
@@ -204,21 +204,6 @@ import { getRoleLabel } from '@/utils/enums/role'
 
 // Router
 const router = useRouter()
-
-// 返回上一页
-const goBack = () => {
-  router.back()
-}
-
-// 复制联系邮箱
-const copyContactEmail = async () => {
-  try {
-    await navigator.clipboard.writeText('2273554340@qq.com')
-    ElMessage.success('邮箱地址已复制')
-  } catch (error) {
-    ElMessage.error('复制失败')
-  }
-}
 
 // ========== 类型定义 ==========
 interface UserInfo {
@@ -250,12 +235,8 @@ const profileUrl = computed(() => {
  * 复制个人主页链接
  */
 const copyProfileUrl = async () => {
-  try {
-    await navigator.clipboard.writeText(profileUrl.value)
-    ElMessage.success('链接已复制')
-  } catch (error) {
-    ElMessage.error('复制失败' + error)
-  }
+  await navigator.clipboard.writeText(profileUrl.value)
+  ElNotification.success('链接已复制')
 }
 /**
  * 处理头像上传
@@ -319,6 +300,17 @@ const loadUserInfo = async () => {
   } catch (error) {
     ElMessage.error('加载用户信息失败：' + error)
   }
+}
+
+// 复制联系邮箱
+const copyContactEmail = async () => {
+  await navigator.clipboard.writeText('2273554340@qq.com')
+  ElNotification.success('邮箱地址已复制')
+}
+
+// 返回上一页
+const goBack = () => {
+  router.back()
 }
 
 // ========== 生命周期 ==========

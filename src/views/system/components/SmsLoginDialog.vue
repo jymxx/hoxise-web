@@ -185,7 +185,7 @@ const handleLogin = async () => {
 const handleClose = () => {
   form.value.phone = ''
   form.value.code = ''
-  close()
+  uiStore.showLogin = false
 }
 </script>
 

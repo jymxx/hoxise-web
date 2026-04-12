@@ -31,12 +31,12 @@ const formatInfoValue = (key: string, value: string) => {
 
 <style scoped lang="scss">
 .sidebar {
-  background-color: rgba(30, 30, 30, 0.7);
   border-radius: 10px;
   padding: 20px;
   height: fit-content;
   align-self: flex-start;
-
+  border: 1px solid #333;
+  margin-bottom: 50px;
   .infobox-section {
     .infobox-item {
       padding: 8px 0;

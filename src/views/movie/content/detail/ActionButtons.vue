@@ -1,23 +1,23 @@
 <template>
   <div class="action-buttons">
     <el-button type="primary" size="large" class="play-button" @click="emit('play')">
-      <i class="el-icon-video-play"></i> 立即观看
+      <el-icon class="button-icon"><VideoPlay /></el-icon>
+      <span class="button-text">立即观看</span>
     </el-button>
-    <el-button size="large" class="collect-button" @click="emit('action', 'collect')">
-      <i class="el-icon-star-off"></i> 收藏
+    <el-button v-if="hasManagerRole" type="primary" size="large" class="edit-button" @click="emit('matching')">
+      <el-icon class="button-icon"><Search /></el-icon>
+      <span class="button-text">手动匹配信息</span>
     </el-button>
-    <el-button v-if="hasManagerRole" type="primary" size="large" class="play-button" @click="emit('matching')">
-      <i class="el-icon-search"></i> 手动匹配信息
-    </el-button>
-    <el-button type="primary" size="large" class="play-button" :loading="isAIGenerating" @click="emit('ai-summary')">
-      <!-- <img src="/images/icon/deepseek_log.png" class="ai-icon" /> -->
-      {{ isAIGenerating ? 'AI 生成中...' : 'AI 总结' }}
+    <el-button type="primary" size="large" class="ai-button" :loading="isAIGenerating" @click="emit('ai-summary')">
+      <el-icon class="button-icon" :class="{ rotating: isAIGenerating }"><MagicStick /></el-icon>
+      <span class="button-text">{{ isAIGenerating ? 'AI 生成中...' : 'AI 总结' }}</span>
     </el-button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { VideoPlay, Search, MagicStick } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/modules/user'
 
 // Props
@@ -52,25 +52,79 @@ const hasManagerRole = computed(() => {
 
   .el-button {
     border-radius: 25px;
-    padding: 12px 25px;
+    padding: 12px 28px;
     font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .button-icon {
+      font-size: 18px;
+    }
+
+    .button-text {
+      letter-spacing: 0.5px;
+    }
 
     &.play-button {
-      background-color: #1abc9c;
-      border-color: #1abc9c;
+      background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+      border: none;
+      box-shadow: 0 4px 15px rgba(26, 188, 156, 0.35);
 
-      .ai-icon {
-        width: 24px;
-        height: 24px;
-        margin-right: 8px;
-        vertical-align: middle;
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(26, 188, 156, 0.45);
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
 
-    &.collect-button {
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 1px solid #444;
+    &.edit-button {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      border: none;
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.35);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.45);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
     }
+
+    &.ai-button {
+      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+      border: none;
+      box-shadow: 0 4px 15px rgba(155, 89, 182, 0.35);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.45);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      .rotating {
+        animation: spin 1.5s linear infinite;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

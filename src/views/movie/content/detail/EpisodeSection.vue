@@ -2,7 +2,11 @@
   <div class="episode-section" v-if="episodes?.length">
     <h2 class="section-title">章节列表</h2>
     <div class="episode-grid">
-      <div v-for="(episode, index) in episodes" :key="episode.id" class="episode-item" @click="emit('play-episode', episode)">
+      <div
+        v-for="(episode, index) in episodes"
+        :key="episode.id"
+        class="episode-item"
+        @click="emit('play-episode', episode)">
         <div class="episode-cover">
           <el-image :src="posterUrl" fit="cover" class="episode-cover-image image-slot">
             <template #placeholder>

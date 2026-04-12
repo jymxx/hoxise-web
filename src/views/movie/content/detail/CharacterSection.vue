@@ -4,12 +4,23 @@
     <div class="horizontal-scroll-container">
       <div v-for="char in characters" :key="char.id" class="character-item">
         <div class="character-poster-small">
-          <el-image :src="char.imgUrl || defaultImage" :alt="char.name" fit="cover" class="image-slot">
+          <el-image
+            :src="char.imgUrl"
+            :alt="char.name"
+            fit="cover"
+            class="image-slot"
+            :preview-src-list="[char.imgUrl]"
+            preview-teleported
+            :hide-on-click-modal="true">
             <template #placeholder>
-              <div class="image-slot"><i class="el-icon-loading"></i></div>
+              <div class="image-slot">
+                <el-icon :size="24"><Loading /></el-icon>
+              </div>
             </template>
             <template #error>
-              <div class="image-slot"><i class="el-icon-picture-outline"></i></div>
+              <div class="image-slot">
+                <el-icon :size="24"><User /></el-icon>
+              </div>
             </template>
           </el-image>
         </div>
@@ -23,20 +34,18 @@
 </template>
 
 <script setup lang="ts">
+import { Loading, User } from '@element-plus/icons-vue'
+
 // Props
 defineProps<{
   characters: any[]
-  defaultImage?: string
 }>()
-
-// 默认图片
-const defaultImage = '/images/default-avatar.png'
 </script>
 
 <style scoped lang="scss">
 .character-section {
   margin-top: 30px;
-  max-width: 1100px;
+  max-width: 1200px;
 
   .section-title {
     font-size: 24px;
@@ -75,13 +84,11 @@ const defaultImage = '/images/default-avatar.png'
       border-radius: 5px;
       overflow: hidden;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
 
       :deep(.el-image__inner) {
-        object-position: top;
-        width: 100%;
-        height: 100%;
+        object-position: top center;
       }
     }
 

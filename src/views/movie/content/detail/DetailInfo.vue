@@ -8,7 +8,7 @@
             :src="movieDetail.posterUrl"
             :preview-src-list="[movieDetail.posterUrl]"
             preview-teleported
-            :scale="0.8"
+            :scale="0.9"
             fit="cover"
             class="movie-poster image-slot"
             :hide-on-click-modal="true">
@@ -141,7 +141,7 @@ const copyTitle = () => {
         transition: transform 0.3s ease;
 
         &:hover {
-          transform: scale(1.02); // hover 时轻微放大 - 移到外层容器避免与预览冲突
+          transform: scale(1.02);
         }
 
         .movie-poster {

@@ -25,7 +25,7 @@
         <DetailInfo :movie-detail="movieDetail" />
 
         <!-- 操作按钮模块 -->
-        <ActionButtons :is-a-i-generating="isAIGenerating" @play="openVideoPlayer" @matching="openMatchingDialog" />
+        <ActionButtons :catalog-id="catalogid" @matching="openMatchingDialog" @play="openVideoPlayer" />
 
         <!-- AI 总结模块 -->
         <!-- <AiSummarySection :show="showAISummary" :text="aiSummaryText" /> -->
@@ -91,7 +91,6 @@ const episodes = ref<any[]>([]) // 章节列表
 const showVideoPlayer = ref(false) // 视频播放器
 const currentVideoUrl = ref('') // 视频播放地址
 const currentEpisode = ref<any>(null) // 当前播放的章节
-const isAIGenerating = ref(false) // AI 生成中
 
 // 初始化
 const init = async () => {

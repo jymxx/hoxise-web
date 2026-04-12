@@ -262,9 +262,9 @@ const copyTitle = () => {
           margin-bottom: 10px;
           padding: 8px 16px;
           border-radius: 20px;
-          background: linear-gradient(135deg, rgba(26, 188, 156, 0.2), rgba(26, 188, 156, 0.1)); // 渐变背景
-          border: 1px solid rgba(26, 188, 156, 0.3);
-          color: #1abc9c;
+          background: linear-gradient(135deg, rgba(100, 150, 255, 0.15), rgba(150, 100, 200, 0.1));
+          border: 1px solid rgba(100, 150, 255, 0.25);
+          color: #a0c4ff;
           font-weight: 500;
           transition: all 0.3s ease;
           &:hover {

@@ -8,7 +8,7 @@
       <el-icon class="button-icon"><Search /></el-icon>
       <span class="button-text">手动匹配信息</span>
     </el-button>
-    <el-button type="primary" size="large" class="ai-button" :loading="isAIGenerating" @click="emit('ai-summary')">
+    <el-button type="primary" size="large" class="ai-button" :loading="isAIGenerating" @click="handleAISummary">
       <el-icon class="button-icon" :class="{ rotating: isAIGenerating }"><MagicStick /></el-icon>
       <span class="button-text">{{ isAIGenerating ? 'AI 生成中...' : 'AI 总结' }}</span>
     </el-button>
@@ -16,31 +16,39 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { VideoPlay, Search, MagicStick } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 
 // Props
-defineProps<{
-  isAIGenerating: boolean
+const props = defineProps<{
+  catalogId: number | string
 }>()
 
 // Emits
 const emit = defineEmits<{
   play: []
-  action: [key: string]
   matching: []
-  'ai-summary': []
 }>()
 
 // Store
 const userStore = useUserStore()
+
+// AI 生成状态
+const isAIGenerating = ref(false)
 
 // 管理员权限
 const hasManagerRole = computed(() => {
   const roles = userStore.roles || []
   return roles.includes('manager')
 })
+
+// AI 总结
+const handleAISummary = () => {
+  // TODO: AI 总结逻辑
+  ElMessage.warning('AI 功能维护升级中...')
+}
 </script>
 
 <style scoped lang="scss">

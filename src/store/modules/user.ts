@@ -5,6 +5,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { getUserInfo } from '@/api/system/user'
 
 export interface UserInfo {
   userId: string
@@ -56,6 +57,20 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
+   * 加载用户信息（从接口获取并更新 store）
+   */
+  const loadUserInfo = async () => {
+    const result = await getUserInfo()
+    setUserInfo({
+      userId: String(result.userId),
+      userName: result.userName,
+      nickName: result.nickName,
+      roles: result.roles,
+      avatar: result.avatar,
+    })
+  }
+
+  /**
    * 重置用户信息（登出时调用）
    */
   const reset = () => {
@@ -80,6 +95,7 @@ export const useUserStore = defineStore('user', () => {
     hasRole,
     // actions
     setUserInfo,
+    loadUserInfo,
     reset,
   }
 })

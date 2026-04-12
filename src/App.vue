@@ -18,7 +18,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { getUserInfo } from '@/api/system/user'
 import { validate } from '@/api/system/access'
 import { useUserStore } from '@/store/modules/user'
 import { useUIStore } from '@/store/modules/ui'
@@ -46,25 +45,10 @@ const checkServerStatus = async () => {
   }
 }
 
-// 加载用户信息
-const loadUserInfo = async () => {
-  try {
-    const result = await getUserInfo()
-    // 转换后端 VO 为前端 Store 格式
-    userStore.setUserInfo({
-      userId: String(result.userId),
-      userName: result.userName,
-      nickName: result.nickName,
-      roles: result.roles,
-      avatar: result.avatar,
-    })
-  } catch (error) {}
-}
-
 onMounted(async () => {
   await Promise.all([
     checkServerStatus(), // 验证服务状态
-    loadUserInfo(), // 加载用户信息
+    userStore.loadUserInfo(), // 加载用户信息
     uiStore.loadSettings(), // 加载设置
   ])
   uiStore.markInitialized() // 标记初始化完成

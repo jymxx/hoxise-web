@@ -28,16 +28,6 @@ export function getUserInfo(): Promise<UserInfoVO> {
 /**
  * 修改用户信息
  */
-export function modifyUserInfo(data: { nickName: string }): Promise<void> {
+export function modifyUserInfo(data: any): Promise<void> {
   return request.put(MODULE + '/modifyUserInfo', data)
-}
-
-/**
- * 上传用户头像
- * @param file 头像文件
- */
-export function uploadAvatar(file: File): Promise<string> {
-  const formData = new FormData()
-  formData.append('file', file)
-  return request.put(MODULE + '/uploadAvatar', formData)
 }

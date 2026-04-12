@@ -198,12 +198,16 @@ import {
   DataLine,
   Message,
 } from '@element-plus/icons-vue'
-import { uploadAvatar, getUserInfo, modifyUserInfo } from '@/api/system/user'
+import { useUserStore } from '@/store/modules/user'
+import { getUserInfo, modifyUserInfo } from '@/api/system/user'
+import { uploadFile, getFileAccessUrl, FileBizTypeEnum } from '@/api/system/file'
 import { useRouter } from 'vue-router'
 import { getRoleLabel } from '@/utils/enums/role'
 
 // Router
 const router = useRouter()
+
+const userStore = useUserStore()
 
 // ========== 类型定义 ==========
 interface UserInfo {
@@ -257,21 +261,17 @@ const handleAvatarUpload = async (options: { file: File }) => {
   }
 
   try {
-    const newAvatarUrl = await uploadAvatar(file)
-    userInfo.value.avatar = newAvatarUrl
+    // 上传文件获取 fileId
+    const fileId = await uploadFile(file, FileBizTypeEnum.AVATAR)
+    // 更新用户头像
+    await modifyUserInfo({ avatarFileId: fileId })
+    // 获取新的头像访问URL并更新显示
+    userInfo.value.avatar = await getFileAccessUrl(fileId)
     ElMessage.success('头像上传成功')
+    userStore.loadUserInfo() // 重新加载用户信息
   } catch (error: any) {
     ElMessage.error(error)
   }
-}
-
-const startEditing = () => {
-  editForm.value.nickName = userInfo.value.nickName
-  editing.value = true
-}
-
-const cancelEditing = () => {
-  editing.value = false
 }
 
 /**
@@ -284,6 +284,7 @@ const handleSubmit = async () => {
     userInfo.value.nickName = editForm.value.nickName
     ElMessage.success('修改成功')
     editing.value = false
+    userStore.loadUserInfo() // 重新加载用户信息
   } catch (error: any) {
     ElMessage.error('修改失败：' + error.message)
   } finally {
@@ -300,6 +301,15 @@ const loadUserInfo = async () => {
   } catch (error) {
     ElMessage.error('加载用户信息失败：' + error)
   }
+}
+
+const startEditing = () => {
+  editForm.value.nickName = userInfo.value.nickName
+  editing.value = true
+}
+
+const cancelEditing = () => {
+  editing.value = false
 }
 
 // 复制联系邮箱

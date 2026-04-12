@@ -44,73 +44,130 @@ const emit = defineEmits<{
 <style scoped lang="scss">
 .episode-section {
   margin-top: 30px;
-  max-width: 1100px;
+  max-width: 1200px;
 
+  // ========== 标题区域 ==========
   .section-title {
-    font-size: 24px;
-    margin: 30px 0 20px 0;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #1abc9c;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(100, 150, 255, 0.15);
+
+    // 左侧装饰条
+    &::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, #1abc9c, #9b59b6);
+      border-radius: 2px;
+    }
   }
 
+  // ========== 章节网格布局 ==========
   .episode-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 20px;
-    padding: 10px 0 20px 0;
+    padding: 8px 0 24px 0;
   }
 
+  // ========== 单个章节卡片 ==========
   .episode-item {
     display: flex;
     flex-direction: column;
-    background-color: rgba(30, 30, 30, 0.7);
-    border-radius: 8px;
+    background: linear-gradient(145deg, rgba(30, 35, 50, 0.9), rgba(20, 25, 35, 0.95));
+    border-radius: 16px;
     overflow: hidden;
-    transition: transform 0.3s ease;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
     cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.06);
 
     &:hover {
-      transform: scale(1.03);
+      transform: translateY(-4px);
+      border-color: rgba(26, 188, 156, 0.35);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+
+      .episode-title {
+        color: #1abc9c;
+      }
     }
   }
 
+  // ========== 封面图片区域 ==========
   .episode-cover {
     position: relative;
     width: 100%;
-    height: 100px;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
+    background: rgba(40, 45, 60, 0.8);
 
-    .episode-cover-image {
+    // 底部渐变遮罩
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.5));
+      pointer-events: none;
+    }
+
+    .episode-cover-image,
+    :deep(.el-image) {
       width: 100%;
       height: 100%;
-      display: block;
+    }
+
+    // 图片加载占位
+    .image-slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 24px;
     }
   }
 
+  // ========== 章节信息区域 ==========
   .episode-info {
-    padding: 15px;
+    padding: 14px 16px 16px;
     flex: 1;
     display: flex;
     flex-direction: column;
 
+    // 章节标题
     .episode-title {
-      font-size: 16px;
-      margin: 0 0 5px 0;
-      color: white;
-      font-weight: bold;
+      font-size: 15px;
+      margin: 0 0 6px 0;
+      color: #f0f0f0;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.3s ease;
     }
 
+    // 原标题/副标题
     .episode-subtitle {
-      font-size: 14px;
+      font-size: 12px;
       color: #aaa;
       margin: 0 0 8px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
+    // 放送日期和时长
     .episode-date,
     .episode-duration {
-      font-size: 13px;
-      color: #777;
-      margin: 3px 0;
+      font-size: 11px;
+      color: #aaa;
+      margin: 2px 0;
     }
   }
 }

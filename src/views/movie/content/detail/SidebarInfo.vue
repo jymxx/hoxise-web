@@ -31,30 +31,38 @@ const formatInfoValue = (key: string, value: string) => {
 
 <style scoped lang="scss">
 .sidebar {
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 24px;
   height: fit-content;
   align-self: flex-start;
-  border: 1px solid #333;
+  background: linear-gradient(145deg, rgba(30, 35, 50, 0.9), rgba(20, 25, 35, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.06);
   margin-bottom: 50px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+  // ========== 信息列表 ==========
   .infobox-section {
     .infobox-item {
-      padding: 8px 0;
-      border-bottom: 1px solid #333;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
       &:last-child {
         border-bottom: none;
       }
 
+      // 信息键名
       .info-key {
-        font-weight: bold;
+        font-weight: 600;
         color: #1abc9c;
-        margin-bottom: 3px;
+        margin-bottom: 6px;
+        font-size: 16px;
       }
 
+      // 信息值
       .info-value {
-        color: #ccc;
         word-break: break-word;
+        font-size: 13px;
+        line-height: 1.5;
       }
     }
   }

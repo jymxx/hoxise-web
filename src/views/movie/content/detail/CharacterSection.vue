@@ -47,66 +47,126 @@ defineProps<{
   margin-top: 30px;
   max-width: 1200px;
 
+  // ========== 标题区域 ==========
   .section-title {
-    font-size: 24px;
-    margin: 30px 0 20px 0;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #1abc9c;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(100, 150, 255, 0.15);
+
+    // 左侧装饰条
+    &::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, #1abc9c, #9b59b6);
+      border-radius: 2px;
+    }
   }
 
+  // ========== 横向滚动容器 ==========
   .horizontal-scroll-container {
     display: flex;
     overflow-x: auto;
     gap: 20px;
-    padding: 10px 5px 20px 5px;
+    padding: 8px 8px 24px 8px;
     scrollbar-width: thin;
-    scrollbar-color: #1abc9c transparent;
+    scrollbar-color: rgba(26, 188, 156, 0.5) rgba(20, 25, 35, 0.3);
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(20, 25, 35, 0.3);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, rgba(26, 188, 156, 0.6), rgba(155, 89, 182, 0.6));
+      border-radius: 4px;
+    }
   }
 
+  // ========== 角色卡片 ==========
   .character-item {
     flex: 0 0 auto;
-    width: 120px;
+    width: 140px;
     cursor: pointer;
-    transition: transform 0.3s ease;
-    background-color: rgba(30, 30, 30, 0.7);
-    border-radius: 8px;
-    padding: 10px;
+    background: linear-gradient(145deg, rgba(30, 35, 50, 0.9), rgba(20, 25, 35, 0.95));
+    border-radius: 16px;
+    padding: 14px;
     text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
 
     &:hover {
-      transform: scale(1.05);
-    }
+      transform: translateY(-4px);
+      border-color: rgba(26, 188, 156, 0.35);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
 
-    .character-poster-small {
-      width: 80px;
-      height: 100px;
-      margin: 0 auto 10px;
-      border-radius: 5px;
-      overflow: hidden;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-
-      :deep(.el-image__inner) {
-        object-position: top center;
-      }
-    }
-
-    .character-info-small {
       .character-name {
-        font-size: 12px;
-        margin: 0;
-        color: white;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        color: #1abc9c;
       }
+    }
+  }
 
-      .character-relation {
-        font-size: 11px;
-        color: #aaa;
-        margin: 3px 0 0 0;
-      }
+  // ========== 角色图片区域 ==========
+  .character-poster-small {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    margin: 0 auto 14px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(40, 45, 60, 0.8);
+
+    .image-slot,
+    :deep(.el-image) {
+      width: 100%;
+      height: 100%;
+    }
+
+    :deep(.el-image__inner) {
+      object-position: top center;
+    }
+
+    .image-slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  // ========== 角色信息区域 ==========
+  .character-info-small {
+    // 角色名称
+    .character-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0;
+      color: #f0f0f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.3s ease;
+    }
+
+    // 角色关系/演员
+    .character-relation {
+      font-size: 12px;
+      color: #aaa;
+      margin: 6px 0 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }

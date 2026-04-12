@@ -131,10 +131,12 @@ const copyTitle = () => {
 
     // 左侧海报区域
     .poster-section {
-      flex: 0 0 400px;
+      flex: 0 0 auto;
 
       .poster-wrapper {
         position: relative;
+        width: 420px;
+        height: 600px;
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); // 深色阴影增强立体感
@@ -144,11 +146,10 @@ const copyTitle = () => {
           transform: scale(1.02);
         }
 
-        .movie-poster {
+        .movie-poster,
+        :deep(.el-image) {
           width: 100%;
           height: 100%;
-          display: block;
-          cursor: pointer;
         }
 
         // 底部渐变遮罩，增加层次感
@@ -262,9 +263,9 @@ const copyTitle = () => {
           margin-bottom: 10px;
           padding: 8px 16px;
           border-radius: 20px;
-          background: linear-gradient(135deg, rgba(100, 150, 255, 0.15), rgba(150, 100, 200, 0.1));
-          border: 1px solid rgba(100, 150, 255, 0.25);
-          color: #a0c4ff;
+          background: linear-gradient(135deg, rgba(26, 188, 156, 0.15), rgba(155, 89, 182, 0.1));
+          border: 1px solid rgba(26, 188, 156, 0.25);
+          color: #1abc9c;
           font-weight: 500;
           transition: all 0.3s ease;
           &:hover {

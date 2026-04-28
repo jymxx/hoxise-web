@@ -31,3 +31,18 @@ export function getUserInfo(): Promise<UserInfoVO> {
 export function modifyUserInfo(data: any): Promise<void> {
   return request.put(MODULE + '/modifyUserInfo', data)
 }
+
+/**
+ * 上传用户头像
+ * @param file 头像文件
+ * @returns 头像访问 URL
+ */
+export function uploadAvatar(file: File): Promise<string> {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request.put(MODULE + '/uploadAvatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+}

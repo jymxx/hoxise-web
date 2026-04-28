@@ -199,8 +199,7 @@ import {
   Message,
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/modules/user'
-import { getUserInfo, modifyUserInfo } from '@/api/system/user'
-import { uploadFile, getFileAccessUrl, FileBizTypeEnum } from '@/api/system/file'
+import { getUserInfo, modifyUserInfo, uploadAvatar } from '@/api/system/user'
 import { useRouter } from 'vue-router'
 import { getRoleLabel } from '@/utils/enums/role'
 
@@ -261,12 +260,10 @@ const handleAvatarUpload = async (options: { file: File }) => {
   }
 
   try {
-    // 上传文件获取 fileId
-    const fileId = await uploadFile(file, FileBizTypeEnum.AVATAR)
-    // 更新用户头像
-    await modifyUserInfo({ avatarFileId: fileId })
-    // 获取新的头像访问URL并更新显示
-    userInfo.value.avatar = await getFileAccessUrl(fileId)
+    // 头像上传
+    const avatarUrl = await uploadAvatar(file)
+    // 更新头像显示
+    userInfo.value.avatar = avatarUrl
     ElMessage.success('头像上传成功')
     userStore.loadUserInfo() // 重新加载用户信息
   } catch (error: any) {

@@ -46,7 +46,7 @@ const checkServerStatus = async () => {
 }
 
 onMounted(async () => {
-  await Promise.all([
+  await Promise.allSettled([
     checkServerStatus(), // 验证服务状态
     userStore.loadUserInfo(), // 加载用户信息
     uiStore.loadSettings(), // 加载设置

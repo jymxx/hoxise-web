@@ -99,7 +99,7 @@ const init = async () => {
     return
   }
   const bangumiId = String(props.bangumiId)
-  await Promise.all([loadMovieDetail(bangumiId), loadCharacters(bangumiId), loadEpisodes(bangumiId)])
+  await Promise.allSettled([loadMovieDetail(bangumiId), loadCharacters(bangumiId), loadEpisodes(bangumiId)])
   loading.value = false
 }
 

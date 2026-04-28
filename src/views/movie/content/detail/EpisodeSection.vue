@@ -146,9 +146,6 @@ const emit = defineEmits<{
       margin: 0 0 6px 0;
       color: #f0f0f0;
       font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       transition: color 0.3s ease;
     }
 
@@ -157,9 +154,6 @@ const emit = defineEmits<{
       font-size: 12px;
       color: #aaa;
       margin: 0 0 8px 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     // 放送日期和时长

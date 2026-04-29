@@ -3,7 +3,7 @@
     <el-dropdown trigger="click" popper-class="user-dropdown-popper">
       <div class="user-info">
         <!-- 用户头像 -->
-        <el-avatar :src="avatarUrl" :size="36" shape="circle" class="user-avatar" />
+        <el-avatar :src="userStore.avatar || ''" :size="36" shape="circle" class="user-avatar" />
         <!-- 用户昵称 -->
         <span class="user-nickName">{{ userStore.nickName }}</span>
         <!-- 下拉箭头 -->
@@ -42,7 +42,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { User, Setting, SwitchButton, ArrowDown } from '@element-plus/icons-vue'
 import { logout } from '@/api/system/auth'
@@ -55,9 +54,6 @@ import { useRouter } from 'vue-router'
 const userStore = useUserStore()
 const uiStore = useUIStore()
 const router = useRouter()
-
-// ========== 计算属性 ==========
-const avatarUrl = computed(() => userStore.avatar || '')
 
 // 设置配置项
 const SETTINGS_CONFIG = [

@@ -8,7 +8,7 @@
     <!-- 未登录提示 -->
     <div v-if="!userStore.isLogin" class="not-login-state">
       <el-icon class="not-login-icon"><UserFilled /></el-icon>
-      <p>登录后即可管理收藏</p>
+      <p>登录后即可管理收藏记录</p>
       <el-button type="primary" @click="uiStore.openLoginDialog()">去登录</el-button>
     </div>
 
@@ -31,7 +31,7 @@
       <div v-if="!loading && totalCount === 0" class="empty-state">
         <div class="empty-content">
           <el-icon class="empty-icon"><Collection /></el-icon>
-          <p class="empty-text">还没有收藏任何影视</p>
+          <p class="empty-text">还没有收藏任何内容</p>
           <el-button type="primary" @click="emit('go-all-library')">去逛逛</el-button>
         </div>
       </div>

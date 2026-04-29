@@ -44,7 +44,7 @@ export const useUserStore = defineStore('user', () => {
 
   // ========== actions ==========
   /**
-   * 设置用户信息（推荐：一次性设置全部）
+   * 设置用户信息
    * @param info 用户信息对象
    */
   const setUserInfo = (info: UserInfo) => {

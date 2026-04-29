@@ -13,32 +13,35 @@
 
   <!-- 主内容 -->
   <div v-else class="movie-detail">
-    <!-- 详情内容 -->
+    <!-- 详情内容 - 全宽承接滚动 -->
     <div class="detail-content">
-      <!-- 返回按钮 - 左上角固定 -->
-      <button class="back-button" @click="emit('go-back')">
-        <i class="el-icon-arrow-left"> < 返回</i>
-      </button>
+      <!-- 内容容器 - 居中并限制宽度 -->
+      <div class="content-wrapper">
+        <!-- 返回按钮 - 左上角固定 -->
+        <button class="back-button" @click="emit('go-back')">
+          <i class="el-icon-arrow-left"> < 返回</i>
+        </button>
 
-      <div class="main-content">
-        <!-- 详情信息模块：图片区域、右侧信息、完整标签 -->
-        <DetailInfo :movie-detail="movieDetail" />
+        <div class="main-content">
+          <!-- 详情信息模块：图片区域、右侧信息、完整标签 -->
+          <DetailInfo :movie-detail="movieDetail" />
 
-        <!-- 操作按钮模块 -->
-        <ActionButtons :catalog-id="catalogid" @matching="openMatchingDialog" @play="openVideoPlayer" />
+          <!-- 操作按钮模块 -->
+          <ActionButtons :catalog-id="catalogid" @matching="openMatchingDialog" @play="openVideoPlayer" />
 
-        <!-- AI 总结模块 -->
-        <!-- <AiSummarySection :show="showAISummary" :text="aiSummaryText" /> -->
+          <!-- AI 总结模块 -->
+          <!-- <AiSummarySection :show="showAISummary" :text="aiSummaryText" /> -->
 
-        <!-- 角色介绍模块 -->
-        <CharacterSection :characters="characters" />
+          <!-- 角色介绍模块 -->
+          <CharacterSection :characters="characters" />
 
-        <!-- 章节列表模块 -->
-        <EpisodeSection :episodes="episodes" :poster-url="movieDetail.posterUrl" @play-episode="playEpisode" />
+          <!-- 章节列表模块 -->
+          <EpisodeSection :episodes="episodes" :poster-url="movieDetail.posterUrl" @play-episode="playEpisode" />
+        </div>
+
+        <!-- 侧边栏信息模块 -->
+        <SidebarInfo :infobox="movieDetail.infobox" class="sidebar" />
       </div>
-
-      <!-- 侧边栏信息模块 -->
-      <SidebarInfo :infobox="movieDetail.infobox" class="sidebar" />
     </div>
 
     <!-- 视频播放器 -->
@@ -198,13 +201,27 @@ onMounted(() => {
   }
 
   .detail-content {
-    max-width: 1500px;
-    margin: 0 auto;
-    display: flex;
-    gap: 30px;
     width: 100%;
     position: relative;
     min-height: calc(100vh - 40px);
+
+    .content-wrapper {
+      max-width: 1500px;
+      margin: 0 auto;
+      display: flex;
+      gap: 30px;
+      width: 100%;
+
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar {
+        flex: 0 0 300px;
+      }
+    }
 
     /* 返回按钮 - 左上角固定 */
     .back-button {
@@ -241,16 +258,6 @@ onMounted(() => {
           transform: translateX(-4px);
         }
       }
-    }
-
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar {
-      flex: 0 0 300px;
     }
   }
 }

@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Collection, UserFilled } from '@element-plus/icons-vue'
-import { getFavoriteList } from '@/api/movie/movieCatalog'
+import { getFavoriteList } from '@/api/movie/movieFavorite'
 import { ElMessage, ElScrollbar } from 'element-plus'
 import { useUserStore } from '@/store/modules/user'
 import { useUIStore } from '@/store/modules/ui'

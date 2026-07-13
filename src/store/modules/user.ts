@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', () => {
   const isLogin = computed(() => id.value !== '' && id.value !== null && id.value !== undefined)
 
   /**
-   * 是否为管理员
+   * 是否为admin用户
    */
   const isAdmin = computed(() => roles.value.includes('admin'))
 

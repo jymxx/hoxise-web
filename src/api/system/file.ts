@@ -11,10 +11,10 @@ const MODULE = '/system/file'
  * 对应后端 FileBizTypeEnum
  */
 export enum FileBizTypeEnum {
-  /**
-   * 用户头像
-   */
+  /** 用户头像 */
   AVATAR = 'AVATAR',
+  /** 动漫资源 */
+  MOVIE_RESOURCE = 'MOVIE_RESOURCE',
 }
 
 /**
@@ -37,4 +37,16 @@ export function uploadFile(file: File, bizType: FileBizTypeEnum): Promise<number
  */
 export function getFileAccessUrl(fileId: number): Promise<string> {
   return request.get(MODULE + '/getAccessUrl', { params: { fileId } })
+}
+
+/**
+ * 生成预签名上传 URL（前端直传 OSS）
+ * @param fileName 原始文件名（含扩展名）
+ * @param bizType 业务类型
+ */
+export function generatePresignedUrl(fileName: string, bizType: FileBizTypeEnum) {
+  const formData = new FormData()
+  formData.append('fileName', fileName)
+  formData.append('bizType', String(bizType))
+  return request.post(MODULE + '/generatePresignedUrl', formData)
 }

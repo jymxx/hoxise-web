@@ -107,7 +107,6 @@
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-
 /* ========== Element Plus MessageBox 样式覆盖 - 动漫风格 ========== */
 
 /* MessageBox 容器 */
@@ -198,7 +197,7 @@
 }
 
 /* MessageBox 取消按钮 */
-.el-message-box__cancel-btn {
+.el-message-box__btns .el-button:not(.el-button--primary) {
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
   border: 1px solid #dee2e6;
   color: #6c757d;
@@ -211,15 +210,15 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.el-message-box__cancel-btn:hover {
-  transform: translateY(-3px) scale(1.05);
+.el-message-box__btns .el-button:not(.el-button--primary):hover {
+  transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   border-color: #adb5bd;
   color: #495057;
 }
 
 /* MessageBox 确认按钮 */
-.el-message-box__confirm-btn {
+.el-message-box__btns .el-button--primary {
   background: linear-gradient(135deg, #ffb7d9, #ff9ec7);
   border: 1px solid #ff8fb8;
   color: white;
@@ -235,16 +234,12 @@
   text-shadow: 0 -1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.el-message-box__confirm-btn:hover {
-  transform: translateY(-3px) scale(1.05);
+.el-message-box__btns .el-button--primary:hover {
+  transform: translateY(-3px);
   box-shadow:
     0 8px 28px rgba(255, 183, 217, 0.5),
     inset 0 -2px 0 rgba(0, 0, 0, 0.1);
   background: linear-gradient(135deg, #ffc2e0, #ffb7d9);
-}
-
-.el-message-box__confirm-btn:active {
-  transform: translateY(-1px) scale(1.02);
 }
 
 /* MessageBox 进入动画 */
@@ -305,7 +300,6 @@
 .el-message-box__input input::placeholder {
   color: #aaa;
 }
-
 
 /* ========== Element Plus Notification 样式覆盖 - 动漫风格 ========== */
 

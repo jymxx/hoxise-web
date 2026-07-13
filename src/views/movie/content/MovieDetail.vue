@@ -13,11 +13,11 @@
 
   <!-- 主内容 -->
   <div v-else class="movie-detail">
-    <!-- 详情内容 - 全宽承接滚动 -->
+    <!-- 详情内容 -->
     <div class="detail-content">
-      <!-- 内容容器 - 居中并限制宽度 -->
+      <!-- 内容容器  -->
       <div class="content-wrapper">
-        <!-- 返回按钮 - 左上角固定 -->
+        <!-- 返回按钮 -->
         <button class="back-button" @click="emit('go-back')">
           <i class="el-icon-arrow-left"> < 返回</i>
         </button>
@@ -26,11 +26,8 @@
           <!-- 详情信息模块：图片区域、右侧信息、完整标签 -->
           <DetailInfo :movie-detail="movieDetail" />
 
-          <!-- 操作按钮模块 -->
-          <ActionButtons :catalog-id="catalogid" @matching="openMatchingDialog" @play="openVideoPlayer" />
-
-          <!-- AI 总结模块 -->
-          <!-- <AiSummarySection :show="showAISummary" :text="aiSummaryText" /> -->
+          <!-- 操作工具栏 -->
+          <DetailToolbar ref="detailToolbarRef" :catalog-id="catalogId" :movie-detail="movieDetail" @matching="openMatchingDialog" />
 
           <!-- 角色介绍模块 -->
           <CharacterSection :characters="characters" />
@@ -43,16 +40,6 @@
         <SidebarInfo :infobox="movieDetail.infobox" class="sidebar" />
       </div>
     </div>
-
-    <!-- 视频播放器 -->
-    <SimpleVideoPlayer
-      v-if="showVideoPlayer"
-      :visible="showVideoPlayer"
-      :video-url="currentVideoUrl"
-      :video-title="movieDetail?.nameCn || ''"
-      :video-poster="movieDetail?.posterUrl || ''"
-      :current-episode="currentEpisode"
-      @close="closeVideoPlayer" />
 
     <!-- 动态光斑背景 -->
     <div class="ambient-bg">
@@ -67,9 +54,8 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getMovieDetail, getMovieCharacter, getMovieEpisode } from '@/api/movie/movieDb'
-import SimpleVideoPlayer from '@/components/SimpleVideoPlayer.vue'
 import DetailInfo from './detail/DetailInfo.vue'
-import ActionButtons from './detail/ActionButtons.vue'
+import DetailToolbar from './detail/DetailToolbar.vue'
 import CharacterSection from './detail/CharacterSection.vue'
 import EpisodeSection from './detail/EpisodeSection.vue'
 import SidebarInfo from './detail/SidebarInfo.vue'
@@ -77,7 +63,7 @@ import LampEffectBg from '@/components/inspira-ui/backgrounds/LampEffectBg.vue'
 
 // Props & Emits
 const props = defineProps<{
-  catalogid?: string | number
+  catalogId?: string | number
   bangumiId?: string | number
 }>()
 
@@ -91,9 +77,7 @@ const loading = ref(true) // 加载中
 const movieDetail = ref<any>(null) // 影视详情
 const characters = ref<any[]>([]) // 角色列表
 const episodes = ref<any[]>([]) // 章节列表
-const showVideoPlayer = ref(false) // 视频播放器
-const currentVideoUrl = ref('') // 视频播放地址
-const currentEpisode = ref<any>(null) // 当前播放的章节
+const detailToolbarRef = ref<any>()
 
 // 初始化
 const init = async () => {
@@ -137,38 +121,15 @@ const loadEpisodes = async (id: string) => {
   }
 }
 
-// 打开播放器
-const openVideoPlayer = async () => {
-  // try {
-  //   const res = await getPlayerUrl({})
-  //   if (res.code === 200) {
-  //     currentVideoUrl.value = res.data
-  //     showVideoPlayer.value = true
-  //   } else {
-  //     ElMessage.error(res.message || '获取播放地址失败')
-  //   }
-  // } catch (error) {
-  //   ElMessage.error('获取播放地址失败')
-  // }
-}
-
-// 关闭播放器
-const closeVideoPlayer = () => {
-  showVideoPlayer.value = false
-  currentVideoUrl.value = ''
-  currentEpisode.value = null
-}
-
 // 播放章节
 const playEpisode = (episode: any) => {
-  currentEpisode.value = episode
-  openVideoPlayer()
+  detailToolbarRef.value?.playEpisode(episode)
 }
 
 // 打开匹配对话框
 const openMatchingDialog = () => {
   emit('show-matching', {
-    id: String(props.catalogid),
+    id: String(props.catalogId),
     name: movieDetail.value?.matchingName,
   })
 }

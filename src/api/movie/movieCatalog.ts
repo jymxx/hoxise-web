@@ -53,8 +53,9 @@ export function getLibrary(params: Record<string, any>, userid: string): Promise
 }
 
 /**
- * 获取收藏列表（含 DB 数据）
+ * 获取影视目录详情
+ * @param catalogId 目录 ID
  */
-export function getFavoriteList(): Promise<any> {
-  return request.get(MODULE + '/listFavorite')
+export function detail(catalogId: number): Promise<any> {
+  return request.get(MODULE + '/detail', { params: { catalogId } })
 }

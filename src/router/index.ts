@@ -23,6 +23,12 @@ const constantRoutes: RouteRecordRaw[] = [
     name: 'Profile',
     component: () => import('@/views/system/Profile.vue'),
   },
+  //影视详情
+  {
+    path: '/movie/detail/:catalogId',
+    name: 'MovieDetail',
+    component: () => import('@/views/movie/MovieDetailPage.vue'),
+  },
   //错误页面
   {
     path: '/error',

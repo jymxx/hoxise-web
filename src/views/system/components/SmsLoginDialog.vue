@@ -21,7 +21,7 @@
         <el-icon class="decor-icon star-3"><Star /></el-icon>
         <el-icon class="decor-icon moon"><Moon /></el-icon>
 
-        <!-- 小人头像 -->
+        <!-- 心爱头像 -->
         <img src="@/assets/images/resource/loginIcon.png" alt="小人头像" class="character-icon" />
 
         <!-- 漂浮粒子 -->

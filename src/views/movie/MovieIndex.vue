@@ -37,7 +37,7 @@
     <!-- 影视详情遮罩层 -->
     <div class="detail-overlay" v-if="showDetail">
       <MovieDetail
-        :catalogid="currentDetailParams?.catalogId"
+        :catalog-id="currentDetailParams?.catalogId"
         :bangumi-id="currentDetailParams?.bangumiId"
         @go-back="handleGoBack"
         @show-matching="handleShowMatching" />

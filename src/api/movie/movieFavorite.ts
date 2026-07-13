@@ -43,3 +43,10 @@ export function checkFavorite(catalogId: number): Promise<any> {
 export function getFavoriteCatalogIds(): Promise<any> {
   return request.get(MODULE + '/catalogIds')
 }
+
+/**
+ * 获取收藏列表（含 DB 数据）
+ */
+export function getFavoriteList(): Promise<any> {
+  return request.get(MODULE + '/listFavorite')
+}

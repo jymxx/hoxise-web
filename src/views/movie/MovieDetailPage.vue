@@ -2,30 +2,32 @@
   <MovieDetail
     v-if="resolved"
     :key="catalogId"
-    :catalogid="catalogId"
+    :catalog-id="catalogId"
     :bangumi-id="bangumiId"
     @go-back="handleGoBack"
     @show-matching="handleShowMatching" />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import MovieDetail from './content/MovieDetail.vue'
 import { detail as getCatalogDetail } from '@/api/movie/movieCatalog'
+import { decodeId } from '@/utils/id-obfuscator'
 
 const route = useRoute()
 const router = useRouter()
 
-const catalogId = computed(() => String(route.params.catalogId))
+const rawCode = String(route.params.catalogId)
+const catalogId = decodeId(rawCode)
 const bangumiId = ref<string | undefined>(undefined)
 const resolved = ref(false)
 
 // 初始化
 onMounted(async () => {
   try {
-    const res = await getCatalogDetail(Number(catalogId.value))
+    const res = await getCatalogDetail(catalogId)
     bangumiId.value = String(res.bangumiId)
     resolved.value = true
   } catch (e) {

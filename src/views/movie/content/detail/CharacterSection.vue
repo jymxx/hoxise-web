@@ -96,7 +96,7 @@ defineProps<{
   // ========== 角色卡片 ==========
   .character-item {
     flex: 0 0 auto;
-    width: 140px;
+    width: 130px;
     cursor: pointer;
     background: linear-gradient(145deg, rgba(30, 35, 50, 0.9), rgba(20, 25, 35, 0.95));
     border-radius: 16px;

@@ -27,7 +27,11 @@
           <DetailInfo :movie-detail="movieDetail" />
 
           <!-- 操作工具栏 -->
-          <DetailToolbar ref="detailToolbarRef" :catalog-id="catalogId" :movie-detail="movieDetail" @matching="openMatchingDialog" />
+          <DetailToolbar
+            ref="detailToolbarRef"
+            :catalog-id="catalogId"
+            :movie-detail="movieDetail"
+            @matching="openMatchingDialog" />
 
           <!-- 角色介绍模块 -->
           <CharacterSection :characters="characters" />
@@ -37,7 +41,14 @@
         </div>
 
         <!-- 侧边栏信息模块 -->
-        <SidebarInfo :infobox="movieDetail.infobox" class="sidebar" />
+        <div class="sidebar-area">
+          <button class="sidebar-toggle" @click="sidebarCollapsed = !sidebarCollapsed">
+            <span class="toggle-arrow">{{ sidebarCollapsed ? '▶' : '◀' }}</span>
+          </button>
+          <div class="sidebar-wrap" :class="{ collapsed: sidebarCollapsed }">
+            <SidebarInfo :infobox="infobox" class="sidebar" />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -53,7 +64,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getMovieDetail, getMovieCharacter, getMovieEpisode } from '@/api/movie/movieDb'
+import { getMovieDetail, getMovieCharacter, getMovieEpisode, getMovieInfobox } from '@/api/movie/movieDb'
 import DetailInfo from './detail/DetailInfo.vue'
 import DetailToolbar from './detail/DetailToolbar.vue'
 import CharacterSection from './detail/CharacterSection.vue'
@@ -74,9 +85,11 @@ const emit = defineEmits<{
 
 // 状态
 const loading = ref(true) // 加载中
+const sidebarCollapsed = ref(true) // 侧边栏折叠状态
 const movieDetail = ref<any>(null) // 影视详情
 const characters = ref<any[]>([]) // 角色列表
 const episodes = ref<any[]>([]) // 章节列表
+const infobox = ref<any[]>([]) // 信息框数据
 const detailToolbarRef = ref<any>()
 
 // 初始化
@@ -86,7 +99,12 @@ const init = async () => {
     return
   }
   const bangumiId = String(props.bangumiId)
-  await Promise.allSettled([loadMovieDetail(bangumiId), loadCharacters(bangumiId), loadEpisodes(bangumiId)])
+  await Promise.allSettled([
+    loadMovieDetail(bangumiId),
+    loadCharacters(bangumiId),
+    loadEpisodes(bangumiId),
+    loadInfobox(bangumiId),
+  ])
   loading.value = false
 }
 
@@ -121,6 +139,16 @@ const loadEpisodes = async (id: string) => {
   }
 }
 
+// 加载信息框
+const loadInfobox = async (id: string) => {
+  try {
+    const res = await getMovieInfobox(id)
+    infobox.value = res || []
+  } catch (error) {
+    console.error('加载信息框数据失败:', error)
+  }
+}
+
 // 播放章节
 const playEpisode = (episode: any) => {
   detailToolbarRef.value?.playEpisode(episode)
@@ -150,6 +178,7 @@ onMounted(() => {
   overflow-y: auto;
   overflow-x: hidden;
   margin-top: 40px;
+  padding-bottom: 40px;
   position: relative;
   z-index: 1;
 
@@ -167,7 +196,7 @@ onMounted(() => {
     min-height: calc(100vh - 40px);
 
     .content-wrapper {
-      max-width: 1500px;
+      max-width: 1200px;
       margin: 0 auto;
       display: flex;
       gap: 30px;
@@ -177,10 +206,56 @@ onMounted(() => {
         flex: 1;
         display: flex;
         flex-direction: column;
+        min-width: 1200px;
+      }
+
+      // 侧边栏
+      .sidebar-area {
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .sidebar-wrap {
+        width: 300px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+
+        &.collapsed {
+          .sidebar {
+            transform: translateX(-100%);
+            opacity: 0;
+          }
+        }
+      }
+
+      // 侧边栏切换按钮
+      .sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 4px;
+        margin-top: 2px;
+        background: rgba(26, 188, 156, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0px 6px 6px 0px;
+        cursor: pointer;
+        color: var(--el-text-color-secondary, #aaa);
+        font-size: 10px;
+        transition: all 0.25s ease;
+        flex-shrink: 0;
+        align-self: flex-start;
+
+        &:hover {
+          background: rgba(26, 188, 156, 0.35);
+          color: #fff;
+        }
       }
 
       .sidebar {
         flex: 0 0 300px;
+        transition:
+          transform 0.3s ease,
+          opacity 0.3s ease;
       }
     }
 

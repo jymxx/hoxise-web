@@ -45,8 +45,8 @@ export function getFileAccessUrl(fileId: number): Promise<string> {
  * @param bizType 业务类型
  */
 export function generatePresignedUrl(fileName: string, bizType: FileBizTypeEnum) {
-  const formData = new FormData()
-  formData.append('fileName', fileName)
-  formData.append('bizType', String(bizType))
-  return request.post(MODULE + '/generatePresignedUrl', formData)
+  return request.post(MODULE + '/generatePresignedUrl', {
+    fileName,
+    bizType: String(bizType),
+  })
 }

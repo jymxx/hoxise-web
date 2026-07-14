@@ -33,12 +33,28 @@ const formatInfoValue = (key: string, value: string) => {
 .sidebar {
   border-radius: 16px;
   padding: 24px;
-  height: fit-content;
+  // height: fit-content;
+  max-height: 1250px;
+  overflow-y: auto;
   align-self: flex-start;
   background: linear-gradient(145deg, rgba(30, 35, 50, 0.9), rgba(20, 25, 35, 0.95));
   border: 1px solid rgba(255, 255, 255, 0.06);
   margin-bottom: 50px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
 
   // ========== 信息列表 ==========
   .infobox-section {

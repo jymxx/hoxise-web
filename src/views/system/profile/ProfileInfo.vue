@@ -181,6 +181,7 @@ import {
 import { getRoleLabel } from '@/utils/enums/role'
 import { useUserStore } from '@/store/modules/user'
 import { modifyUserInfo } from '@/api/system/user'
+import { encodeId } from '@/utils/id-obfuscator'
 
 interface UserInfo {
   userId: number
@@ -215,7 +216,8 @@ const showSourceToggle = ref(false)
 const profileUrl = computed(() => {
   if (props.userInfo.userId == null) return ''
   const baseUrl = import.meta.env.VITE_ROOT_WEBSITE_URL
-  return `${baseUrl}/${props.userInfo.userId}/visitor`
+  const profileId = encodeId(props.userInfo.userId)
+  return `${baseUrl}/${profileId}/visitor`
 })
 
 // 方法

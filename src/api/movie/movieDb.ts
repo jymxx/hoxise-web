@@ -36,3 +36,13 @@ export function getMovieEpisode(bangumiId: string): Promise<any> {
     params: { bangumiId },
   })
 }
+
+/**
+ * 获取信息框数据（infobox）
+ * @param bangumiId bangumi ID
+ */
+export function getMovieInfobox(bangumiId: string): Promise<any[]> {
+  return request.get(MODULE + '/infobox', {
+    params: { bangumiId },
+  })
+}

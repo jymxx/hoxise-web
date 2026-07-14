@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="可用资源"
+    title="📦 可用资源"
     v-model="visible"
     width="800px"
     align-center
@@ -76,7 +76,10 @@
       <!-- 右侧：上传资源表单 -->
       <div v-show="uploadFormVisible" class="body-right">
         <div class="upload-form">
-          <div class="upload-form-title">上传资源</div>
+          <div class="upload-form-title">
+            <el-icon><Cloudy /></el-icon>
+            上传资源
+          </div>
           <el-form :model="uploadForm" label-position="top">
             <el-form-item label="资源类型">
               <el-select v-model="uploadForm.resourceType" placeholder="选择资源类型">
@@ -117,7 +120,9 @@
 
             <el-form-item label="">
               <div class="secret-toggle-row">
-                <span class="secret-toggle-label">访问密码</span>
+                <span class="secret-toggle-label"
+                  ><el-icon><Lock /></el-icon> 访问密码</span
+                >
                 <el-switch v-model="secretEnabled" />
               </div>
             </el-form-item>
@@ -163,7 +168,7 @@
 import { ref, reactive, computed } from 'vue'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import type { UploadInstance, UploadFile } from 'element-plus'
-import { ArrowUp, Plus } from '@element-plus/icons-vue'
+import { ArrowUp, Plus, Cloudy, Lock } from '@element-plus/icons-vue'
 import {
   getCatalogExtraResourceUrl,
   saveCatalogExtra,
@@ -190,7 +195,7 @@ const visible = ref(true)
 const fetchingIds = reactive<Record<number, boolean>>({}) // 获取中 防抖
 const fetchedUrls = reactive<Record<number, string>>({}) // 获取到的URL集合
 
-// 编辑资源相关（仅云盘链接）
+// 编辑资源相关
 const editForms = reactive<Record<number, { url: string; showName: string }>>({}) // 编辑表单
 const editingIds = reactive<Record<number, boolean>>({}) // 正在编辑
 const savingEditIds = reactive<Record<number, boolean>>({}) // 保存中 防抖
@@ -281,12 +286,14 @@ const isFormValid = computed(() => {
   return true
 })
 
+// 文件选择
 const handleFileChange = (uploadFile: UploadFile) => {
   if (uploadFile.raw) {
     uploadForm.file = uploadFile.raw
   }
 }
 
+// 清空文件
 const handleClearFile = () => {
   uploadForm.file = null
   if (uploadRef.value) {
@@ -294,6 +301,7 @@ const handleClearFile = () => {
   }
 }
 
+// 重置表单
 const resetUploadForm = () => {
   uploadForm.resourceType = ''
   uploadForm.showName = ''
@@ -304,6 +312,7 @@ const resetUploadForm = () => {
   uploadFormVisible.value = false
 }
 
+// 取消上传
 const handleUploadCancel = () => {
   resetUploadForm()
 }
@@ -344,26 +353,26 @@ const handleUploadSubmit = async () => {
   }
 }
 
-// 资源类型映射
-const resourceTypeLabels: Record<string, string> = {
-  CLOUD_DRIVE: '云盘链接',
-  VIDEO: '视频',
-  RESOURCE_FILE: '资源文件',
-}
-
 // 资源类型标签名称转换
 const getResourceTypeLabel = (type: string): string => {
   return resourceTypeLabels[type] || type
 }
 
+// 资源类型映射
+const resourceTypeLabels: Record<string, string> = {
+  VIDEO: '视频',
+  RESOURCE_FILE: '资源文件',
+  CLOUD_DRIVE: '云盘链接',
+}
+
 // 资源类型标签颜色
-const getResourceTagType = (type: string): '' | 'success' | 'info' | 'warning' | 'danger' => {
-  const map: Record<string, '' | 'success' | 'info' | 'warning' | 'danger'> = {
+const getResourceTagType = (type: string): 'primary' | 'success' | 'info' | 'warning' | 'danger' | undefined => {
+  const map: Record<string, 'primary' | 'success' | 'info' | 'warning' | 'danger' | undefined> = {
     VIDEO: 'success',
     RESOURCE_FILE: 'info',
-    CLOUD_DRIVE: '',
+    CLOUD_DRIVE: undefined,
   }
-  return map[type] || ''
+  return map[type]
 }
 
 // 获取资源实际地址
@@ -433,39 +442,68 @@ const handleClose = () => {
 }
 </script>
 
+<!-- el-dialog 样式覆盖 -->
+<style lang="scss">
+.resource-list-dialog .el-dialog__title {
+  font-size: 20px;
+  font-weight: 600;
+}
+</style>
+
 <style scoped lang="scss">
 /* ===== 主容器：左右分栏 ===== */
 .dialog-body-split {
   display: flex;
-  min-height: 200px;
+  min-height: 380px;
+  gap: 20px;
 
   /* ===== 左侧：资源列表 ===== */
   .body-left {
     flex: 1;
     min-width: 0;
-    padding-right: 16px;
 
     /* 空状态 */
     .section-empty {
-      font-size: 23px;
-      padding: 50px 0;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 100px 0;
+      color: var(--el-text-color-secondary);
+      font-size: 15px;
+
+      &::before {
+        content: '📦';
+        font-size: 40px;
+        opacity: 0.5;
+      }
     }
 
     /* 资源列表容器 */
     .resource-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       max-height: 50vh;
       overflow-y: auto;
+      padding-right: 4px;
 
       /* 单行资源项 */
       .resource-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 12px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: var(--el-fill-color-lighter, rgba(255, 255, 255, 0.03));
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: var(--el-fill-color-light, rgba(255, 255, 255, 0.06));
+          border-color: var(--el-border-color-light, rgba(255, 255, 255, 0.08));
+        }
 
         /* 左侧：标签 + 名称 + 密码标记 */
         .resource-left {
@@ -474,14 +512,15 @@ const handleClose = () => {
           gap: 10px;
           flex: 1;
           min-width: 0;
+          height: 35px;
 
           .resource-type-tag {
-            font-size: 13px;
+            font-size: 12px;
             flex-shrink: 0;
           }
 
           .resource-name {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
@@ -498,17 +537,20 @@ const handleClose = () => {
         /* 右侧：操作按钮 / 链接 */
         .resource-right {
           flex-shrink: 0;
-          margin-left: 16px;
+          margin-left: 12px;
           display: flex;
           align-items: center;
-          max-width: 70%;
+          gap: 6px;
+          max-width: 65%;
 
           /* 已获取的文本链接（视频/资源文件） */
           .fetched-url-text {
+            font-size: 12px;
+            color: var(--el-text-color-secondary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 300px;
+            max-width: 260px;
           }
 
           /* 云盘链接（a 标签） */
@@ -516,25 +558,31 @@ const handleClose = () => {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 250px;
+            max-width: 200px;
+            font-size: 13px;
             padding: 0 0 2px;
-            border-bottom: 1px solid var(--el-border-color);
+            border-bottom: 1px solid var(--el-color-primary);
             color: var(--el-color-primary);
             text-decoration: none;
-            transition: border-color 0.2s;
-            margin-right: 10px;
-            padding-right: 3px;
-          }
+            transition: opacity 0.2s;
+            margin-right: 4px;
 
-          .cloud-link:hover {
-            border-bottom-color: var(--el-color-primary);
+            &:hover {
+              opacity: 0.75;
+            }
           }
 
           /* 编辑模式下的链接输入框 */
           .edit-url-input {
             font-size: 12px;
-            max-width: 240px;
-            margin-right: 10px;
+            max-width: 200px;
+            margin-right: 4px;
+          }
+
+          :deep(.el-button) {
+            & + .el-button {
+              margin-left: 0;
+            }
           }
         }
       }
@@ -543,18 +591,29 @@ const handleClose = () => {
 
   /* ===== 右侧：上传资源表单 ===== */
   .body-right {
-    width: 350px;
+    width: 340px;
     flex-shrink: 0;
-    border-left: 1px solid var(--el-border-color);
-    padding-left: 16px;
-    overflow: hidden;
+    border-left: 1px solid var(--el-border-color-light);
+    padding-left: 20px;
     max-height: 50vh;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--el-border-color-darker, rgba(255, 255, 255, 0.08));
+      border-radius: 4px;
+    }
 
     .upload-form {
       .upload-form-title {
         font-size: 14px;
         font-weight: 600;
         margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
 
       /* Element Plus 表单样式微调 */
@@ -565,6 +624,7 @@ const handleClose = () => {
       :deep(.el-form-item__label) {
         font-size: 12px;
         padding-bottom: 4px;
+        font-weight: 500;
       }
 
       :deep(.el-select) {
@@ -580,6 +640,10 @@ const handleClose = () => {
         margin-top: 6px;
         font-size: 12px;
         word-break: break-all;
+        color: var(--el-text-color-secondary);
+        padding: 4px 8px;
+        background: var(--el-fill-color-lighter, rgba(255, 255, 255, 0.03));
+        border-radius: 4px;
       }
 
       /* 密码开关行（文字 + switch） */
@@ -589,6 +653,9 @@ const handleClose = () => {
         gap: 8px;
 
         .secret-toggle-label {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
           font-size: 12px;
           line-height: 1;
         }
@@ -600,6 +667,7 @@ const handleClose = () => {
         justify-content: flex-end;
         gap: 8px;
         margin-top: 8px;
+        padding-top: 12px;
       }
     }
   }
@@ -609,6 +677,7 @@ const handleClose = () => {
 .dialog-footer {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
 }
 </style>

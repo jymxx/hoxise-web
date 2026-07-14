@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { allowAccess } from '@/api/movie/movieData'
 import { useMovieStore } from '@/store/modules/movie'
+import { decodeId } from '@/utils/id-obfuscator'
 
 // 常量路由
 const constantRoutes: RouteRecordRaw[] = [
@@ -59,16 +60,20 @@ const router = createInstance()
  * 在路由跳转前进行拦截处理
  */
 router.beforeEach(async (to, _from) => {
-  // 在访问 /:userid/visitor 路由时校验用户是否存在
-  if (to.name === 'Visitor') {
-    const userid = to.params.userid
-    const valid = await validateUser(userid)
-    if (!valid) {
-      return '/error'
+  try {
+    // 在访问 /:userid/visitor 路由时校验用户是否存在
+    if (to.name === 'Visitor') {
+      const userid = decodeId(String(to.params.userid))
+      const valid = await validateUser(userid)
+      if (!valid) {
+        return '/error'
+      }
+    } else {
+      // 重置访问用户信息
+      useMovieStore().resetAccessUserInfo()
     }
-  } else {
-    // 重置访问用户信息
-    useMovieStore().resetAccessUserInfo()
+  } catch (error) {
+    return '/error'
   }
 
   return true

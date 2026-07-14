@@ -135,8 +135,8 @@ const copyTitle = () => {
 
       .poster-wrapper {
         position: relative;
-        width: 420px;
-        height: 600px;
+        width: 450px;
+        height: 650px;
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); // 深色阴影增强立体感
@@ -293,10 +293,26 @@ const copyTitle = () => {
           color: #bbb;
           font-size: 14px;
           padding: 16px 20px;
-          background: rgba(255, 255, 255, 0.02); // 浅色背景
+          background: rgba(255, 255, 255, 0.02);
           border-radius: 12px;
           border: 1px solid rgba(255, 255, 255, 0.05);
           margin: 0;
+          max-height: 300px;
+          overflow-y: auto;
+
+          &::-webkit-scrollbar {
+            width: 4px;
+          }
+          &::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          &::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+          }
+          &::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+          }
         }
       }
     }

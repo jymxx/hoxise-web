@@ -7,7 +7,7 @@
         :key="episode.id"
         class="episode-item"
         @click="emit('play-episode', episode)">
-        <div class="episode-cover">
+        <!-- <div class="episode-cover">
           <el-image :src="posterUrl" fit="cover" class="episode-cover-image image-slot">
             <template #placeholder>
               <div class="image-slot"><i class="el-icon-loading"></i></div>
@@ -16,7 +16,7 @@
               <div class="image-slot"><i class="el-icon-picture-outline"></i></div>
             </template>
           </el-image>
-        </div>
+        </div> -->
         <div class="episode-info">
           <h3 class="episode-title">{{ episode.ep }}. {{ episode.nameCn || episode.name }}</h3>
           <p class="episode-subtitle">{{ episode.name }} ({{ episode.ep || index + 1 }})</p>
@@ -72,7 +72,7 @@ const emit = defineEmits<{
   .episode-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
+    gap: 5px;
     padding: 8px 0 24px 0;
   }
 

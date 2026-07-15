@@ -1,7 +1,7 @@
 <template>
   <div class="character-section" v-if="characters?.length">
     <h2 class="section-title">角色介绍</h2>
-    <div class="horizontal-scroll-container">
+    <div ref="scrollContainer" class="horizontal-scroll-container" @wheel="onScrollWheel">
       <div v-for="char in characters" :key="char.id" class="character-item">
         <div class="character-poster-small">
           <el-image
@@ -34,12 +34,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Loading, User } from '@element-plus/icons-vue'
 
 // Props
-defineProps<{
+const props = defineProps<{
   characters: any[]
 }>()
+
+const scrollContainer = ref<HTMLElement | null>(null)
+
+// 鼠标滚轮 → 横向滚动
+function onScrollWheel(e: WheelEvent) {
+  const container = scrollContainer.value
+  if (!container) return
+  e.preventDefault()
+  container.scrollLeft += e.deltaY
+}
 </script>
 
 <style scoped lang="scss">

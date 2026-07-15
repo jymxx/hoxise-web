@@ -54,16 +54,23 @@ const initPlayer = () => {
   destroyPlayer()
 
   player = new Player({
-    el: playerRef.value,
-    url: props.videoUrl,
-    poster: props.videoPoster || '',
-    playsinline: true,
-    whitelist: [''],
-    lang: 'zh-cn',
-    videoInit: true,
-    autoplay: true,
-    height: '100%',
-    width: '100%',
+    el: playerRef.value, // 挂载点 DOM 元素
+    url: props.videoUrl, // 视频源地址
+    poster: props.videoPoster || '', // 封面图
+    lang: 'zh-cn', // 语言
+    autoplay: true, // 自动播放
+    loop: false, // 循环播放
+    muted: false, // 是否静音
+    volume: 0.6, // 初始音量 0-1
+    playsinline: true, // 移动端内联播放
+    controls: true, // 显示控制栏
+    height: '100%', // 高度
+    width: '100%', // 宽度
+    keyShortcut: true, // 键盘快捷键
+    waitingTimeout: 30000, // 缓冲等待超时(ms)
+    download: false, // 下载按钮
+    pip: false, // 画中画
+    cssFullscreen: false, // CSS 模拟全屏
   })
 
   player.on('play', () => emit('play'))

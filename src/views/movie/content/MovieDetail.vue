@@ -90,7 +90,6 @@ const movieDetail = ref<any>(null) // 影视详情
 const characters = ref<any[]>([]) // 角色列表
 const episodes = ref<any[]>([]) // 章节列表
 const infobox = ref<any[]>([]) // 信息框数据
-const detailToolbarRef = ref<any>()
 
 // 初始化
 const init = async () => {

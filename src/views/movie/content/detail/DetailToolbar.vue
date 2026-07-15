@@ -1,8 +1,8 @@
 <template>
   <div class="action-buttons">
-    <el-button type="primary" size="large" class="play-button" @click="showVideoPlayer = true">
+    <el-button v-if="hasVideoResource" type="primary" size="large" class="play-button" @click="handleQuickPlay">
       <el-icon class="button-icon"><VideoPlay /></el-icon>
-      <span class="button-text">立即观看</span>
+      <span class="button-text">立即播放</span>
     </el-button>
     <el-button v-hasRole="['manager']" type="primary" size="large" class="edit-button" @click="emit('matching')">
       <el-icon class="button-icon"><Search /></el-icon>
@@ -24,13 +24,12 @@
     @reload="loadResourceList" />
 
   <!-- 视频播放器 -->
-  <SimpleVideoPlayer
+  <XgVideoPlayer
     v-if="showVideoPlayer"
     :visible="showVideoPlayer"
     :video-url="currentVideoUrl"
-    :video-title="movieDetail?.nameCn || ''"
+    :video-title="currentVideoTitle"
     :video-poster="movieDetail?.posterUrl || ''"
-    :current-episode="currentEpisode"
     @close="closeVideoPlayer" />
 </template>
 
@@ -39,7 +38,8 @@ import { ref, computed, onMounted } from 'vue'
 import { VideoPlay, Search, FolderOpened } from '@element-plus/icons-vue'
 import { checkRole } from '@/utils/permission'
 import { hasCatalogExtraInfo } from '@/api/movie/movieCatalogExtra'
-import SimpleVideoPlayer from '@/components/SimpleVideoPlayer.vue'
+import { useResourceAction } from '@/composables/useMovieResourceAction.ts'
+import XgVideoPlayer from '@/components/XgVideoPlayer.vue'
 import ResourceListDialog from './ResourceListDialog.vue'
 
 // Props
@@ -57,9 +57,14 @@ const emit = defineEmits<{
 const showResourceDialog = ref(false)
 const resourceList = ref<any[]>([])
 
-// 是否显示资源列表按钮 管理员或有资源才显示
+// 控制是否显示资源列表按钮 管理员或有资源才显示
 const showResourceBtn = computed(() => {
   return checkRole(['manager']) || resourceList.value.length > 0
+})
+
+// 资源集合中是否有视频资源
+const hasVideoResource = computed(() => {
+  return resourceList.value.some((item: any) => item.resourceType === 'VIDEO')
 })
 
 // 加载资源列表
@@ -78,29 +83,34 @@ const clickResource = () => {
 // 视频播放器
 const showVideoPlayer = ref(false)
 const currentVideoUrl = ref('')
-const currentEpisode = ref<any>(null)
+const currentVideoTitle = ref('')
 
 // 关闭视频播放器
 const closeVideoPlayer = () => {
   showVideoPlayer.value = false
   currentVideoUrl.value = ''
-  currentEpisode.value = null
 }
 
 // 从资源列表播放视频
-const handlePlayResourceVideo = (url: string) => {
+const handlePlayResourceVideo = (url: string, resource: any) => {
+  currentVideoUrl.value = url // 视频地址
+  currentVideoTitle.value = resource.showName // 视频标题
+  showVideoPlayer.value = true
+}
+
+const { handleGetResourceUrl, fetchedUrls } = useResourceAction()
+
+// 立即播放 - 找到第一个视频资源，获取地址后播放
+const handleQuickPlay = async () => {
+  const videoResource = resourceList.value.find((item: any) => item.resourceType === 'VIDEO')
+  if (!videoResource) return
+  // 已获取过地址则直接复用，避免重复弹密码
+  const url = fetchedUrls[videoResource.id] || (await handleGetResourceUrl(videoResource))
+  if (!url) return
   currentVideoUrl.value = url
-  currentEpisode.value = null
+  currentVideoTitle.value = videoResource.showName
   showVideoPlayer.value = true
 }
-
-// 播放章节
-const playEpisode = (episode: any) => {
-  currentEpisode.value = episode
-  showVideoPlayer.value = true
-}
-
-defineExpose({ playEpisode })
 
 onMounted(() => {
   loadResourceList()

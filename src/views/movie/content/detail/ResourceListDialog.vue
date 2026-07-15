@@ -169,12 +169,8 @@
 import { ref, reactive, computed } from 'vue'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { ArrowUp, Plus, Cloudy, Lock } from '@element-plus/icons-vue'
-import {
-  getCatalogExtraResourceUrl,
-  saveCatalogExtra,
-  updateCatalogExtra,
-  deleteCatalogExtra,
-} from '@/api/movie/movieCatalogExtra'
+import { saveCatalogExtra, updateCatalogExtra, deleteCatalogExtra } from '@/api/movie/movieCatalogExtra'
+import { useResourceAction } from '@/composables/useMovieResourceAction'
 import { FileBizTypeEnum } from '@/api/system/file'
 import OssUploader from '@/components/OssUploader.vue'
 
@@ -187,14 +183,14 @@ const props = defineProps<{
 // Emits
 const emit = defineEmits<{
   close: []
-  'play-video': [url: string]
+  'play-video': [url: string, resource: any]
   reload: []
 }>()
 
 // 状态
 const visible = ref(true)
-const fetchingIds = reactive<Record<number, boolean>>({}) // 获取中 防抖
-const fetchedUrls = reactive<Record<number, string>>({}) // 获取到的URL集合
+
+const { handleGetResourceUrl, fetchingIds, fetchedUrls } = useResourceAction()
 
 // 编辑资源相关
 const editForms = reactive<Record<number, { url: string; showName: string }>>({}) // 编辑表单
@@ -376,39 +372,6 @@ const handleUploadCancel = () => {
   resetUploadForm()
 }
 
-// 获取资源实际地址
-const handleGetResourceUrl = async (item: any) => {
-  let secret: string | undefined
-
-  // 有密码则弹出输入框
-  if (item.hasSecret) {
-    try {
-      const { value } = await ElMessageBox.prompt('', ' 请输入密码', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputType: 'text',
-        inputValidator: (v: string) => !!v,
-        inputErrorMessage: '请输入密码',
-      })
-      secret = value
-    } catch {
-      // 用户取消
-      return
-    }
-  }
-
-  fetchingIds[item.id] = true
-  try {
-    const res = await getCatalogExtraResourceUrl(item.id, secret)
-    const url = res || ''
-    fetchedUrls[item.id] = url
-  } catch (error) {
-    ElMessage.error(error || '获取资源地址失败')
-  } finally {
-    fetchingIds[item.id] = false
-  }
-}
-
 // 获取地址后根据资源类型执行后续操作
 const handleResourceAction = async (item: any) => {
   // 获取资源地址
@@ -431,11 +394,12 @@ const handleDownload = (item: any) => {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+  ElMessage.success('开始下载文件...')
 }
 
 // 播放视频
 const handlePlayVideo = (item: any) => {
-  emit('play-video', fetchedUrls[item.id])
+  emit('play-video', fetchedUrls[item.id], item)
 }
 
 // 复制链接
@@ -524,13 +488,13 @@ const handleClose = () => {
           height: 35px;
 
           .resource-type-tag {
-            font-size: 12px;
+            font-size: 13px;
             flex-shrink: 0;
           }
 
           .resource-name {
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;

@@ -12,8 +12,6 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn' // 中文语言包
 
 import '@/assets/css/element-override.css' // 自定义Element Plus 样式覆盖
 
-import 'video.js/dist/video-js.css' // 视频播放器样式
-
 const app = createApp(App) // 创建 Vue 应用实例
 
 // 注册插件

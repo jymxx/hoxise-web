@@ -1,17 +1,15 @@
 <template>
   <div class="movie-manager">
     <MovieIndex />
-    
+
     <div class="icp-info">
       <p>ICP备案/许可证号：蜀ICP备2025179642号 | 川公网安备51010702043884号</p>
     </div>
-
   </div>
 </template>
 
 <script setup lang="ts">
 import MovieIndex from '@/views/movie/MovieIndex.vue'
-
 </script>
 
 <style scoped lang="scss">

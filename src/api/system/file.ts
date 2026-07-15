@@ -42,11 +42,13 @@ export function getFileAccessUrl(fileId: number): Promise<string> {
 /**
  * 生成预签名上传 URL（前端直传 OSS）
  * @param fileName 原始文件名（含扩展名）
+ * @param fileType 文件类型
  * @param bizType 业务类型
  */
-export function generatePresignedUrl(fileName: string, bizType: FileBizTypeEnum) {
+export function generatePresignedUrl(fileName: string, fileType: string, bizType: FileBizTypeEnum): Promise<any> {
   return request.post(MODULE + '/generatePresignedUrl', {
     fileName,
+    fileType,
     bizType: String(bizType),
   })
 }

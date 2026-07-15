@@ -29,7 +29,6 @@ export function saveCatalogExtra(data: {
   fileId?: string
   cloudDriveUrl?: string
   showName: string
-  sort?: number
   secret?: string
 }): Promise<any> {
   return request.post(MODULE + '/save', data)
@@ -39,12 +38,7 @@ export function saveCatalogExtra(data: {
  * 更新扩展信息
  * @param data 更新请求
  */
-export function updateCatalogExtra(data: {
-  id: number
-  showName?: string
-  sort?: number
-  cloudDriveUrl?: string
-}): Promise<any> {
+export function updateCatalogExtra(data: { id: number; showName?: string; cloudDriveUrl?: string }): Promise<any> {
   return request.put(MODULE + '/update', data)
 }
 

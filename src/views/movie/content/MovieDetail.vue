@@ -37,7 +37,7 @@
           <CharacterSection :characters="characters" />
 
           <!-- 章节列表模块 -->
-          <EpisodeSection :episodes="episodes" :poster-url="movieDetail.posterUrl" @play-episode="playEpisode" />
+          <EpisodeSection :episodes="episodes" :poster-url="movieDetail.posterUrl" />
         </div>
 
         <!-- 侧边栏信息模块 -->
@@ -147,11 +147,6 @@ const loadInfobox = async (id: string) => {
   } catch (error) {
     console.error('加载信息框数据失败:', error)
   }
-}
-
-// 播放章节
-const playEpisode = (episode: any) => {
-  detailToolbarRef.value?.playEpisode(episode)
 }
 
 // 打开匹配对话框

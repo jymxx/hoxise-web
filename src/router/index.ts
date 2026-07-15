@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { allowAccess } from '@/api/movie/movieData'
 import { useMovieStore } from '@/store/modules/movie'
-import { decodeId } from '@/utils/id-obfuscator'
+import { decodeId } from '@/utils/sqids'
 
 // 常量路由
 const constantRoutes: RouteRecordRaw[] = [

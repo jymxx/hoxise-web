@@ -16,10 +16,10 @@
           <div v-for="item in resourceList" :key="item.id" class="resource-item">
             <div class="resource-left">
               <el-tag :type="getResourceTagType(item.resourceType)" class="resource-type-tag">
-                {{ getResourceTypeLabel(item.resourceType) }}
+                {{ resourceTypeLabels[item.resourceType] || item.resourceType }}
               </el-tag>
               <el-input
-                v-if="item.resourceType === 'CLOUD_DRIVE' && editingIds[item.id]"
+                v-if="editingIds[item.id]"
                 v-model="editForms[item.id].showName"
                 class="edit-name-input"
                 maxlength="20"
@@ -28,39 +28,47 @@
               <el-tag v-if="item.hasSecret" type="warning" effect="plain">需要密码</el-tag>
             </div>
             <div class="resource-right" v-if="!uploadFormVisible">
-              <!-- 未获取地址 -->
-              <template v-if="!fetchedUrls[item.id]">
-                <el-button type="primary" :loading="fetchingIds[item.id]" @click="handleGetResourceUrl(item)">
-                  获取地址
+              <!-- 0.链接显示-->
+              <template v-if="fetchedUrls[item.id] && item.resourceType === 'CLOUD_DRIVE' && !editingIds[item.id]">
+                <a :href="fetchedUrls[item.id]" target="_blank" class="cloud-link" :title="fetchedUrls[item.id]">
+                  {{ fetchedUrls[item.id] }}
+                </a>
+              </template>
+              <!-- 1.未获取地址 -->
+              <template v-if="!fetchedUrls[item.id] && !editingIds[item.id]">
+                <el-button type="primary" :loading="fetchingIds[item.id]" @click="handleResourceAction(item)">
+                  {{ btnLabels[item.resourceType] || '获取地址' }}
                 </el-button>
               </template>
-              <!-- 已获取：视频 -->
-              <template v-else-if="item.resourceType === 'VIDEO'">
-                <span class="fetched-url-text" :title="fetchedUrls[item.id]">{{ fetchedUrls[item.id] }}</span>
+              <!-- 2.已获取地址 -->
+              <!-- a.视频 -->
+              <template v-else-if="item.resourceType === 'VIDEO' && !editingIds[item.id]">
                 <el-button type="success" @click="handlePlayVideo(item)">播放</el-button>
               </template>
-              <!-- 已获取：资源文件 -->
-              <template v-else-if="item.resourceType === 'RESOURCE_FILE'">
-                <span class="fetched-url-text" :title="fetchedUrls[item.id]">{{ fetchedUrls[item.id] }}</span>
+              <!-- b.资源文件 -->
+              <template v-else-if="item.resourceType === 'RESOURCE_FILE' && !editingIds[item.id]">
                 <el-button type="primary" @click="handleDownload(item)">下载</el-button>
               </template>
-              <!-- 已获取：云盘链接 -->
-              <!-- 编辑 -->
-              <template v-else-if="item.resourceType === 'CLOUD_DRIVE' && editingIds[item.id]">
-                <el-input v-model="editForms[item.id].url" class="edit-url-input" placeholder="请输入新的云盘链接" />
+              <!-- c.云盘链接 -->
+              <template v-else-if="item.resourceType === 'CLOUD_DRIVE' && !editingIds[item.id]">
+                <el-button type="success" @click="handleCopyUrl(item)">复制</el-button>
+              </template>
+              <!-- 2.编辑按钮 非云盘链接直接显示 云盘链接需要先获取 -->
+              <template v-if="!editingIds[item.id] && (item.resourceType !== 'CLOUD_DRIVE' || fetchedUrls[item.id])">
+                <el-button v-hasRole="['manager']" @click="handleEdit(item)">编辑</el-button>
+              </template>
+              <template v-else-if="editingIds[item.id]">
+                <el-input
+                  v-if="item.resourceType === 'CLOUD_DRIVE'"
+                  v-model="editForms[item.id].url"
+                  class="edit-url-input"
+                  placeholder="请输入新的云盘链接" />
                 <el-button type="primary" :loading="savingEditIds[item.id]" @click="handleEditSave(item)">
                   保存
                 </el-button>
                 <el-button @click="handleEditCancel(item)">取消</el-button>
               </template>
-              <!-- 显示 -->
-              <template v-else-if="item.resourceType === 'CLOUD_DRIVE'">
-                <a :href="fetchedUrls[item.id]" target="_blank" class="cloud-link" :title="fetchedUrls[item.id]">
-                  {{ fetchedUrls[item.id] }}
-                </a>
-                <el-button type="success" @click="handleCopyUrl(item)">复制</el-button>
-                <el-button v-hasRole="['manager']" @click="handleEdit(item)">编辑</el-button>
-              </template>
+              <!-- 删除按钮 -->
               <el-button
                 v-hasRole="['manager']"
                 type="danger"
@@ -96,21 +104,13 @@
             <el-form-item
               v-if="uploadForm.resourceType === 'VIDEO' || uploadForm.resourceType === 'RESOURCE_FILE'"
               label="上传文件">
-              <el-upload
-                ref="uploadRef"
-                :auto-upload="false"
-                :show-file-list="true"
-                :limit="1"
-                :on-change="handleFileChange"
-                :on-exceed="() => ElMessage.warning('只能选择一个文件')"
-                accept="*"
-                class="upload-file-wrap">
-                <template #trigger>
-                  <el-button type="primary" :disabled="!!uploadForm.file">选择文件</el-button>
-                </template>
-                <el-button v-if="uploadForm.file" type="danger" @click="handleClearFile">移除</el-button>
-              </el-upload>
-              <div v-if="uploadForm.file" class="file-name">{{ uploadForm.file.name }}</div>
+              <OssUploader
+                ref="ossUploaderRef"
+                :key="uploadForm.resourceType"
+                :bizType="FileBizTypeEnum.MOVIE_RESOURCE"
+                :maxSize="50 * 1024 * 1024 * 1024"
+                :accept="uploadForm.resourceType === 'VIDEO' ? '.mp4,.avi,.mkv,.mov,.wmv,.flv,.webm' : undefined"
+                @success="handleUploadSuccess" />
             </el-form-item>
 
             <!-- 其他云盘 → 链接输入 -->
@@ -129,15 +129,16 @@
             <el-form-item v-if="secretEnabled" label="">
               <el-input
                 v-model="uploadForm.secret"
-                placeholder="设置访问密码（留空则无密码）"
+                placeholder="设置访问密码"
                 type="text"
+                maxlength="200"
                 autocomplete="off" />
             </el-form-item>
 
             <div class="upload-form-actions">
               <el-button @click="handleUploadCancel">取消</el-button>
               <el-button type="primary" :loading="uploading" @click="handleUploadSubmit" :disabled="!isFormValid">
-                确认上传
+                确认提交
               </el-button>
             </div>
           </el-form>
@@ -167,7 +168,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
-import type { UploadInstance, UploadFile } from 'element-plus'
 import { ArrowUp, Plus, Cloudy, Lock } from '@element-plus/icons-vue'
 import {
   getCatalogExtraResourceUrl,
@@ -175,7 +175,8 @@ import {
   updateCatalogExtra,
   deleteCatalogExtra,
 } from '@/api/movie/movieCatalogExtra'
-import { uploadFile, FileBizTypeEnum } from '@/api/system/file'
+import { FileBizTypeEnum } from '@/api/system/file'
+import OssUploader from '@/components/OssUploader.vue'
 
 // Props
 const props = defineProps<{
@@ -201,6 +202,30 @@ const editingIds = reactive<Record<number, boolean>>({}) // 正在编辑
 const savingEditIds = reactive<Record<number, boolean>>({}) // 保存中 防抖
 const deletingIds = reactive<Record<number, boolean>>({}) // 删除中 防抖
 
+// 资源类型映射
+const resourceTypeLabels: Record<string, string> = {
+  VIDEO: '视频',
+  RESOURCE_FILE: '资源文件',
+  CLOUD_DRIVE: '云盘链接',
+}
+
+// 操作按钮文字映射
+const btnLabels: Record<string, string> = {
+  VIDEO: '播放',
+  RESOURCE_FILE: '下载',
+  CLOUD_DRIVE: '获取地址',
+}
+
+// 资源类型标签颜色
+const getResourceTagType = (type: string): 'primary' | 'success' | 'info' | 'warning' | 'danger' | undefined => {
+  const map: Record<string, 'primary' | 'success' | 'info' | 'warning' | 'danger' | undefined> = {
+    VIDEO: 'success',
+    RESOURCE_FILE: 'info',
+    CLOUD_DRIVE: 'primary',
+  }
+  return map[type]
+}
+
 // 开始编辑
 const handleEdit = (item: any) => {
   editForms[item.id] = { url: fetchedUrls[item.id] || '', showName: item.showName || '' }
@@ -215,21 +240,29 @@ const handleEditCancel = (item: any) => {
 
 // 编辑保存信息
 const handleEditSave = async (item: any) => {
-  const newUrl = editForms[item.id]?.url?.trim()
   const newName = editForms[item.id]?.showName?.trim()
-  if (!newUrl || !newName) {
-    ElMessage.warning('请输入云盘链接与显示名称')
+  if (!newName) {
+    ElMessage.warning('请输入显示名称')
     return
+  }
+
+  const isCloudDrive = item.resourceType === 'CLOUD_DRIVE'
+  if (isCloudDrive) {
+    const newUrl = editForms[item.id]?.url?.trim()
+    if (!newUrl) {
+      ElMessage.warning('请输入云盘链接')
+      return
+    }
   }
 
   savingEditIds[item.id] = true
   try {
-    await updateCatalogExtra({
-      id: item.id,
-      cloudDriveUrl: newUrl,
-      showName: newName,
-    })
-    fetchedUrls[item.id] = newUrl
+    const data: any = { id: item.id, showName: newName }
+    if (isCloudDrive) {
+      data.cloudDriveUrl = editForms[item.id].url.trim()
+      fetchedUrls[item.id] = data.cloudDriveUrl
+    }
+    await updateCatalogExtra(data)
     item.showName = newName
     ElMessage.success('修改成功')
     handleEditCancel(item)
@@ -268,77 +301,32 @@ const handleDelete = async (item: any) => {
 const uploadFormVisible = ref(false)
 const uploading = ref(false)
 const secretEnabled = ref(false)
-const uploadRef = ref<UploadInstance>()
+const uploadedFileId = ref<string>() // 上传成功的文件ID
 const uploadForm = reactive({
-  resourceType: '',
-  showName: '',
-  file: null as File | null,
-  url: '',
-  secret: '',
+  resourceType: 'CLOUD_DRIVE', // 资源类型
+  showName: '', // 显示名称
+  url: '', // 云盘链接
+  secret: '', // 访问密码
 })
-
-// 表单校验
-const isFormValid = computed(() => {
-  if (!uploadForm.resourceType || !uploadForm.showName) return false
-  if (uploadForm.resourceType === 'CLOUD_DRIVE' && !uploadForm.url) return false
-  if ((uploadForm.resourceType === 'VIDEO' || uploadForm.resourceType === 'RESOURCE_FILE') && !uploadForm.file)
-    return false
-  return true
-})
-
-// 文件选择
-const handleFileChange = (uploadFile: UploadFile) => {
-  if (uploadFile.raw) {
-    uploadForm.file = uploadFile.raw
-  }
-}
-
-// 清空文件
-const handleClearFile = () => {
-  uploadForm.file = null
-  if (uploadRef.value) {
-    uploadRef.value.clearFiles()
-  }
-}
-
-// 重置表单
-const resetUploadForm = () => {
-  uploadForm.resourceType = ''
-  uploadForm.showName = ''
-  uploadForm.url = ''
-  uploadForm.secret = ''
-  secretEnabled.value = false
-  handleClearFile()
-  uploadFormVisible.value = false
-}
-
-// 取消上传
-const handleUploadCancel = () => {
-  resetUploadForm()
-}
 
 // 上传至后端
 const handleUploadSubmit = async () => {
-  if (!isFormValid.value) {
+  if (!isFormValid.value) return
+
+  const isFileType = uploadForm.resourceType === 'VIDEO' || uploadForm.resourceType === 'RESOURCE_FILE'
+  if (isFileType && !uploadedFileId.value) {
+    ElMessage.warning('请先上传文件')
     return
   }
+
   uploading.value = true
   try {
-    let fileId: string | undefined
-    const isFileType = uploadForm.resourceType === 'VIDEO' || uploadForm.resourceType === 'RESOURCE_FILE'
-
-    // 文件类型 → 先上传文件拿到 fileId
-    if (isFileType && uploadForm.file) {
-      const fid = await uploadFile(uploadForm.file, FileBizTypeEnum.MOVIE_RESOURCE)
-      fileId = String(fid)
-    }
-
     // 保存扩展信息
     await saveCatalogExtra({
       catalogId: Number(props.catalogId),
       resourceType: uploadForm.resourceType as any,
       showName: uploadForm.showName,
-      fileId,
+      fileId: isFileType ? uploadedFileId.value || undefined : undefined,
       cloudDriveUrl: uploadForm.url || undefined,
       secret: uploadForm.secret || undefined,
     })
@@ -353,26 +341,39 @@ const handleUploadSubmit = async () => {
   }
 }
 
-// 资源类型标签名称转换
-const getResourceTypeLabel = (type: string): string => {
-  return resourceTypeLabels[type] || type
-}
-
-// 资源类型映射
-const resourceTypeLabels: Record<string, string> = {
-  VIDEO: '视频',
-  RESOURCE_FILE: '资源文件',
-  CLOUD_DRIVE: '云盘链接',
-}
-
-// 资源类型标签颜色
-const getResourceTagType = (type: string): 'primary' | 'success' | 'info' | 'warning' | 'danger' | undefined => {
-  const map: Record<string, 'primary' | 'success' | 'info' | 'warning' | 'danger' | undefined> = {
-    VIDEO: 'success',
-    RESOURCE_FILE: 'info',
-    CLOUD_DRIVE: undefined,
+// 表单校验
+const isFormValid = computed(() => {
+  if (!uploadForm.resourceType || !uploadForm.showName) {
+    return false
   }
-  return map[type]
+  if (uploadForm.resourceType === 'CLOUD_DRIVE' && !uploadForm.url) {
+    return false
+  }
+  if ((uploadForm.resourceType === 'VIDEO' || uploadForm.resourceType === 'RESOURCE_FILE') && !uploadedFileId.value) {
+    return false
+  }
+  return true
+})
+
+// OSS 上传成功回调
+const handleUploadSuccess = (result: any) => {
+  uploadedFileId.value = result.fileId ? String(result.fileId) : undefined
+}
+
+// 重置表单
+const resetUploadForm = () => {
+  uploadForm.resourceType = 'CLOUD_DRIVE'
+  uploadForm.showName = ''
+  uploadForm.url = ''
+  uploadForm.secret = ''
+  secretEnabled.value = false
+  uploadedFileId.value = undefined
+  uploadFormVisible.value = false
+}
+
+// 取消上传
+const handleUploadCancel = () => {
+  resetUploadForm()
 }
 
 // 获取资源实际地址
@@ -408,20 +409,28 @@ const handleGetResourceUrl = async (item: any) => {
   }
 }
 
-// 触发下载
-const downloadFile = (url: string, filename: string) => {
-  const link = document.createElement('a')
-  link.href = url
-  link.download = filename || ''
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+// 获取地址后根据资源类型执行后续操作
+const handleResourceAction = async (item: any) => {
+  // 获取资源地址
+  await handleGetResourceUrl(item)
+  if (!fetchedUrls[item.id]) return
+
+  const actionMap: Record<string, () => void> = {
+    VIDEO: () => handlePlayVideo(item), // 播放视频
+    RESOURCE_FILE: () => handleDownload(item), // 下载文件
+  }
+  actionMap[item.resourceType]?.()
 }
 
 // 手动下载
 const handleDownload = (item: any) => {
-  downloadFile(fetchedUrls[item.id], item.showName)
-  ElMessage.success('开始下载')
+  const link = document.createElement('a')
+  link.href = fetchedUrls[item.id]
+  link.download = item.showName || 'download'
+  link.style.display = 'none'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 // 播放视频
@@ -454,13 +463,13 @@ const handleClose = () => {
 /* ===== 主容器：左右分栏 ===== */
 .dialog-body-split {
   display: flex;
-  min-height: 380px;
+  height: 380px;
   gap: 20px;
 
   /* ===== 左侧：资源列表 ===== */
   .body-left {
     flex: 1;
-    min-width: 0;
+    overflow-y: auto;
 
     /* 空状态 */
     .section-empty {
@@ -505,7 +514,7 @@ const handleClose = () => {
           border-color: var(--el-border-color-light, rgba(255, 255, 255, 0.08));
         }
 
-        /* 左侧：标签 + 名称 + 密码标记 */
+        /* 标签 + 名称 + 密码标记 */
         .resource-left {
           display: flex;
           align-items: center;
@@ -534,7 +543,7 @@ const handleClose = () => {
           }
         }
 
-        /* 右侧：操作按钮 / 链接 */
+        /* 操作按钮 / 链接 */
         .resource-right {
           flex-shrink: 0;
           margin-left: 12px;
@@ -543,22 +552,12 @@ const handleClose = () => {
           gap: 6px;
           max-width: 65%;
 
-          /* 已获取的文本链接（视频/资源文件） */
-          .fetched-url-text {
-            font-size: 12px;
-            color: var(--el-text-color-secondary);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 260px;
-          }
-
           /* 云盘链接（a 标签） */
           .cloud-link {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 200px;
+            max-width: 260px;
             font-size: 13px;
             padding: 0 0 2px;
             border-bottom: 1px solid var(--el-color-primary);
@@ -595,16 +594,9 @@ const handleClose = () => {
     flex-shrink: 0;
     border-left: 1px solid var(--el-border-color-light);
     padding-left: 20px;
+    padding-right: 20px;
     max-height: 50vh;
     overflow-y: auto;
-
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: var(--el-border-color-darker, rgba(255, 255, 255, 0.08));
-      border-radius: 4px;
-    }
 
     .upload-form {
       .upload-form-title {
@@ -614,6 +606,7 @@ const handleClose = () => {
         display: flex;
         align-items: center;
         gap: 6px;
+        color: var(--el-text-color-primary);
       }
 
       /* Element Plus 表单样式微调 */
@@ -627,26 +620,6 @@ const handleClose = () => {
         font-weight: 500;
       }
 
-      :deep(.el-select) {
-        width: 100%;
-      }
-
-      /* 文件上传区域 */
-      .upload-file-wrap {
-        width: 100%;
-      }
-
-      .file-name {
-        margin-top: 6px;
-        font-size: 12px;
-        word-break: break-all;
-        color: var(--el-text-color-secondary);
-        padding: 4px 8px;
-        background: var(--el-fill-color-lighter, rgba(255, 255, 255, 0.03));
-        border-radius: 4px;
-      }
-
-      /* 密码开关行（文字 + switch） */
       .secret-toggle-row {
         display: flex;
         align-items: center;

@@ -181,7 +181,7 @@ import {
 import { getRoleLabel } from '@/utils/enums/role'
 import { useUserStore } from '@/store/modules/user'
 import { modifyUserInfo } from '@/api/system/user'
-import { encodeId } from '@/utils/id-obfuscator'
+import { encodeId } from '@/utils/sqids'
 
 interface UserInfo {
   userId: number

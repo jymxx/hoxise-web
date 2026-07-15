@@ -90,7 +90,7 @@
           </div>
           <el-form :model="uploadForm" label-position="top">
             <el-form-item label="资源类型">
-              <el-select v-model="uploadForm.resourceType" placeholder="选择资源类型">
+              <el-select v-model="uploadForm.resourceType" placeholder="选择资源类型" :teleported="false">
                 <el-option label="在线视频(OSS)" value="VIDEO" />
                 <el-option label="资源文件(OSS)" value="RESOURCE_FILE" />
                 <el-option label="云盘链接" value="CLOUD_DRIVE" />
@@ -415,202 +415,381 @@ const handleClose = () => {
 }
 </script>
 
-<!-- el-dialog 样式覆盖 -->
 <style lang="scss">
-.resource-list-dialog .el-dialog__title {
-  font-size: 20px;
-  font-weight: 600;
+.resource-list-dialog {
+  --el-dialog-bg-color: #1e2332;
+  --el-dialog-border-radius: 16px;
+
+  /* 头部 */
+  .el-dialog__header {
+    padding: 20px 24px 0;
+  }
+  .el-dialog__title {
+    color: #92c8dc;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  /* 关闭按钮 */
+  .el-dialog__headerbtn {
+    top: 20px;
+    right: 20px;
+  }
+  .el-dialog__close {
+    color: #888;
+    font-size: 18px;
+    &:hover {
+      color: #1abc9c;
+    }
+  }
+
+  /* 主体 / 底部 */
+  .el-dialog__body {
+    padding: 20px 24px;
+  }
+  .el-dialog__footer {
+    padding: 16px 24px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* — el-select 深色 — */
+  .el-select .el-select__wrapper {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: none;
+    min-height: 36px;
+    .el-select__placeholder,
+    .el-select__selected-item {
+      color: #e0e0e0;
+    }
+    .el-select__placeholder.is-transparent {
+      color: #888;
+    }
+    &:hover {
+      border-color: rgba(26, 188, 156, 0.4);
+    }
+    &.is-focus {
+      border-color: #1abc9c;
+      box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.15);
+    }
+  }
+  .el-select__popper {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: #1a1f2e;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    .el-select-dropdown__item {
+      color: #ccc;
+      background: transparent;
+      min-height: 36px;
+      &:hover {
+        background: rgba(26, 188, 156, 0.15);
+        color: #fff;
+      }
+      &.selected {
+        color: #1abc9c;
+        font-weight: 600;
+        background: rgba(26, 188, 156, 0.1);
+      }
+    }
+  }
+
+  /* — el-input 深色 — */
+  .el-input .el-input__wrapper {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: none;
+    .el-input__inner {
+      color: #e0e0e0;
+    }
+    &:hover {
+      border-color: rgba(26, 188, 156, 0.4);
+    }
+    &.is-focus {
+      border-color: #1abc9c;
+      box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.15);
+    }
+  }
+
+  /* — el-switch — */
+  .el-switch {
+    --el-switch-on-color: #1abc9c;
+    --el-switch-off-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* — 资源类型标签 — */
+  .el-tag {
+    border-radius: 6px;
+    font-weight: 500;
+    border: none;
+    &.el-tag--success {
+      background: rgba(26, 188, 156, 0.15);
+      color: #1abc9c;
+    }
+    &.el-tag--info {
+      background: rgba(255, 255, 255, 0.08);
+      color: #aaa;
+    }
+    &.el-tag--primary {
+      background: rgba(64, 158, 255, 0.15);
+      color: #409eff;
+    }
+    &.el-tag--warning {
+      background: rgba(230, 162, 60, 0.15);
+      color: #e6a23c;
+    }
+  }
+
+  /* — 按钮深色 — */
+  .el-button {
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.2s;
+    &--primary {
+      background: #1abc9c;
+      border-color: #1abc9c;
+      color: #fff;
+      &:hover {
+        background: #16a085;
+        border-color: #16a085;
+      }
+    }
+    &--success {
+      background: rgba(26, 188, 156, 0.15);
+      border-color: rgba(26, 188, 156, 0.3);
+      color: #1abc9c;
+      &:hover {
+        background: #1abc9c;
+        border-color: #1abc9c;
+        color: #fff;
+      }
+    }
+    &--danger {
+      background: rgba(245, 108, 108, 0.1);
+      border-color: rgba(245, 108, 108, 0.2);
+      color: #f56c6c;
+      &:hover {
+        background: #f56c6c;
+        border-color: #f56c6c;
+        color: #fff;
+      }
+    }
+    &:not(.el-button--primary):not(.el-button--success):not(.el-button--danger) {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #ccc;
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+
+  /* — 自定义滚动条（资源列表 + 表单区域） — */
+  .body-left::-webkit-scrollbar,
+  .body-right::-webkit-scrollbar,
+  .resource-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  .body-left::-webkit-scrollbar-track,
+  .body-right::-webkit-scrollbar-track,
+  .resource-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 3px;
+  }
+  .body-left::-webkit-scrollbar-thumb,
+  .body-right::-webkit-scrollbar-thumb,
+  .resource-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
 }
 </style>
 
 <style scoped lang="scss">
-/* ===== 主容器：左右分栏 ===== */
+/* 左右分栏 */
 .dialog-body-split {
   display: flex;
-  height: 380px;
-  gap: 20px;
+  height: 400px;
+  gap: 24px;
+}
 
-  /* ===== 左侧：资源列表 ===== */
-  .body-left {
-    flex: 1;
-    overflow-y: auto;
+/* ===== 左：资源列表 ===== */
+.body-left {
+  flex: 1;
+  overflow-y: auto;
 
-    /* 空状态 */
-    .section-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 100px 0;
-      color: var(--el-text-color-secondary);
-      font-size: 15px;
-
-      &::before {
-        content: '📦';
-        font-size: 40px;
-        opacity: 0.5;
-      }
-    }
-
-    /* 资源列表容器 */
-    .resource-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 50vh;
-      overflow-y: auto;
-      padding-right: 4px;
-
-      /* 单行资源项 */
-      .resource-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 14px;
-        border-radius: 8px;
-        background: var(--el-fill-color-lighter, rgba(255, 255, 255, 0.03));
-        border: 1px solid transparent;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background: var(--el-fill-color-light, rgba(255, 255, 255, 0.06));
-          border-color: var(--el-border-color-light, rgba(255, 255, 255, 0.08));
-        }
-
-        /* 标签 + 名称 + 密码标记 */
-        .resource-left {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex: 1;
-          min-width: 0;
-          height: 35px;
-
-          .resource-type-tag {
-            font-size: 13px;
-            flex-shrink: 0;
-          }
-
-          .resource-name {
-            font-size: 16px;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 180px;
-          }
-
-          /* 编辑模式下的名称输入框 */
-          .edit-name-input {
-            width: 140px;
-          }
-        }
-
-        /* 操作按钮 / 链接 */
-        .resource-right {
-          flex-shrink: 0;
-          margin-left: 12px;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          max-width: 65%;
-
-          /* 云盘链接（a 标签） */
-          .cloud-link {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 260px;
-            font-size: 13px;
-            padding: 0 0 2px;
-            border-bottom: 1px solid var(--el-color-primary);
-            color: var(--el-color-primary);
-            text-decoration: none;
-            transition: opacity 0.2s;
-            margin-right: 4px;
-
-            &:hover {
-              opacity: 0.75;
-            }
-          }
-
-          /* 编辑模式下的链接输入框 */
-          .edit-url-input {
-            font-size: 12px;
-            max-width: 200px;
-            margin-right: 4px;
-          }
-
-          :deep(.el-button) {
-            & + .el-button {
-              margin-left: 0;
-            }
-          }
-        }
-      }
+  /* 空状态占位 */
+  .section-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 100px 0;
+    color: #888;
+    font-size: 15px;
+    &::before {
+      content: '📦';
+      font-size: 40px;
+      opacity: 0.5;
     }
   }
 
-  /* ===== 右侧：上传资源表单 ===== */
-  .body-right {
-    width: 340px;
-    flex-shrink: 0;
-    border-left: 1px solid var(--el-border-color-light);
-    padding-left: 20px;
-    padding-right: 20px;
+  /* 资源列表容器 */
+  .resource-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     max-height: 50vh;
     overflow-y: auto;
+    padding-right: 4px;
 
-    .upload-form {
-      .upload-form-title {
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 16px;
+    /* 单条资源 */
+    .resource-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: all 0.25s ease;
+
+      &:hover {
+        background: rgba(26, 188, 156, 0.06);
+        border-color: rgba(26, 188, 156, 0.15);
+      }
+
+      /* 左侧：标签 + 名称 */
+      .resource-left {
         display: flex;
         align-items: center;
-        gap: 6px;
-        color: var(--el-text-color-primary);
-      }
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+        height: 35px;
 
-      /* Element Plus 表单样式微调 */
-      :deep(.el-form-item) {
-        margin-bottom: 14px;
-      }
-
-      :deep(.el-form-item__label) {
-        font-size: 12px;
-        padding-bottom: 4px;
-        font-weight: 500;
-      }
-
-      .secret-toggle-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        .secret-toggle-label {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 12px;
-          line-height: 1;
+        .resource-type-tag {
+          font-size: 13px;
+          flex-shrink: 0;
+        }
+        .resource-name {
+          font-size: 15px;
+          font-weight: 600;
+          color: #e8e8e8;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 180px;
+        }
+        .edit-name-input {
+          width: 140px;
+          :deep(.el-input__wrapper) {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: none;
+          }
         }
       }
 
-      /* 表单底部按钮组 */
-      .upload-form-actions {
+      /* 右侧：操作按钮 / 链接 */
+      .resource-right {
+        flex-shrink: 0;
+        margin-left: 12px;
         display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 8px;
-        padding-top: 12px;
+        align-items: center;
+        gap: 6px;
+        max-width: 65%;
+
+        .cloud-link {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 260px;
+          font-size: 14px;
+          padding: 0 0 2px;
+          border-bottom: 1px solid #1abc9c;
+          color: #1abc9c;
+          text-decoration: none;
+          transition: opacity 0.2s;
+          margin-right: 4px;
+          &:hover {
+            opacity: 0.75;
+          }
+        }
+        .edit-url-input {
+          font-size: 12px;
+          max-width: 200px;
+          margin-right: 4px;
+        }
       }
     }
   }
 }
 
-/* ===== 弹窗底部按钮 ===== */
+/* ===== 右：上传资源表单 ===== */
+.body-right {
+  width: 340px;
+  flex-shrink: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  padding-left: 20px;
+  padding-right: 20px;
+  max-height: 50vh;
+  overflow-y: auto;
+
+  .upload-form {
+    .upload-form-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #e0e0e0;
+    }
+
+    :deep(.el-form-item) {
+      margin-bottom: 14px;
+    }
+    :deep(.el-form-item__label) {
+      font-size: 13px;
+      padding-bottom: 4px;
+      font-weight: 500;
+      color: #ccc !important;
+    }
+
+    .secret-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      .secret-toggle-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: #ccc;
+      }
+    }
+
+    .upload-form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+    }
+  }
+}
+
+/* ===== 底部按钮栏 ===== */
 .dialog-footer {
   display: flex;
   justify-content: space-between;

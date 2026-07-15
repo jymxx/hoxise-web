@@ -428,34 +428,136 @@ onMounted(() => {
   }
 }
 
-/* 筛选 popover 样式 */
+/* ===== 筛选 popover 样式（深色主题） ===== */
 .filter-popover {
-  /* 筛选面板内容 */
-  .filter-panel {
-    padding: 18px;
-    background-color: #fff;
-    border-radius: 12px;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
 
-    /* 单个筛选项 */
+  .filter-panel {
+    padding: 20px;
+    background: linear-gradient(145deg, #1e2332, #181c28);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+    /* 筛选项 */
     .filter-item {
-      margin-bottom: 28px;
+      margin-bottom: 24px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
-    /* 筛选标签标题 */
+    /* 筛选标签 */
     .filter-label {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 15px;
-      color: #333;
-      font-weight: 600;
+      gap: 8px;
+      font-size: 14px;
+      color: #e0e0e0;
+      font-weight: 500;
 
       .el-icon {
-        color: #1abc9c; // 图标绿色
-        font-size: 18px;
+        color: #1abc9c;
+        font-size: 16px;
+      }
+    }
+
+    /* ===== el-select 深色 ===== */
+    :deep(.el-select) {
+      .el-select__wrapper {
+        background-color: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        box-shadow: none;
+        min-height: 38px;
+        padding: 0 12px;
+        transition: border-color 0.2s;
+
+        .el-select__placeholder,
+        .el-select__selected-item {
+          color: #e0e0e0;
+        }
+      }
+
+      /* 下拉选项面板 */
+      .el-select__popper {
+        margin-top: 4px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        background: #1a1f2e;
+
+        .el-select-dropdown__item {
+          color: #ccc;
+          background: transparent;
+          min-height: 36px;
+
+          &:hover {
+            background: rgba(26, 188, 156, 0.15);
+            color: #fff;
+          }
+        }
+      }
+    }
+
+    /* ===== el-radio-group 深色 ===== */
+    :deep(.el-radio-group) {
+      display: flex;
+      gap: 8px;
+
+      .el-radio-button {
+        --el-radio-button-checked-bg-color: #1abc9c;
+        --el-radio-button-checked-border-color: #1abc9c;
+        --el-radio-button-checked-text-color: #fff;
+
+        .el-radio-button__inner {
+          background: rgba(255, 255, 255, 0.06);
+          color: #aaa;
+          border-radius: 10px !important;
+          padding: 8px 18px;
+          font-size: 13px;
+          box-shadow: none;
+
+          &:hover {
+            color: #fff;
+            border-color: rgba(26, 188, 156, 0.4);
+          }
+        }
+
+        &.is-active .el-radio-button__inner {
+          background: #1abc9c;
+          border-color: #1abc9c;
+          color: #fff;
+          box-shadow: none;
+        }
+      }
+    }
+
+    /* ===== el-checkbox 深色 ===== */
+    :deep(.not-matched-checkbox) {
+      .el-checkbox__input {
+        .el-checkbox__inner {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 255, 255, 0.2);
+          border-radius: 4px;
+          width: 16px;
+          height: 16px;
+        }
+        &.is-checked .el-checkbox__inner {
+          background: #1abc9c;
+          border-color: #1abc9c;
+        }
+        .el-checkbox__inner::after {
+          border-color: #fff;
+        }
+      }
+      .el-checkbox__label {
+        color: #ccc;
+        font-size: 14px;
       }
     }
 
@@ -463,11 +565,41 @@ onMounted(() => {
     .filter-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 16px;
-      margin-top: 28px;
-      padding-top: 20px;
-      border-top: 1px solid #e0e0e0; // 分隔线
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+      .el-button {
+        border-radius: 10px;
+        font-size: 13px;
+        padding: 8px 20px;
+
+        &:first-child {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 255, 255, 0.1);
+          color: #aaa;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+          }
+        }
+      }
     }
+  }
+}
+</style>
+
+<!-- 非 scoped：覆盖 el-popover 默认白色边框/箭头（teleport 到 body） -->
+<style lang="scss">
+.el-popper.is-light.filter-popover {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  .el-popper__arrow::before {
+    display: none !important;
   }
 }
 </style>

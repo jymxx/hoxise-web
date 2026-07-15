@@ -264,3 +264,15 @@ const handleLogout = async () => {
   }
 }
 </style>
+
+<!-- 非 scoped：覆盖 el-dropdown popper 默认为深色主题 -->
+<style lang="scss">
+.el-popper.is-light.user-dropdown-popper {
+  background: linear-gradient(135deg, rgba(26, 37, 47, 0.98) 0%, rgba(44, 62, 80, 0.98) 100%) !important;
+  border: 1px solid rgba(105, 208, 240, 0.25) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 8px 40px rgba(252, 181, 236, 0.15),
+    0 0 0 1px rgba(142, 26, 188, 0.1) !important;
+}
+</style>

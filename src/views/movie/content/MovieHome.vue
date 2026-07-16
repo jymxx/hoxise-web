@@ -5,7 +5,7 @@
       <!-- <AiChat @go-detail="emitDetail" /> -->
 
       <!-- 影视卡片展示 -->
-      <MovieCard @go-detail="emit('go-detail', $event)" @go-allMovie="emit('go-allMovie', $event)" />
+      <MovieCard @go-detail="emitDetail" @go-allMovie="emit('go-allMovie', $event)" />
     </div>
   </div>
 </template>

@@ -119,33 +119,6 @@
               </div>
               <div class="info-value">【开发中】</div>
             </div>
-            <!-- DB数据来源 -->
-            <div class="info-card source-card">
-              <div class="info-label">
-                <el-icon class="label-icon"><DataLine /></el-icon>
-                DB数据来源 (主要)
-              </div>
-              <div class="info-value source-value">
-                <span>Bangumi 番组计划 </span>
-                <a href="https://bangumi.tv/" target="_blank" class="source-link">
-                  <el-icon><Link /></el-icon>
-                  https://bangumi.tv/
-                </a>
-              </div>
-            </div>
-            <div class="info-card source-card">
-              <div class="info-label">
-                <el-icon class="label-icon"><DataLine /></el-icon>
-                DB数据来源
-              </div>
-              <div class="info-value source-value">
-                <span>The Movie Database </span>
-                <a href="https://www.themoviedb.org/" target="_blank" class="source-link">
-                  <el-icon><Link /></el-icon>
-                  https://www.themoviedb.org/
-                </a>
-              </div>
-            </div>
           </div>
         </transition>
       </div>
@@ -175,7 +148,6 @@ import {
   CopyDocument,
   MoreFilled,
   ArrowDown,
-  DataLine,
   Message,
 } from '@element-plus/icons-vue'
 import { getRoleLabel } from '@/utils/enums/role'
@@ -510,28 +482,6 @@ $text-muted: #6a6a8a;
     .info-value {
       font-size: 14px;
     }
-  }
-}
-
-// 数据来源链接
-.source-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: linear-gradient(rgba($primary, 0.08), rgba($secondary, 0.08));
-  border-radius: 10px;
-  border: 1px solid rgba($primary, 0.15);
-  color: $primary;
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: linear-gradient(rgba($primary, 0.15), rgba($secondary, 0.15));
-    border-color: rgba($primary, 0.3);
-    color: $secondary;
   }
 }
 

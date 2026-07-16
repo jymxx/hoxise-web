@@ -39,7 +39,7 @@ export const useUIStore = defineStore('ui', () => {
   // ========== 用户设置 有默认值 ==========
   const settings = ref<UserSettings>({
     enableClickEffect: true,
-    enableBgEffect: true,
+    enableBgEffect: false,
     enableSleekLineCursor: false,
     enableAnimation: true,
   })

@@ -12,6 +12,10 @@
       <el-icon class="button-icon"><FolderOpened /></el-icon>
       <span class="button-text">资源列表</span>
     </el-button>
+    <el-button v-hasRole="['manager']" type="primary" size="large" class="share-button" @click="handleShare">
+      <el-icon class="button-icon"><Share /></el-icon>
+      <span class="button-text">分享</span>
+    </el-button>
   </div>
 
   <!-- 资源列表弹窗 -->
@@ -35,7 +39,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { VideoPlay, Search, FolderOpened } from '@element-plus/icons-vue'
+import { VideoPlay, Search, FolderOpened, Share } from '@element-plus/icons-vue'
+import { ElMessage, ElNotification } from 'element-plus'
+import { encodeRouteId } from '@/utils/sqids'
 import { checkRole } from '@/utils/permission'
 import { hasCatalogExtraInfo } from '@/api/movie/movieCatalogExtra'
 import { useResourceAction } from '@/composables/useMovieResourceAction.ts'
@@ -110,6 +116,19 @@ const handleQuickPlay = async () => {
   currentVideoUrl.value = url
   currentVideoTitle.value = videoResource.showName
   showVideoPlayer.value = true
+}
+
+// 分享
+const handleShare = () => {
+  if (!props.catalogId) {
+    ElMessage.error('数据错误')
+    return
+  }
+  const code = encodeRouteId(Number(props.catalogId))
+  const baseUrl = import.meta.env.VITE_ROOT_WEBSITE_URL
+  const url = `${baseUrl}/movie/detail/${code}`
+  navigator.clipboard.writeText(url)
+  ElNotification.success('链接已复制')
 }
 
 onMounted(() => {
@@ -199,6 +218,21 @@ onMounted(() => {
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(90, 127, 140, 0.45);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    &.share-button {
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+      border: none;
+      box-shadow: 0 4px 15px rgba(230, 126, 34, 0.35);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(230, 126, 34, 0.45);
       }
 
       &:active {

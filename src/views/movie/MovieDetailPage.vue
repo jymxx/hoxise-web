@@ -14,13 +14,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import MovieDetail from './content/MovieDetail.vue'
 import { detail as getCatalogDetail } from '@/api/movie/movieCatalog'
-import { decodeId } from '@/utils/sqids.ts'
+import { decodeRouteId } from '@/utils/sqids.ts'
 
 const route = useRoute()
 const router = useRouter()
 
 const rawCode = String(route.params.catalogId)
-const catalogId = decodeId(rawCode)
+const catalogId = decodeRouteId(rawCode)
 const bangumiId = ref<string | undefined>(undefined)
 const resolved = ref(false)
 

@@ -4,7 +4,7 @@
       <div class="ai-response-box">
         <!-- Header -->
         <div class="ai-response-header">
-          <img src="/images/icon/deepseek_log.png" class="ai-icon" />
+          <!-- <img src="/images/icon/deepseek_log.png" class="ai-icon" /> -->
           <h3>DeepSeek 助手</h3>
 
           <!-- 模式切换 -->
@@ -12,7 +12,7 @@
             <el-tooltip placement="bottom">
               <template #content>
                 <div>
-                  RAG 模式 (模型 deepseek-reasoner): 检索增强生成，向大模型提供本地知识库作为数据集<br>
+                  RAG 模式 (模型 deepseek-reasoner): 检索增强生成，向大模型提供本地知识库作为数据集<br />
                   深度思考 (模型 deepseek-reasoner): 由大模型自行根据输入文本分析推荐
                 </div>
               </template>
@@ -33,12 +33,7 @@
 
           <!-- 新对话按钮 -->
           <div class="right-action">
-            <el-button
-              type="info"
-              size="small"
-              plain
-              @click="startNewConversation"
-              class="new-conversation-btn">
+            <el-button type="info" size="small" plain @click="startNewConversation" class="new-conversation-btn">
               新对话
             </el-button>
           </div>
@@ -100,11 +95,7 @@
               class="ai-movie-card"
               @click="viewMovieDetail(movie.catalogid)">
               <div class="movie-poster">
-                <el-image
-                  :src="movie.posterUrl"
-                  :alt="movie.name"
-                  fit="cover"
-                  class="image-slot">
+                <el-image :src="movie.posterUrl" :alt="movie.name" fit="cover" class="image-slot">
                   <template #placeholder>
                     <div class="image-slot"><i class="el-icon-loading"></i></div>
                   </template>
@@ -254,16 +245,16 @@ const extractAndLoadMovies = async () => {
     const cleanIdString = idMatch[0].replace(/^[【]|[】]$/g, '')
     const movieIds = cleanIdString
       .split(/[,\,]/)
-      .map(id => parseInt(id.trim()))
-      .filter(id => !isNaN(id))
+      .map((id) => parseInt(id.trim()))
+      .filter((id) => !isNaN(id))
 
     if (movieIds.length > 0) {
-      const moviePromises = movieIds.map(id => getMovieDetail(id))
+      const moviePromises = movieIds.map((id) => getMovieDetail(id))
       const movieResponses = await Promise.all(moviePromises)
       aiRecommendedMovies.value = movieResponses
-        .filter(res => res.code === 200)
-        .map(res => res.data)
-        .filter(movie => movie)
+        .filter((res) => res.code === 200)
+        .map((res) => res.data)
+        .filter((movie) => movie)
     }
   }
 }
@@ -595,11 +586,26 @@ onMounted(() => {
     }
 
     @keyframes textColorShift {
-      0% { color: #6cb3ff; text-shadow: 0 0 3px #6cb3ff; }
-      25% { color: #ff6b6b; text-shadow: 0 0 3px #ff6b6b; }
-      50% { color: #00ff7f; text-shadow: 0 0 3px #00ff7f; }
-      75% { color: #ffa500; text-shadow: 0 0 3px #ffa500; }
-      100% { color: #9370db; text-shadow: 0 0 3px #9370db; }
+      0% {
+        color: #6cb3ff;
+        text-shadow: 0 0 3px #6cb3ff;
+      }
+      25% {
+        color: #ff6b6b;
+        text-shadow: 0 0 3px #ff6b6b;
+      }
+      50% {
+        color: #00ff7f;
+        text-shadow: 0 0 3px #00ff7f;
+      }
+      75% {
+        color: #ffa500;
+        text-shadow: 0 0 3px #ffa500;
+      }
+      100% {
+        color: #9370db;
+        text-shadow: 0 0 3px #9370db;
+      }
     }
 
     .ai-generating-overlay {
@@ -629,8 +635,12 @@ onMounted(() => {
     }
 
     @keyframes rotation {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
     }
   }
 }

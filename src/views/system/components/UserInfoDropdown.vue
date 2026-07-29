@@ -67,7 +67,7 @@ const SETTINGS_CONFIG = [
 const getSettingValue = (key: keyof UserSettings) => uiStore.settings[key]
 
 // 切换设置
-const toggleSetting = (key: keyof UserSettings, value: boolean | string) => {
+const toggleSetting = (key: keyof UserSettings, value: any) => {
   uiStore.updateSetting(key, value)
 }
 

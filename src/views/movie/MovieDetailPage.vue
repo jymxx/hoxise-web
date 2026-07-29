@@ -14,7 +14,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import MovieDetail from './content/MovieDetail.vue'
 import { detail as getCatalogDetail } from '@/api/movie/movieCatalog'
-import { decodeRouteId } from '@/utils/sqids.ts'
+import { decodeRouteId } from '@/utils/sqids'
 
 const route = useRoute()
 const router = useRouter()

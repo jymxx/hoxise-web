@@ -15,6 +15,7 @@ export interface UserInfoVO {
   nickName: string
   phoneNumber: string
   roles: string[]
+  permissions: string[]
   avatar: string
 }
 

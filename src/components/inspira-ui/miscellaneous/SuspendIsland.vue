@@ -7,7 +7,7 @@ interface Props {
   class?: string
   title?: string
   height?: number
-  gradientText?: boolean  // 是否启用渐变文字
+  gradientText?: boolean // 是否启用渐变文字
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -51,9 +51,9 @@ onUnmounted(() => {
     <div
       :class="
         cn(
-          'bg-primary/90 border-radius fixed top-10 left-1/2 z-999 -translate-x-1/2 backdrop-blur-lg suspend-island',
+          'bg-primary/90 border-radius fixed top-8 left-1/2 z-999 -translate-x-1/2 backdrop-blur-lg suspend-island',
           $props.class,
-          { 'gradient-text': props.gradientText }
+          { 'gradient-text': props.gradientText },
         )
       "
       @click="() => (open = !open)">
@@ -74,7 +74,7 @@ onUnmounted(() => {
         </header>
         <motion.div
           v-if="isSlotAvailable"
-          class="mb-2 flex h-full max-h-60 flex-col gap-1 overflow-y-auto px-4 text-sm">
+          class="suspend-scroll mb-2 flex h-full max-h-60 flex-col gap-1 overflow-y-auto px-4 text-sm">
           <slot />
         </motion.div>
       </motion.div>
@@ -90,14 +90,7 @@ onUnmounted(() => {
 /* 渐变文字效果 */
 .gradient-text #motion-id {
   color: transparent;
-  background-image: linear-gradient(
-    to right,
-    #fbbf24,
-    #f97316,
-    #ef4444,
-    #f97316,
-    #fbbf24
-  );
+  background-image: linear-gradient(to right, #fbbf24, #f97316, #ef4444, #f97316, #fbbf24);
   background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -114,6 +107,15 @@ onUnmounted(() => {
   100% {
     background-position: 0% 50%;
   }
+}
+
+/* 隐藏内容区域滚动条，保留滚动功能，避免展开/收起时滚动条闪烁 */
+.suspend-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.suspend-scroll::-webkit-scrollbar {
+  display: none;
 }
 </style>
 

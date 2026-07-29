@@ -5,17 +5,17 @@
       <!-- <AiChat @go-detail="emitDetail" /> -->
 
       <!-- 影视卡片展示 -->
-      <MovieCard @go-detail="emitDetail" @go-allMovie="emit('go-allMovie', $event)" />
+      <HomePageShow @go-detail="emitDetail" @go-allMovie="emit('go-allMovie', $event)" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import MovieCard from './home/MovieCard.vue'
+import HomePageShow from './home/HomePageShow.vue'
 
 // Emits
 const emit = defineEmits<{
-  'go-detail': [id: number]
+  'go-detail': [params: { catalogId: number; bangumiId?: number }]
   'go-allMovie': [key: string]
 }>()
 

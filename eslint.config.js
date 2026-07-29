@@ -1,65 +1,179 @@
-import { defineConfig } from 'eslint-define-config'
+import eslint from "@eslint/js";
+import globals from "globals";
+import * as typescriptEslint from "typescript-eslint";
+import pluginVue from "eslint-plugin-vue";
+import vueParser from "vue-eslint-parser";
+import configPrettier from "eslint-config-prettier";
+import fs from "node:fs";
 
-export default defineConfig({
-  root: true,
-  env: {
-    browser: true,
-    es2021: true,
-    node: true,
-  },
-  parser: 'vue-eslint-parser',
-  parserOptions: {
-    parser: '@typescript-eslint/parser',
-    ecmaVersion: 2020,
-    sourceType: 'module',
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:vue/vue3-recommended',
-    'prettier',
-  ],
-  plugins: ['@typescript-eslint', 'vue', 'prettier'],
-  rules: {
-    // ========== 代码质量 ==========
-    'no-console': 'warn', // 禁止 console
-    'no-debugger': 'warn', // 禁止 debugger
-    'no-unused-vars': 'off', // 关闭默认规则，用 TS 版本
-    '@typescript-eslint/no-unused-vars': ['warn', {
-      argsIgnorePattern: '^_',
-      varsIgnorePattern: '^_',
-    }], // 未使用变量警告（_开头允许）
-    '@typescript-eslint/no-explicit-any': 'off', // 允许 any 类型
-    '@typescript-eslint/explicit-module-boundary-types': 'off', // 不强制要求函数返回类型
+let autoImportGlobals: Record<string, "readonly"> = {};
+try {
+  autoImportGlobals =
+    JSON.parse(fs.readFileSync("./.eslintrc-auto-import.json", "utf-8")).globals || {};
+} catch (error) {
+  console.warn("Could not load auto-import globals", error);
+}
 
-    // ========== Vue 规范 ==========
-    'vue/multi-word-component-names': 'off', // 关闭多词组件名要求
-    'vue/require-default-prop': 'off', // 不强制要求 prop 默认值
-    'vue/no-setup-props-destructure': 'off', // 允许解构 props
-
-    // ========== 代码格式 ==========
-    'prettier/prettier': [
-      'warn',
-      {
-        semi: false, // 无分号
-        singleQuote: true, // 单引号
-        trailingComma: 'all', // 末尾逗号
-        printWidth: 100, // 行宽 100
-        tabWidth: 2, // 2 空格缩进
-        useTabs: false, // 空格缩进
-        arrowParens: 'always', // 箭头函数括号
-        endOfLine: 'auto', // 自动换行
-        singleAttributePerLine: false, // HTML 属性每行一个（false 表示多个属性在同一行）
-      },
+export default [
+  {
+    ignores: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/*.min.*",
+      "**/auto-imports.d.ts",
+      "**/components.d.ts",
+      "types/**/*.d.ts",
     ],
   },
-  globals: {
-    defineProps: 'readonly',
-    defineEmits: 'readonly',
-    defineExpose: 'readonly',
-    withDefaults: 'readonly',
+
+  eslint.configs.recommended,
+  ...pluginVue.configs["flat/recommended"],
+  ...typescriptEslint.configs.recommended,
+
+  {
+    files: ["**/*.{js,mjs,cjs,ts,mts,cts,vue}"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2022,
+        ...autoImportGlobals,
+        __APP_INFO__: "readonly",
+      },
+    },
+    plugins: {
+      vue: pluginVue,
+      "@typescript-eslint": typescriptEslint.plugin,
+    },
+    rules: {
+      // 基础规则
+      "no-console": ["error", { allow: ["warn", "error", "debug"] }],
+      "no-debugger": "error",
+
+      // ES6+ 规则
+      "prefer-const": "error",
+      "no-var": "error",
+      "object-shorthand": "error",
+
+      // 最佳实践
+      eqeqeq: ["error", "always", { null: "ignore" }],
+      "no-multi-spaces": "error",
+      "no-multiple-empty-lines": ["error", { max: 1, maxBOF: 0, maxEOF: 0 }],
+
+      // 禁用与 TypeScript 冲突的规则
+      "no-unused-vars": "off",
+      "no-undef": "off",
+      "no-redeclare": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+    },
   },
-})
+
+  {
+    files: ["**/*.vue"],
+    languageOptions: {
+      parser: vueParser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        parser: typescriptEslint.parser,
+        extraFileExtensions: [".vue"],
+        tsconfigRootDir: __dirname,
+      },
+    },
+    rules: {
+      "vue/multi-word-component-names": "off",
+      "vue/no-v-html": "off",
+      "vue/require-default-prop": "off",
+      "vue/require-explicit-emits": "error",
+      "vue/no-unused-vars": "error",
+      "vue/no-mutating-props": "off",
+      "vue/valid-v-for": "warn",
+      "vue/no-template-shadow": "warn",
+      "vue/return-in-computed-property": "warn",
+      "vue/block-order": [
+        "error",
+        {
+          order: ["template", "script", "style"],
+        },
+      ],
+      "vue/html-self-closing": [
+        "error",
+        {
+          html: {
+            void: "always",
+            normal: "never",
+            component: "always",
+          },
+          svg: "always",
+          math: "always",
+        },
+      ],
+      "vue/component-name-in-template-casing": ["error", "PascalCase"],
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
+
+  {
+    files: ["**/*.{ts,tsx,mts,cts}"],
+    languageOptions: {
+      parser: typescriptEslint.parser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        project: "./tsconfig.eslint.json",
+        tsconfigRootDir: __dirname,
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/no-unused-expressions": "warn",
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          fixStyle: "separate-type-imports",
+          prefer: "type-imports",
+        },
+      ],
+      "@typescript-eslint/no-import-type-side-effects": "error",
+    },
+  },
+
+  {
+    files: ["**/*.d.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
+
+  {
+    files: ["**/components/CURD/**/*.{ts,vue}"],
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+
+  {
+    rules: {
+      ...configPrettier.rules,
+      "arrow-body-style": "off",
+      "prefer-arrow-callback": "off",
+    },
+  },
+];

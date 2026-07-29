@@ -12,7 +12,7 @@ export interface UserInfo {
   userName: string
   nickName: string
   roles: string[]
-  permissions?: string[]
+  permissions: string[]
   avatar: string
 }
 
@@ -52,7 +52,7 @@ export const useUserStore = defineStore('user', () => {
     name.value = info.userName
     nickName.value = info.nickName
     roles.value = info.roles
-    permissions.value = info.permissions ?? []
+    permissions.value = info.permissions
     avatar.value = info.avatar
   }
 
@@ -66,6 +66,7 @@ export const useUserStore = defineStore('user', () => {
       userName: result.userName,
       nickName: result.nickName,
       roles: result.roles,
+      permissions: result.permissions,
       avatar: result.avatar,
     })
   }

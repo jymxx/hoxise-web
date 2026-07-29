@@ -7,25 +7,12 @@ import request from '@/utils/request'
 const MODULE = '/movie/catalogExtra'
 
 /**
- * 资源类型枚举
- * 对应后端 MovieResourceTypeEnum
- */
-export enum MovieResourceTypeEnum {
-  /** 其他云盘存储，直链 */
-  CLOUD_DRIVE = 'CLOUD_DRIVE',
-  /** 视频 */
-  VIDEO = 'VIDEO',
-  /** 资源文件 */
-  RESOURCE_FILE = 'RESOURCE_FILE',
-}
-
-/**
  * 保存扩展信息
  * @param data 保存请求
  */
 export function saveCatalogExtra(data: {
   catalogId: number
-  resourceType: MovieResourceTypeEnum
+  resourceType: string
   fileId?: string
   cloudDriveUrl?: string
   showName: string

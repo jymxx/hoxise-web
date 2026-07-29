@@ -44,7 +44,7 @@
     </div>
 
     <!-- 灵动岛？ 雾 -->
-    <SuspendIsland title="提示：正在浏览他人数据" gradient-text class="island-custom" v-if="enableSuspendIsland">
+    <SuspendIsland title="提示：正在浏览他人数据" gradient-text v-if="enableSuspendIsland">
       <div class="my-3 flex flex-col gap-2">
         <a href="/"># 返回首页</a>
         <a v-if="!useUser.isLogin" @click.prevent="handleLogin" class="login-link"># 登录 </a>

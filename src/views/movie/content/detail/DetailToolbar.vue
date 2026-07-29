@@ -44,7 +44,7 @@ import { ElMessage, ElNotification } from 'element-plus'
 import { encodeRouteId } from '@/utils/sqids'
 import { checkRole } from '@/utils/permission'
 import { hasCatalogExtraInfo } from '@/api/movie/movieCatalogExtra'
-import { useResourceAction } from '@/composables/useMovieResourceAction.ts'
+import { useResourceAction } from '@/composables/useMovieResourceAction'
 import XgVideoPlayer from '@/components/XgVideoPlayer.vue'
 import ResourceListDialog from './ResourceListDialog.vue'
 
@@ -137,12 +137,14 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+/* 按钮组容器：flex水平排列，支持换行 */
 .action-buttons {
   display: flex;
   gap: 15px;
   margin-bottom: 30px;
   flex-wrap: wrap;
 
+  /* 所有基础按钮统一样式：圆角胶囊、大字号加粗、悬浮动效 */
   .el-button {
     border-radius: 25px;
     padding: 12px 28px;
@@ -153,13 +155,17 @@ onMounted(() => {
     align-items: center;
     gap: 8px;
 
+    /* 按钮内图标 */
     .button-icon {
       font-size: 18px;
     }
 
+    /* 按钮内文字 */
     .button-text {
       letter-spacing: 0.5px;
     }
+
+    /* ———— 各颜色按钮 ———— */
 
     &.play-button {
       background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
@@ -191,25 +197,6 @@ onMounted(() => {
       }
     }
 
-    &.ai-button {
-      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-      border: none;
-      box-shadow: 0 4px 15px rgba(155, 89, 182, 0.35);
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.45);
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-
-      .rotating {
-        animation: spin 1.5s linear infinite;
-      }
-    }
-
     &.resource-button {
       background: linear-gradient(135deg, #5a7f8c 0%, #4a6a7a 100%);
       border: none;
@@ -226,28 +213,19 @@ onMounted(() => {
     }
 
     &.share-button {
-      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+      background: linear-gradient(135deg, #d4a574 0%, #c08a5e 100%);
       border: none;
-      box-shadow: 0 4px 15px rgba(230, 126, 34, 0.35);
+      box-shadow: 0 4px 15px rgba(212, 165, 116, 0.35);
 
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(230, 126, 34, 0.45);
+        box-shadow: 0 6px 20px rgba(212, 165, 116, 0.45);
       }
 
       &:active {
         transform: translateY(0);
       }
     }
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
   }
 }
 </style>

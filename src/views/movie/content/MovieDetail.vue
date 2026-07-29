@@ -171,8 +171,8 @@ onMounted(() => {
   padding: 20px;
   overflow-y: auto;
   overflow-x: hidden;
-  margin-top: 40px;
-  padding-bottom: 40px;
+  margin-top: 55px;
+  padding-bottom: 55px;
   position: relative;
   z-index: 1;
 
